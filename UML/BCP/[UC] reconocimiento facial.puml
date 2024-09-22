@@ -1,0 +1,15 @@
+@startuml
+package org-bcp{
+    left to right direction
+    actor Usuario as U
+
+    rectangle "Verificacion" {
+        usecase "Registrarse" as regis
+        usecase "Verificacion Facial" as verif
+    }
+}
+
+U --> regis:<B> [001] Ingresar datos
+U --> verif:<B> [002] Verificar datos faciales
+}
+@endumld

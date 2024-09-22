@@ -1,0 +1,41 @@
+@startuml
+|Cliente|
+start
+:Iniciar sesión en la aplicación;
+:Seleccionar opción "Registrar nueva venta";
+
+|Sistema|
+:Solicitar datos del cliente;
+
+if (¿Cliente registrado?) then (Sí)
+    :Cargar datos del cliente;
+else (No)
+    :Solicitar registro de nuevo cliente;
+    |Cliente|
+    :Ingresar datos del nuevo cliente;
+    :Registrar cliente;
+    :Confirmar registro del cliente;
+endif
+
+|Sistema|
+:Solicitar productos de la venta;
+|Cliente|
+:Seleccionar productos y cantidades;
+
+|Sistema|
+:Calcular total de la venta;
+:Solicitar confirmación de venta;
+|Cliente|
+:Confirmar venta;
+
+|Sistema|
+:Registrar venta en la base de datos;
+:Actualizar stock;
+:Registar movimiento de stock;
+:Enviar comprobante;
+
+|Cliente|
+:Imprimir comprobante;
+:Finalizar operación;
+stop
+@enduml

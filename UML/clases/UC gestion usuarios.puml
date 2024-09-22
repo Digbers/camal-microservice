@@ -1,0 +1,34 @@
+@startuml
+actor "usuario" as cli
+actor "administrador" as adm
+left to right direction
+package "org-camal" {
+note "Gestión de usuarios y roles en el sistema" as N1
+
+    usecase "Registrarse en el sistema" as registrarse
+    usecase "Iniciar sesión" as login
+    usecase "Ver lista de usuarios" as verUsuarios
+    usecase "Agregar nuevo usuario" as agregarUsuario
+    usecase "Editar usuario" as editarUsuario
+    usecase "Eliminar usuario" as eliminarUsuario
+    usecase "Asignar roles a usuarios" as asignarRoles
+    usecase "Administrar permisos" as administrarPermisos
+
+    verUsuarios .. N1
+    agregarUsuario .. N1
+    editarUsuario .. N1
+    eliminarUsuario .. N1
+    asignarRoles .. N1
+    administrarPermisos .. N1
+}
+
+cli --> registrarse : [101]
+cli --> login : [102]
+cli --> verUsuarios : [103]
+adm --> agregarUsuario : [104]
+adm --> editarUsuario : [105]
+adm --> eliminarUsuario : [106]
+adm --> asignarRoles : [107]
+adm --> administrarPermisos : [108]
+
+@enduml

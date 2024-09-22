@@ -1,0 +1,213 @@
+@startuml
+
+package "org-camal" {
+    class Usuarios {
+        -idUsuario
+        -Nombre
+        -codigo
+        -contraseña
+        --metodos--
+    }
+    class Roles {
+        -idrol
+        -Nombre
+        --metodos--
+    }
+    class Permisos {
+        -idpermisos
+        -Nombre
+        --metodos--
+    }
+    class UsuariosXRoles {
+        -idUsuriosxroles
+        -idUsuario
+        -idRoles
+        --metodos--
+    }
+    class PermisosXRoles {
+        -idpermisosXRoles
+        -idPermisos
+        -idRoles
+        --metodos--
+    }
+
+    interface UsuariosMetodos{
+        + Registrarse()
+        + IniciarSesion()
+        + ValidarToken()
+    }
+    interface MetodosProductos{
+            + ListarProductos()
+            + CrearProducto()
+            + actualizarProducto()
+            + EliminarProducto()
+    }
+    class Productos {
+        -idProducto
+        -nombre
+        -descripcion
+        --metodos--
+    }
+    class Movimientos {
+        -idMovimiento
+        -idAlmacen
+        -tipoMovimiento
+        -idUsuario
+        --metodos--
+    }
+    class MovimientosDetalles {
+        -idMovimiento
+        -idProducto
+        -cantidad
+        -observacion
+        --metodos--
+    }
+    class Almacen {
+        -idAlmacen
+        -idEmpresa
+        -idAlmacenpadre
+        -nombre
+        -tipoCodigo
+        --metodos--
+    }
+    class AlmacenTipos {
+        -idAlmacentipo
+        -codigo
+        -descripcion
+    }
+    class ProductosXAlmacen {
+        -idProductosXAlmacen
+        -idAlmacen
+        -idProducto
+        -cantidad
+    }
+    class Empresas {
+        -idEmpresa
+        -empresaCodigo
+        -razonSocial
+        -ruc
+        -direccion
+        -departamento
+        -distrito
+        -provincia
+        -ubigeo
+        -telefono
+        -celular
+        -correo
+        -paginaWeb
+        -estado
+    }
+    class ComprobanteCabecera{
+        -idEmpresa
+        -idComprovanteV
+        -idCliente
+        -numero
+        -serie
+        -fechaEmision
+        -subtotal
+        -impuesto
+        -subtotal
+        -idComprobanteTipo
+        -usuCodigo(usuario de creacion)
+        -observaciones
+        -idMonedas
+    }
+    class ComprobanteDetalle{
+        -idEmpresa
+        -idComprovanteD
+        -idComprovanteV
+        -numero
+        -cantidad
+        -IdProducto
+        -precioUnitario
+        -subtotal
+        -descuento
+        -idusuario
+
+        }
+    class Cobros {
+        -idPagos
+        -idComprovanteV
+        -idFormaDeCobro
+        -fechaCancelacion
+        -fechaCreacion
+        -usuarioCreacion
+        -usuarioModificacion
+        -fechamodificacion
+        -monto
+        -idMoneda
+    }
+    class Documentos {
+        -idDocumentos
+        -codigo
+        -descripcion
+    }
+    class  Entidades {
+        -idEntidad
+        -idZona
+        -nombre
+        -idDocumentos
+        -numeroDocumento
+        -direccion
+        -telefono
+        -celular
+        -email
+        -activo
+        -apellidoPaterno
+        -apellidoMaterno
+        -sexo
+
+    }
+    class Zonas{
+        -idZona
+        -nombre
+        -ubicodigo
+        -departamento
+        -provincia
+        -distrito
+    }
+    class EntidadesTipos {
+        -idEmpresas
+        -codigo
+        -descripcion
+    }
+    class EntidadesXEntidadesTipos {
+        -idEntidadesXEntidadesTipos
+        -idEntidad
+        -codigoEntidadesTipos
+    }
+    class Monedas {
+        -idMonedas
+        -codigo
+        -descripcion
+    }
+    interface MetodosAlmacen{
+            + RegistrarAlmacen()
+            + EliminarAlmacen()
+            + ListarAlmacenes()
+        }
+    Usuarios --> UsuariosMetodos: implementa
+    Usuarios "1" --* "n*" UsuariosXRoles: composicion
+    UsuariosXRoles "n*" *-- "1" Roles : composicion
+    Roles "n*" --* "1" PermisosXRoles : composicion
+    PermisosXRoles "n*" *-- "1" Permisos : composicion
+
+    Almacen "1" *-- "n*" AlmacenTipos: compocision
+    Almacen "1" --* "n*" ProductosXAlmacen: composicion
+    Empresas "1" *-- "n*" Almacen : composicion
+    Empresas "1" o-- "n*" ComprobanteCabecera: agregacion
+    ComprobanteDetalle "n*" --* "1" ComprobanteCabecera : composicion
+    ComprobanteCabecera "1" *-- "n*" Cobros : composicion
+    ComprobanteCabecera "n*" --o "1" Entidades : agregacion
+    ComprobanteCabecera "n*" *-- "1" Monedas : compocision
+    Entidades "1" --* "n*" EntidadesXEntidadesTipos : compocision
+    EntidadesXEntidadesTipos "n*" *-- "1" EntidadesTipos
+    Documentos "1" --* "n*" Entidades: composicion
+    Entidades "n*" *-- "1" Zonas : compocision
+    Productos --> MetodosProductos: implementa
+    ProductosXAlmacen "n*" *-- "1" Productos: composicion
+    Movimientos "n*"--o "1" Usuarios: agregacion
+    MovimientosDetalles "n*" --* "1" Movimientos: compocision
+    Movimientos "n*" --* "1" Almacen: compocision
+
+@enduml

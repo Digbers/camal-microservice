@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="microservice-gateway" />
+        <module name="microservice-inventario" />
+        <module name="microservice-empresas" />
+        <module name="microservice-ventas" />
+        <module name="microservice-config" />
+        <module name="microservice-auth" />
+        <module name="microservice-finanzas" />
+        <module name="microservice-eureka" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="microservice-users" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="microservice-auth" options="-parameters" />
+      <module name="microservice-config" options="-parameters" />
+      <module name="microservice-empresas" options="-parameters" />
+      <module name="microservice-eureka" options="-parameters" />
+      <module name="microservice-finanzas" options="-parameters" />
+      <module name="microservice-gateway" options="-parameters" />
+      <module name="microservice-inventario" options="-parameters" />
+      <module name="microservice-users" options="-parameters" />
+      <module name="microservice-ventas" options="-parameters" />
+    </option>
+  </component>
+</project>

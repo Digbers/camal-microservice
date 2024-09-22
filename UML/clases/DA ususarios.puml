@@ -1,0 +1,68 @@
+@startuml
+|Usuario|
+start
+:Iniciar sesión en la aplicación;
+
+|Sistema|
+:Validar credenciales;
+if (¿Credenciales válidas?) then (Sí)
+    :Acceso permitido;
+    :Cargar lista de usuarios;
+else (No)
+    :Mostrar mensaje de error;
+    stop
+endif
+
+|Usuario|
+:Seleccionar "Agregar nuevo usuario";
+
+|Sistema|
+:Solicitar datos del nuevo usuario;
+|Usuario|
+:Ingresar datos del usuario;
+:Confirmar creación de usuario;
+
+|Sistema|
+if (¿Datos completos?) then (Sí)
+    :Registrar usuario en la base de datos;
+else (No)
+    :Mostrar error en el formulario;
+    stop
+endif
+
+|Usuario|
+:Seleccionar "Asignar roles";
+
+|Sistema|
+:Solicitar selección de rol;
+|Usuario|
+:Seleccionar rol y confirmar;
+
+|Sistema|
+:Asignar rol al usuario en la base de datos;
+
+|Usuario|
+:Seleccionar "Editar usuario";
+
+|Sistema|
+:Solicitar datos del usuario;
+|Usuario|
+:Modificar datos y confirmar;
+
+|Sistema|
+:Actualizar información en la base de datos;
+
+|Usuario|
+:Seleccionar "Eliminar usuario";
+
+|Sistema|
+:Solicitar confirmación;
+|Usuario|
+:Confirmar eliminación;
+
+|Sistema|
+:Eliminar usuario de la base de datos;
+
+:Finalizar operación;
+stop
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+
+package "org-camal" {
+    class ComprobanteCabecera{
+        -idEmpresa
+        -idComprovanteC
+        -idComprobanteCTipo
+        -numero
+        -serie
+        -idCliente
+        -fechaEmision
+        -idComprobanteTipo
+        -idEstado
+        -usuCodigo(usuario de creacion)
+        -observaciones
+        -idMonedas
+    }
+    class ComprobanteDetalle{
+        -idEmpresa
+        -idComprovanteD
+        -idComprovanteC
+        -numero
+        -IdProducto
+        - cantidadEnvases // cantidad de javas
+        - peso
+        -precioUnitario
+        -descuento
+        -descripcion
+        -idusuario
+        }
+    class ComprobantesEstados {
+        -idComprobanteEstado
+        -codigo
+        -descripcion
+    }
+    class ComprobantesTipos {
+            -idComprobanteTipo
+            -codigo
+            -descripcion
+        }
+    ComprobanteCabecera "n*" *-- "1" ComprobantesEstados : composicion
+    ComprobanteCabecera "1" *-- "n*" ComprobanteDetalle : composicion
+    ComprobanteCabecera "n*" *-- "1" ComprobantesTipos : composicion
+}
+
+@enduml

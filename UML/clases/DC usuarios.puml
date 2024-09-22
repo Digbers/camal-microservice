@@ -1,0 +1,47 @@
+@startuml
+
+package "org-camal" {
+    class Usuarios {
+        -idUsuario
+        -Nombre
+        -codigo
+        -contraseña
+        --metodos--
+    }
+    class Roles {
+        -idrol
+        -Nombre
+        --metodos--
+    }
+    class Permisos {
+        -idpermisos
+        -Nombre
+        --metodos--
+    }
+    class UsuariosXRoles {
+        -idUsuriosxroles
+        -idUsuario
+        -idRoles
+        --metodos--
+    }
+    class PermisosXRoles {
+        -idpermisosXRoles
+        -idPermisos
+        -idRoles
+        --metodos--
+    }
+
+    interface UsuariosMetodos{
+        + Registrarse()
+        + IniciarSesion()
+        + ValidarToken()
+    }
+
+    Usuarios --> UsuariosMetodos: implementa
+    Usuarios "1" *-- "n*" UsuariosXRoles: composicion
+    UsuariosXRoles "n*" --* "1" Roles : composicion
+    Roles "n*" *-- "1" PermisosXRoles : composicion
+    PermisosXRoles "n*" --* "1" Permisos : composicion
+
+
+@enduml

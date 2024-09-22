@@ -1,0 +1,42 @@
+server:
+  port: 9091
+spring:
+  config:
+    import: optional:configserver:http://localhost:8888
+  application:
+    name: msvc-inventario
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/inventariocamal
+    username: postgres
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  rabbitmq:
+    host: localhost               # Dirección del servidor RabbitMQ
+    port: 5672                    # Puerto predeterminado de RabbitMQ
+    username: guest                # Cambia esto si configuraste otro usuario
+    password: guest                # Cambia esto si configuraste otra contraseña
+    virtual-host: /                # El virtual host por defecto, puedes modificarlo si tienes uno personalizado
+    listener:
+      simple:
+        concurrency: 5             # Número de consumidores concurrentes
+        max-concurrency: 10        # Máximo número de consumidores
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka
+
+fcm-messaging:
+  secret-key: jKZT3O5RGOqMJyK2pbpbS7B5O-5YxZqiLnK5G4cm8q8
+  firebase-url: https://fcm.googleapis.com/fcm/send
+

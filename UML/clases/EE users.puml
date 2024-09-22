@@ -1,0 +1,40 @@
+@startuml
+entity "Usuarios" as Usuarios {
+    * idUsuario : INT
+    --
+    Nombre : VARCHAR
+    Codigo : VARCHAR
+    Contraseña : VARCHAR
+}
+
+entity "Roles" as Roles {
+    * idRol : INT
+    --
+    Nombre : VARCHAR
+}
+
+entity "Permisos" as Permisos {
+    * idPermisos : INT
+    --
+    Nombre : VARCHAR
+}
+
+entity "UsuariosXRoles" as UsuariosXRoles {
+    * idUsuariosXRoles : INT
+    --
+    idUsuario : INT
+    idRol : INT
+}
+
+entity "PermisosXRoles" as PermisosXRoles {
+    * idPermisosXRoles : INT
+    --
+    idPermisos : INT
+    idRol : INT
+}
+
+Usuarios ||--o{ UsuariosXRoles : "asigna"
+UsuariosXRoles }o--|| Roles : "contiene"
+Roles ||--o{ PermisosXRoles : "tiene"
+PermisosXRoles }o--|| Permisos : "asigna"
+@enduml

@@ -1,0 +1,41 @@
+@startuml
+|Usuario|
+start
+:Iniciar sesión en la aplicación;
+:Seleccionar opción "Inventario";
+
+|Sistema|
+:Solicitar acción;
+:Mostrar opciones de acciones (Actualizar Stock, Generar Reporte Kardex);
+if (¿Seleccionar Actualizar Stock?) then (Sí)
+  :Solicitar información del producto;
+  :Mostrar formulario para actualizar stock;
+  |Usuario|
+  :Ingresa producto y cantidad;
+  |Sistema|
+  if (¿Producto válido?) then (Sí)
+      :Verificar stock actual;
+      :Actualizar stock en la base de datos;
+      :Registrar Movimiento de Stock;
+      :Enviar Confirmar actualización exitosa;
+      |Usuario|
+      :Verificar Actualizacion;
+      |Sistema|
+  else (No)
+      :Mostrar mensaje de error;
+  endif
+
+else (No)
+  if (¿Seleccionar Generar Reporte Kardex?) then (Sí)
+    :Solicitar periodo para reporte;
+    :Generar reporte Kardex;
+    :Mostrar reporte al usuario;
+  else (No)
+    :Mostrar opciones nuevamente;
+  endif
+endif
+
+|Usuario|
+:Finalizar sesión;
+stop
+@enduml

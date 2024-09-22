@@ -1,0 +1,20 @@
+@startuml
+actor "usuario" as cli
+actor "administrador" as adm
+package "con.ventas" {
+note "Gestionar todas las ventas, detalle de productos." as N1
+
+    usecase "Registrar nueva venta" as rv
+    usecase "Registrar clientes  nuevos" as clientes
+    usecase "Consultar historial de ventas" as hventas
+    usecase "Generar reporte de ventas" as reportV
+
+    hventas ..N1
+    rv .. clientes :[1.1] extend
+    reportV .. hventas : [1.1] include
+}
+cli --> clientes : [102]
+cli --> rv : [101]
+cli --> hventas : [102]
+adm --> reportV : [103]
+@enduml

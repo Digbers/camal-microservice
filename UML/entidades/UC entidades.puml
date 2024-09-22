@@ -1,0 +1,17 @@
+@startuml
+actor "usuario" as cli
+actor "administrador" as adm
+package "con.compras" {
+note "Se podra actualizar la informacion de los proveedores, como eliminarlos." as N2
+
+    usecase "Registrar nueva Entidad" as en
+    usecase "Consultar entidades" as recom
+    usecase "Gestionas entidades" as ges
+
+    ges ..N2
+}
+cli --> en :[101]
+cli --> recom :[102]
+adm --> ges :[103]
+
+@enduml

@@ -1,0 +1,41 @@
+@startuml
+|Cliente|
+start
+:Iniciar sesión en la aplicación;
+:Seleccionar opción "Registrar nueva compra";
+
+|Sistema|
+:Solicitar datos del proveedor;
+
+if (¿Proveedor existente?) then (Sí)
+    :Cargar datos del proveedor;
+else (No)
+    :Solicitar registro de nuevo proveedor;
+    |Cliente|
+    :Ingresar datos del nuevo proveedor;
+    :Registrar proveedor;
+    :Confirmar registro de proveedor;
+endif
+
+|Sistema|
+:Solicitar productos de la compra;
+|Cliente|
+:Seleccionar productos y cantidades;
+
+|Sistema|
+:Calcular monto total;
+:Solicitar confirmación de compra;
+|Cliente|
+:Confirmar compra;
+
+|Sistema|
+:Registrar compra en la base de datos;
+:Actualizar stock;
+:Registar movimiento de stock;
+:Enviar comprobante;
+
+|Cliente|
+:Imprimir comprobante;
+:Finalizar operación;
+stop
+@enduml

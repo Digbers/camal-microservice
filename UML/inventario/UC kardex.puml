@@ -1,0 +1,17 @@
+@startuml
+actor "usuario" as cli
+package "con.invenario" {
+note "Gestionar el stock y kardex valorizado de productos." as N2
+
+    usecase "Actualizar stock de productos" as stock
+    usecase "Consultar inventario y disponibilidad" as kardex
+    usecase "Registrar movimiento de stock" as movStock
+    usecase "Generar Reportes kardex" as repKardex
+
+    movStock ..N2
+}
+cli --> stock : [101]
+cli --> kardex : [102]
+cli --> movStock : [103]
+cli --> repKardex : [104]
+@enduml

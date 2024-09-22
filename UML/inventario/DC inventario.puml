@@ -1,0 +1,109 @@
+@startuml
+
+package "org-camal" {
+
+    interface MetodosProductos {
+        + ListarProductos()
+        + CrearProducto()
+        + actualizarProducto()
+        + EliminarProducto()
+    }
+
+    class Productos {
+        - idProducto
+        - codigo
+        - tipo
+        - nombre
+        - marca
+        - presentacion
+        - generarStock
+        - estado
+        - idUnidad
+        - CantidadXEnvase // cantidad por java (pollos por envase)
+        - precioSugerido
+        -- metodos --
+    }
+    class ProductosTipos {
+        - idProductotipo
+        - codigo
+        - nombre
+    }
+
+    class Unidades {
+        - idUnidad
+        - codigo
+        - nombre // Ejemplo: javas, tinas
+    }
+
+    class Almacen {
+        - idAlmacen
+        - idEmpresa
+        - idAlmacenpadre
+        - nombre
+        - tipoCodigo
+        -- metodos --
+    }
+
+    class AlmacenTipos {
+        - idAlmacentipo
+        - codigo
+        - descripcion
+    }
+
+    class ProductosXAlmacen {
+        - idProductosXAlmacen
+        - idAlmacen
+        - idProducto
+        - cantidad // Cantidad de envases (javas)
+    }
+
+    class Movimientos {
+        - idMovimiento
+        - idEmpresa
+        - numero
+        - total
+        - idEstado
+        - idUsuario
+        - idMonedaCodigo
+        - fechaemision
+        - idAlmacen
+        - tipodocumentoreferencia
+        - seriedocumentoreferencia
+        - numerodocreferencia
+        - codigoMotivo //salida-ingreso
+        - observaciones
+        - idEntidad
+        - cantidadEnvases // cantidad de javas
+        - fechaMovimiento
+        -- metodos --
+    }
+    class MovimientoMotivos {
+        - idMotivo
+        - nombre
+        - descripcion
+    }
+
+    class DetalleMovimiento {
+        - idDetalleMovimiento
+        - idMovimiento
+        - idProducto
+        - cantidadEnvases // cantidad de javas
+        - peso // peso total del producto en la transacción
+        - preciounitario
+        - total
+        - unidadesCodigo
+    }
+
+    Productos --> MetodosProductos : implementa
+    Productos "1" --* "1" Unidades : utiliza
+    Productos "1" --* "n" ProductosTipos : contiene
+    Almacen "1" --* "n" AlmacenTipos : composicion
+    Almacen "1" --* "n" ProductosXAlmacen : contiene
+    ProductosXAlmacen "n" --* "1" Productos : composicion
+    Movimientos "n*" --* "1" Almacen : contiene
+    Movimientos "1" --* "n" DetalleMovimiento : detalle
+    MovimientoMotivos "1" --* "n" Movimientos : motivos
+    DetalleMovimiento "n" *-- "1" Unidades : composicion
+
+}
+@enduml

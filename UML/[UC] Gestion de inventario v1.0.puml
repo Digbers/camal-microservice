@@ -1,0 +1,23 @@
+@startuml
+
+package org-camal{
+    left to right direction
+    actor Usuario as U
+    actor Administrador as adm
+    rectangle "CAMAL" {
+        usecase "Registrar productos" as registrarp
+        usecase "Registrar compras" as compras
+        usecase "Registrar Ventas" as registrarm
+        usecase "Enviar comprobantes" as enviar
+        usecase "Reporte de ventas" as reporte
+    }
+}
+
+U --> registrarp:<B> [001] Ingresa productos
+U --> compras:<B> [002] Ingresa compras
+U --> registrarm:<B> [003] Guardar salidas e ingresos
+U --> enviar:<B> [004] Generar reportes
+adm --> reporte:<B> [005] Generar reportes
+}
+
+@enduml

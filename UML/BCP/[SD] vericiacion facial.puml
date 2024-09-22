@@ -1,0 +1,22 @@
+@startuml
+    skinparam actorStyle awesome
+    actor "usuario" as user
+    participant "Verificacion datos" as veri
+    participant "Verificacion Facial" as verifa
+    entity App
+    autonumber "<B>[000]"
+
+    alt Proceso de registro y vericacion
+        alt registro case
+            user --> veri : VerificarDatos()
+            App --> user : RegistarUsuario()
+        end
+        alt varificacion case
+            user --> veri :IngresarDatos()
+            user --> verifa : VerificarDatosFaciales()
+            App --> user : BrindarToken()
+        end
+    end
+
+
+@enduml

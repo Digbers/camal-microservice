@@ -1,0 +1,45 @@
+@startuml
+
+autonumber "<B>000"
+actor "usuario" as user
+boundary "app" as inventario
+participant "repository" as bd
+
+activate user
+activate inventario
+
+user -> inventario: RegistrarProducto()
+alt success guardar
+    activate bd
+    inventario -> bd: GuardarProducto()
+    bd -> inventario: ProductoGuardado()
+else
+    bd --> inventario: NoGuardado()
+end
+inventario -> user: EnviarMensaje()
+
+deactivate bd
+user --> inventario: ActualizarProducto()
+alt success actualizar
+    loop buscar
+        user --> inventario: BuscarProducto()
+        alt success Producto encontrado
+            user -> inventario: ActualizarProducto()
+            activate bd
+            alt success guardado
+                inventario -> bd: ActualizarProducto()
+                bd -> inventario: ProductoActualizado()
+            else
+                bd --> inventario: NoGuardado()
+            end
+            deactivate bd
+        else
+            inventario --> user: EnviarMensajeError()
+        end
+        inventario --> user: EnviarMensajeExito()
+    end
+end
+deactivate inventario
+deactivate user
+
+@enduml

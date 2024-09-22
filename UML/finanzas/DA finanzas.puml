@@ -1,0 +1,42 @@
+@startuml
+|Usuario|
+start
+:Iniciar sesión en la aplicación;
+:Seleccionar opción "Financiero";
+
+|Sistema|
+:Solicitar acción;
+:Mostrar opciones de acciones (Gestionar Cuentas por Cobrar, Gestionar Cuentas por Pagar, Registrar Ingresos, Registrar Gastos, Generar Reporte Financiero, Consultar Estado de Resultados);
+
+if (¿Seleccionar Gestionar Cuentas por Cobrar?) then (Sí)
+  :Solicitar detalles de cuenta por cobrar;
+  :Registrar ingresos en base a cuentas por cobrar;
+  :Actualizar cuentas por cobrar;
+  :Confirmar actualización exitosa;
+else (No)
+  if (¿Seleccionar Gestionar Cuentas por Pagar?) then (Sí)
+    :Solicitar detalles de cuenta por pagar;
+    :Registrar gasto en base a cuentas por pagar;
+    :Actualizar cuentas por pagar;
+    :Confirmar actualización exitosa;
+  else (No)
+    if (¿Seleccionar Generar Reporte Financiero?) then (Sí)
+      :Solicitar periodo para reporte;
+      :Generar reporte financiero;
+      :Mostrar reporte al usuario;
+    else (No)
+      if (¿Consultar Estado de Resultados?) then (Sí)
+        :Consultar ingresos y gastos;
+        :Generar estado de resultados;
+        :Mostrar estado de resultados al usuario;
+      else (No)
+        :Mostrar opciones nuevamente;
+      endif
+    endif
+  endif
+endif
+
+|Usuario|
+:Finalizar sesión;
+stop
+@enduml

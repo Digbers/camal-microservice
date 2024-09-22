@@ -1,0 +1,54 @@
+@startuml
+package "org-bcp" {
+    class Usuarios {
+        -idUsuario
+        -Nombres
+        -Apellidos
+        -TipoDocumento
+        -Numero
+        -imagen
+        -direccion
+        -fechaNacimiento
+        -LugarNacimiento
+        --metodos--
+    }
+    class Perceptron {
+        -idPerseptron
+        -Pesos
+        -bias
+        -TazaAprendizaje
+    }
+    interface MetodosPerceptron {
+        +inicializarPesos()
+        +entrenar()
+        +predecir()
+    }
+    class Imagen {
+        -idImagen
+        -ubicacion
+        -nombre
+    }
+    interface MetodosImagenes {
+        +redimencionarImagen()
+        +normalizar()
+    }
+    class RedNeuronal {
+            -perceptrones
+            -numeroEntradas
+            --metodos--
+            +entrenarPerceptron()
+            +predecir()
+
+    }
+    interface MetodosUsuario {
+        +Registrarse()
+        +ValidarDatos()
+    }
+
+    MetodosPerceptron <-- Perceptron: implementa
+    MetodosImagenes <-- Imagen: implementa
+    MetodosUsuario <-- Usuarios : implementa
+    Perceptron "n*" --* "1" RedNeuronal : "composicion"
+
+}
+@enduml

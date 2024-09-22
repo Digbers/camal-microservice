@@ -1,0 +1,20 @@
+@startuml
+actor "usuario" as cli
+package "con.financiero" {
+note "Gestionar los ingresos y gastos financieros de la empresa." as N3
+    usecase "Gestionar de cuentas por cobrar" as porCobrar
+    usecase "Gestionar de Cuentas por pagar" as porPagar
+    usecase "Registrar ingresos" as ingresos
+    usecase "Registrar gastos" as gastos
+    usecase "Generar reporte financiero" as reportF
+    usecase "Consultar estado de resultados" as estResultados
+
+    estResultados ..N3
+    porCobrar .. ingresos : [1.1] extend
+    porPagar .. gastos : [1.1] extend
+}
+cli --> porCobrar : [101]
+cli --> porPagar : [102]
+cli --> reportF : [103]
+cli --> estResultados : [104]
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+actor "usuario" as cli
+actor "administrador" as adm
+package "con.compras" {
+note "Se podra actualizar la informacion de los proveedores, como eliminarlos." as N2
+
+    usecase "Registrar nueva compra" as co
+    usecase "Registrar nuevo proveedor" as pro
+    usecase "Consultar historial de compras" as recom
+    usecase "Gestionas proveedores" as ges
+    usecase "Generar reporte de compras" as repCompras
+
+    ges ..N2
+    co .. pro :[1.1] extend
+}
+cli --> co :[101]
+cli --> pro :[102]
+cli --> recom :[103]
+adm --> ges :[104]
+adm --> repCompras :[105]
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+node "Dispositivo Móvil (Android)" {
+    [Aplicación Móvil]
+}
+
+node "Internet" {
+    interface "HTTP/HTTPS" as http
+}
+
+node "Servidor VPS (Ubuntu)" {
+    [API REST (Spring Boot)]
+    [Servidor Web (Nginx)]
+    database "Base de Datos (PostgreSQL)" {
+        [Tabla Usuarios]
+        [Tabla Roles]
+        [Tabla Permisos]
+    }
+}
+
+[Aplicación Móvil] --> http : Peticiones REST
+http --> [Servidor Web (Nginx)] : Proxy inverso
+[Servidor Web (Nginx)] --> [API REST (Spring Boot)] : Delegación de peticiones
+[API REST (Spring Boot)] --> [Base de Datos (PostgreSQL)] : CRUD Usuarios, Roles, Permisos
+@enduml

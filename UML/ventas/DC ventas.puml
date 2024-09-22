@@ -1,0 +1,57 @@
+@startuml
+
+package "org-camal" {
+    class ComprobanteVentaCabecera{
+        -idEmpresa
+        -idComprovanteV
+        -idComprobanteVTipo
+        -numero
+        -serie
+        -idCliente
+        -fechaEmision
+        -idComprobanteReferencia // Para el caso de las notas de crédito
+        -idEstado
+        -usuCodigo // Usuario de creación
+        -observaciones
+        -idMonedas
+    }
+    class ComprobanteVentaDetalle{
+        -idEmpresa
+        -idComprovanteD
+        -idComprovanteV
+        -numero
+        -idProducto
+        -cantidadEnvases // Cantidad de javas
+        -peso
+        -precioUnitario
+        -descuento
+        -descripcion
+        -idUsuario
+    }
+    class ComprobantesTipos {
+        -idComprobanteTipo
+        -codigo
+        -descripcion
+    }
+    class ComprobantesEstados {
+        -idComprobanteEstado
+        -codigo
+        -descripcion
+    }
+    class ComprobantesVentasCuotas {
+        -idComprobanteCuota
+        -idComprovanteV
+        -numerocuota
+        -fechavencimiento
+        -montocuota
+        -importe
+        -idMonedas
+    }
+
+    ComprobanteVentaCabecera "1" *-- "n*" ComprobanteVentaDetalle : composicion
+    ComprobanteVentaCabecera "n*" *-- "1" ComprobantesTipos : compocision
+    ComprobanteVentaCabecera "n*" *-- "1" ComprobantesEstados : compocision
+    ComprobanteVentaCabecera "1" *-- "n* - 0" ComprobantesVentasCuotas : compocision
+}
+
+@enduml

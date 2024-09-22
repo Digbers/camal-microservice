@@ -1,0 +1,56 @@
+@startuml
+
+package org-camal {
+    left to right direction
+
+    actor Usuario as U
+    actor Administrador as adm
+
+    rectangle "Gestión de Inventario" {
+        usecase "Registrar productos" as registrar
+        usecase "Actualizar Stock" as actualizar
+        usecase "Registrar movimientos" as registrarm
+        usecase "Reportar Movimientos" as report
+    }
+
+    rectangle "Cuentas por Cobrar y Pagar" {
+        usecase "Registrar cuentas por cobrar" as regCobrar
+        usecase "Registrar cuentas por pagar" as regPagar
+        usecase "Generar reportes de cuentas" as genReportCuentas
+    }
+
+    rectangle "Ventas y Compras" {
+        usecase "Generar ventas" as genVentas
+        usecase "Generar compras" as genCompras
+    }
+
+    rectangle "Gestión de Asistencias" {
+        usecase "Registrar asistencia diaria" as regAsistencia
+        usecase "Calcular salario de trabajadores" as calcSalario
+    }
+
+    rectangle "Reportes Financieros" {
+        usecase "Reportar ganancias netas diarias" as repGananciasDiarias
+        usecase "Reportar ganancias netas mensuales" as repGananciasMensuales
+    }
+
+    U --> registrar
+    U --> actualizar
+    U --> registrarm
+    U --> report
+
+    adm --> regCobrar
+    adm --> regPagar
+    adm --> genReportCuentas
+
+    U --> genVentas
+    U --> genCompras
+
+    adm --> regAsistencia
+    adm --> calcSalario
+
+    adm --> repGananciasDiarias
+    adm --> repGananciasMensuales
+}
+
+@enduml

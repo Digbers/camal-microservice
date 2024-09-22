@@ -1,0 +1,44 @@
+@startuml
+
+package "org-camal" {
+    class comprobantesVentasCobros {
+        - idomprovantesVentasCobros
+        - empId
+        - idComprovanteV
+        - idFormaCobro
+        - montoCobrado
+        - fechacancelacion
+        - descripcion
+        - idMoneda
+    }
+    class comprobantesComprasPagos {
+        - idomprovantesComprasCobros
+        - empId
+        - idComprovanteC
+        - idFormaPago
+        - montoCobrado
+        - fechacancelacion
+        - descripcion
+        - idMoneda
+    }
+    class Monedas {
+        - idMonedas
+        - codigo
+        - nombre
+        - simbolo
+    }
+    class FormasCobro {
+        - idFormaCobro
+        - codigo
+        - descripcion
+    }
+    class FormasPagos {
+        - idFormaPago
+        - codigo
+        - descripcion
+    }
+    comprobantesComprasPagos "1" *-- "n*" Monedas : composicion
+    comprobantesComprasPagos "1" *-- "n*" FormasPagos : composicion
+    comprobantesVentasCobros "1" *-- "n*" FormasCobro : composicion
+}
+@enduml
