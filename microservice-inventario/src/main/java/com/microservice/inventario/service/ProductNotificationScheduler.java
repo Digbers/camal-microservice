@@ -1,9 +1,8 @@
 package com.microservice.inventario.service;
 
 import com.microservice.inventario.controller.DTO.ProductoDTO;
-import com.microservice.inventario.controller.DTO.ProductosXAlmacenDTO;
 import com.microservice.inventario.persistence.entity.AlmacenEntity;
-import com.microservice.inventario.persistence.repository.AlmacenRepository;
+import com.microservice.inventario.persistence.repository.IAlmacenRepository;
 import com.microservice.inventario.service.productos.ProductosServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,21 +21,22 @@ public class ProductNotificationScheduler {
     private NotificationService notificationService;
 
     @Autowired
-    private AlmacenRepository almacenRepository;
+    private IAlmacenRepository IAlmacenRepository;
 
 
     @Scheduled(cron = "0 0/30 * * * ?")
     //@Scheduled(cron = "0 * * * * ?")
     public void checkStockMinimo() {
 
-        List<ProductoDTO> productosConStockMinimo = productosService.findStockMinimo();
+        //List<ProductoDTO> productosConStockMinimo = productosService.findStockMinimo();
 
-        for (ProductoDTO producto : productosConStockMinimo) {
+        //for (ProductoDTO producto : productosConStockMinimo) {
             // Iterar sobre la lista de productos por almacén
+            /*
             for (ProductosXAlmacenDTO productosXAlmacen : producto.getProductosXAlmacen()) {
                 if (productosXAlmacen.getCantidad() < 10) {
 
-                    Optional<AlmacenEntity> almacenOpt = almacenRepository.findById(productosXAlmacen.getAlmacen());
+                    Optional<AlmacenEntity> almacenOpt = IAlmacenRepository.findById(productosXAlmacen.getAlmacen());
                     String nombreAlmacen = almacenOpt.isPresent() ? almacenOpt.get().getNombre() : "Desconocido";
 
                     String messageBody = "El producto " + producto.getNombre() +
@@ -46,8 +46,8 @@ public class ProductNotificationScheduler {
                     // Enviar notificación a todos los administradores (topic "admin")
                     notificationService.sendNotificationToTopic("admin", "Alerta de Stock", messageBody);
                 }
-            }
-        }
+            }*/
+        //}
     }
 }
 

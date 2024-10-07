@@ -21,7 +21,7 @@ spring:
         - id: inventario
           uri: http://localhost:9091
           predicates:
-            - Path=/inventario/**
+            - Path=/api/inventario/**
           filters:
             - name: AuthFilter
 
@@ -47,7 +47,7 @@ spring:
         - id: finanzas
           uri: http://localhost:9095
           predicates:
-            - Path=/finanzas/**
+            - Path=/api/finanzas/**
           filters:
             - name: AuthFilter
 

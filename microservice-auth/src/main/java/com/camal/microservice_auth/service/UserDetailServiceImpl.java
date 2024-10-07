@@ -254,6 +254,7 @@ public class UserDetailServiceImpl implements UserDetailsService, UserDetailServ
         }
         List<MenuDTO> allMenus = userEntity.getMenus().stream()
                 .filter(menu -> menu.getNivel() == 1)
+                .sorted(Comparator.comparing(menu -> menu.getOrden()))
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
@@ -268,6 +269,7 @@ public class UserDetailServiceImpl implements UserDetailsService, UserDetailServ
         }
         List<MenuDTO> allMenus = user.getMenus().stream()
                 .filter(menu -> menu.getNivel() == 1)
+                .sorted(Comparator.comparing(menu -> menu.getOrden()))
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
@@ -283,6 +285,7 @@ public class UserDetailServiceImpl implements UserDetailsService, UserDetailServ
         menuDTO.setMenuName(menuEntity.getMenuName());
         menuDTO.setMenuUrl(menuEntity.getMenuUrl());
         menuDTO.setIcon(menuEntity.getIcon());
+        menuDTO.setOrden(menuEntity.getOrden());
         menuDTO.setNivel(menuEntity.getNivel());
         menuDTO.setPadre(menuEntity.getPadre() != null ? menuEntity.getPadre().getId() : 0);
 

@@ -1,9 +1,6 @@
 package com.microservice.ventas.controller;
 
-import com.microservice.ventas.exception.ComprobanteVentaException;
-import com.microservice.ventas.exception.EmpresaNoEncontradaException;
-import com.microservice.ventas.exception.ProductoNotFoundException;
-import com.microservice.ventas.exception.StockInsuficienteException;
+import com.microservice.ventas.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,5 +30,9 @@ public class GlovalExceptionHandler {
     @ExceptionHandler(ProductoNotFoundException.class)
     public ResponseEntity<String> handleProductoNotFoundException(ProductoNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+    @ExceptionHandler(ComprobanteCompraException.class)
+    public ResponseEntity<String> handleComprobanteCompraException(ComprobanteCompraException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 }

@@ -31,8 +31,6 @@ public class AlmacenEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "tipo_codigo", nullable = false)
     private AlmacenTipoEntity tipoAlmacen;
-    @OneToMany(mappedBy = "almacen", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
-    private List<ProductosXAlmacenEntity> productosXAlmacenes = new ArrayList<>();
     @Column(name = "usercodigo_creacion")
     private String usuarioCreacion;
     @CreationTimestamp

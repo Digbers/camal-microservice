@@ -1,0 +1,2 @@
+package com.microservice.inventario.controller.DTO;public class DetalleComprobante {
+}

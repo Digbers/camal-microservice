@@ -1,65 +1,72 @@
 package com.camal.microservice_finanzas.service.ventas;
 
-import com.camal.microservice_finanzas.event.CompensarVentaEvent;
-import com.camal.microservice_finanzas.event.VentaCreadaEvent;
+import com.camal.microservice_finanzas.event.*;
 import com.camal.microservice_finanzas.exception.ComprobantesVentasCobrosException;
 import com.camal.microservice_finanzas.persistence.entity.ComprobantesVentasCobrosEntity;
 import com.camal.microservice_finanzas.persistence.entity.FormasCobrosEntity;
 import com.camal.microservice_finanzas.persistence.entity.MonedasEntity;
 import com.camal.microservice_finanzas.persistence.repository.IComprobantesVentasCobrosRepository;
+import com.camal.microservice_finanzas.persistence.repository.IFormasCobrosRepository;
+import com.camal.microservice_finanzas.persistence.repository.IMonedasRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.time.LocalDate;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class ComprobantesVentasCobrosServiceImpl {
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
 
-    @Autowired
-    private IComprobantesVentasCobrosRepository iComprobantesVentasCobrosRepository;
+    private final RabbitTemplate rabbitTemplate;
+    private final IComprobantesVentasCobrosRepository iComprobantesVentasCobrosRepository;
+    private final IFormasCobrosRepository iFormasCobrosRepository;
+    private final IMonedasRepository iMonedasRepository;
 
-    @Autowired
-    private IFormasCobrosRepository iFormasCobrosRepository;
-
-    @Autowired
-    private IMonedasRepository iMonedasRepository;
-
-    @RabbitListener(queues = "ventasQueue")
-    public void handleVentaCreadaEvent(VentaCreadaEvent event) {
+    @RabbitListener(queues = "VentaInventarioActualizadoQueue")
+    public void handleVentaCreadaEvent(InventarioActualizadoVentasEvent event) {
         try {
-            Optional<MonedasEntity> moneda = iMonedasRepository.findById(event.getMoneda());
-            if(moneda.isEmpty()) {
-                throw new ComprobantesVentasCobrosException("La moneda con ID " + event.getMoneda() + " no existe.");
+            if(!event.getCodigoFormaPago().equals("CRE")){
+                MonedasEntity moneda = iMonedasRepository.findById(event.getComprobantesComprasCa().getIdMoneda()).orElseThrow(() -> new ComprobantesVentasCobrosException("Moneda no encontrada"));
+                FormasCobrosEntity fromaCobro = iFormasCobrosRepository.findById(event.getCodigoFormaPago()).orElseThrow(() -> new ComprobantesVentasCobrosException("Forma de cobro no encontrada"));
+                ComprobantesVentasCobrosEntity comprobantesCobros = ComprobantesVentasCobrosEntity.builder()
+                        .idEmpresa(event.getComprobantesComprasCa().getIdEmpresa())
+                        .idComprobanteVenta(event.getComprobantesComprasCa().getId())
+                        .formasCobrosEntity(fromaCobro)
+                        .montoCobrado(event.getMontoTotal())
+                        .fechaCobro(LocalDate.now())
+                        .monedasEntity(moneda)
+                        .usuarioCreacion(event.getComprobantesComprasCa().getUsuarioCreacion())
+                        .build();
+                iComprobantesVentasCobrosRepository.save(comprobantesCobros);
+                log.info("ComprobantesVentasCobros creado con id: " + comprobantesCobros.getId());
             }
-            MonedasEntity monedaEntity = moneda.get();
-            ComprobantesVentasCobrosEntity comprobantesVentasCobros = ComprobantesVentasCobrosEntity.builder()
-                    .idComprobanteVenta(event.getIdComprobanteVenta())
-                    .fechaCobro(event.getFechaCobro())
-                    .idEmpresa(event.getIdEmpresa())
-                    .monedasEntity(monedaEntity)
-                    .usuarioCreacion(event.getIdUsuario())
-                    .build();
-            event.getFormasDeCobrosRequest().getFormasDeCobro().forEach(formaDeCobro -> {
-                    Optional<FormasCobrosEntity> formaCobro = iFormasCobrosRepository.findById(formaDeCobro.getCodigo());
-                    if(formaCobro.isEmpty()) {
-                        throw new ComprobantesVentasCobrosException("La forma de cobro con ID " + formaDeCobro.getCodigo() + " no existe.");
-                    }
-                    FormasCobrosEntity formasCobrosEntity = formaCobro.get();
-                    comprobantesVentasCobros.setFormasCobrosEntity(formasCobrosEntity);
-                    comprobantesVentasCobros.setMontoCobrado(formaDeCobro.getMonto());
-                    iComprobantesVentasCobrosRepository.save(comprobantesVentasCobros);
-            });
         } catch (Exception e) {
-            CompensarVentaEvent compensarVentaEvent = CompensarVentaEvent.builder()
-                    .ventaId(event.getIdComprobanteVenta())
-                    .comprobanteDetalleRequest(event.getComprobanteDetalleRequest())
-                    .idAlmacen(event.getIdAlmacen())
+            VentaFailedEvent ventaFailedEvent = VentaFailedEvent.builder()
+                    .id(event.getComprobantesComprasCa().getId())
+                    .source("finanzas")
                     .build();
-            rabbitTemplate.convertAndSend("ventasExchange", "venta.compensar", compensarVentaEvent);
+            rabbitTemplate.convertAndSend("FinanzasVentasExchange", "finanzas.error-cobros", ventaFailedEvent);
         }
     }
+    @RabbitListener(queues = "VentaCompensarQueue")
+    public void handleCompensacionCompra(CompensacionVentaEvent event) {
+        if (event.getSource().equals("finanzas")) {
+            log.info("Compensación ejemplo en fiananzas para la venta: " + event.getId());
+        } else {
+            log.info("Ignorando compensación en Finanzas porque la fuente de error es: " + event.getSource());
+        }
+    }
+    @RabbitListener(queues = "CompraCompensarQueue")
+    public void handleCompensacionCompra(CompensacionCompraEvent event) {
+        if (event.getSource().equals("finanzas")) {
+            log.info("Compensación ejemplo en fiananzas para la compra: " + event.getId());
+        } else {
+            log.info("Ignorando compensación en Finazas porque la fuente de error es: " + event.getSource());
+        }
+    }
+
 }

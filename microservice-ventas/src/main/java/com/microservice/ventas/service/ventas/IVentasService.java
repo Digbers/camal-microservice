@@ -1,9 +1,9 @@
 package com.microservice.ventas.service.ventas;
 
-import com.microservice.ventas.controller.DTO.ComprobantesTiposVentasDTO;
-import com.microservice.ventas.controller.DTO.ComprobantesVentasCabDTO;
+import com.microservice.ventas.controller.DTO.ventas.ComprobantesTiposVentasDTO;
+import com.microservice.ventas.controller.DTO.ventas.ComprobantesVentasCabDTO;
 import com.microservice.ventas.controller.DTO.SeriesDTO;
-import com.microservice.ventas.controller.DTO.VentaRequest;
+import com.microservice.ventas.controller.DTO.ventas.VentaRequest;
 
 import java.util.List;
 

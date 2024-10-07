@@ -19,6 +19,7 @@ public class MenuDTO {
     private String menuName;
     private String menuUrl;
     private String icon;
+    private Integer orden;
     private Long nivel;
     private long padre;
     private Set<MenuDTO> submenus = new HashSet<>();

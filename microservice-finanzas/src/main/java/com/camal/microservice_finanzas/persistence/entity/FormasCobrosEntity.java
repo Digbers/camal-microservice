@@ -18,6 +18,7 @@ public class FormasCobrosEntity {
     @Id
     @Column(unique = true, nullable = false, length = 3)
     private String codigo;
+    @Column(nullable = false, length = 100)
     private String descripcion;
     @Column(name = "id_empresa", nullable = false)
     private Long idEmpresa;

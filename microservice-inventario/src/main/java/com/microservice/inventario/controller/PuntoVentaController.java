@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/inventario/punto-venta")
+@RequestMapping("api/inventario/punto-venta")
 public class PuntoVentaController {
     @Autowired
     private PuntoVentaService puntoVentaService;

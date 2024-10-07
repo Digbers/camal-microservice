@@ -12,10 +12,10 @@ import java.sql.Timestamp;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "movimientos_motivos")
 public class MovimientosMotivosEntity {
     @Id

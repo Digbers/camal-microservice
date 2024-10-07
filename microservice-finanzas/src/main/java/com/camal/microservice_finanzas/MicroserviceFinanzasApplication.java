@@ -37,13 +37,20 @@ public class MicroserviceFinanzasApplication {
 			monedasRepository.saveAll(Set.of(moneda1, moneda2));
 
 			FormasPagosEntity formaPago1 = FormasPagosEntity.builder()
-					.codigo("EFE")
-					.descripcion("Efectivo")
+					.codigo("CRE")
+					.descripcion("CREDITO")
 					.idEmpresa(1L)
 					.usuarioCreacion("ADMIN")
 					.moneda(moneda1)
 					.build();
-			formasPagosRepository.save(formaPago1);
+			FormasPagosEntity formaPago2 = FormasPagosEntity.builder()
+					.codigo("CAN")
+					.descripcion("CANCELADO")
+					.idEmpresa(1L)
+					.usuarioCreacion("ADMIN")
+					.moneda(moneda1)
+					.build();
+			formasPagosRepository.saveAll(Set.of(formaPago1, formaPago2));
 
 			FormasCobrosEntity formaCobro1 = FormasCobrosEntity.builder()
 					.codigo("EFE")
@@ -53,8 +60,8 @@ public class MicroserviceFinanzasApplication {
 					.moneda(moneda1)
 					.build();
 			FormasCobrosEntity formaCobro2 = FormasCobrosEntity.builder()
-					.codigo("DEP")
-					.descripcion("Deposito")
+					.codigo("CRE")
+					.descripcion("CREDITO")
 					.idEmpresa(1L)
 					.usuarioCreacion("ADMIN")
 					.moneda(moneda1)

@@ -29,6 +29,8 @@ public class ComprobantesVentasDetEntity {
     private Integer cantidad;
     @Column(nullable = false, name = "id_producto")
     private Long idProducto;
+    @Column(nullable = false, name = "id_envase")
+    private Long idEnvase;
     @Column(precision = 10, scale = 2)
     private BigDecimal peso;
     @Column(precision = 10, scale = 2)

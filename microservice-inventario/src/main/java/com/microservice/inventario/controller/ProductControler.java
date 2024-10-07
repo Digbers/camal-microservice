@@ -4,7 +4,11 @@ import com.microservice.inventario.controller.DTO.ProductoDTO;
 import com.microservice.inventario.persistence.entity.ProductosEntity;
 import com.microservice.inventario.service.productos.ProductosServiceImpl;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -12,10 +16,23 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("/inventario")
+@RequestMapping("api/inventario/productos")
+@RequiredArgsConstructor
 public class ProductControler {
-    @Autowired
-    private ProductosServiceImpl productosServiceImpl;
+    private final ProductosServiceImpl productosServiceImpl;
+    @GetMapping("/list")
+    public Page<ProductoDTO> getAll(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) Long idEmpresa,
+            @RequestParam(required = false) String codigo,
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String codigoTipo,
+            @RequestParam(required = false) Long almacenId
+    ){
+        return productosServiceImpl.finAll(id, idEmpresa, codigo, nombre, codigoTipo, almacenId, PageRequest.of(page, size));
+    }
     @GetMapping("/all")
     public ResponseEntity<List<ProductoDTO>> getAll(){
         return ResponseEntity.ok(productosServiceImpl.findAll());
@@ -35,11 +52,21 @@ public class ProductControler {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
-    }
+    }/*
     @GetMapping("/verificar-stock/{id}")
     public ResponseEntity<Integer> verificarStock(@PathVariable Long id) {
         Integer stockDisponible = productosServiceImpl.obtenerStockDisponible(id);
         return ResponseEntity.ok(stockDisponible);
+    }*/
+    @GetMapping("/find-autocomplete/{descripcion}")
+    public ResponseEntity<List<ProductoDTO>> findByDescripcionAutocomplete(@PathVariable String descripcion) {
+        List<ProductoDTO> productos = productosServiceImpl.findByDescripcionAutocomplete(descripcion);
+        return ResponseEntity.ok(productos);
+    }
+    @GetMapping("/find-test/{param}")
+    public ResponseEntity<?> findStockMinimum(@PathVariable String param) {
+        System.out.println("Find Stock Minimum: " + param);
+        return ResponseEntity.ok(param);
     }
 
 }

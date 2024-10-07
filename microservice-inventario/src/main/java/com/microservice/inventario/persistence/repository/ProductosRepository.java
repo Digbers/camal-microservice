@@ -21,4 +21,14 @@ public interface ProductosRepository extends JpaRepository<ProductosEntity, Long
 
     Optional<ProductosEntity> findByCodigo(String codigo);
 
+    @Query("SELECT p FROM ProductosEntity p " +
+            "LEFT JOIN p.tipo t " +
+            "LEFT JOIN p.productosXAlmacenes px " +
+            "LEFT JOIN px.almacen a " +
+            "WHERE LOWER(p.nombre) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(t.nombre) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(a.nombre) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    List<ProductosEntity> searchByFields(@Param("searchTerm") String searchTerm);
+
+
 }

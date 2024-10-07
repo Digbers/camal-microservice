@@ -3,6 +3,8 @@ package com.microservice.inventario.controller.DTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,4 +15,12 @@ public class ComprobanteDetalleRequest {
     private Integer cantidad;
     @NotNull(message = "El idProducto es obligatorio")
     private Long idProducto;
+    @NotNull(message = "El idEnvase es obligatorio")
+    private Long idEnvase;
+    @NotNull(message = "El peso es obligatorio")
+    private BigDecimal peso;
+    @NotNull(message = "El precio unitario es obligatorio")
+    private BigDecimal precioUnitario;
+    @NotNull(message = "El descuento es obligatorio")
+    private BigDecimal descuento;
 }

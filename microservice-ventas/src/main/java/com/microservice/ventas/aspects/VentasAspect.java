@@ -1,7 +1,7 @@
 package com.microservice.ventas.aspects;
 
 import com.microservice.ventas.client.InventarioClient;
-import com.microservice.ventas.controller.DTO.ComprobantesVentasCabDTO;
+import com.microservice.ventas.controller.DTO.ventas.ComprobantesVentasCabDTO;
 import com.microservice.ventas.exception.ProductoNotFoundException;
 import com.microservice.ventas.repository.IcomprobantesVentasCabRepository;
 import org.aspectj.lang.ProceedingJoinPoint;

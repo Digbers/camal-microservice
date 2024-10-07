@@ -1,5 +1,8 @@
 package com.microservice.inventario.controller.DTO;
 
+import com.microservice.inventario.persistence.entity.ProductosTiposEntity;
+import com.microservice.inventario.persistence.entity.StockAlmacen;
+import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -8,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 @Data
@@ -31,17 +35,8 @@ public class ProductoDTO {
 
     @NotNull(message = "La lista de productos por almacén no puede ser nula")
     @Valid
-    private List<ProductosXAlmacenDTO> productosXAlmacen;
-
-    @NotBlank(message = "La marca no puede estar vacía")
-    private String marca;
-
-    @NotBlank(message = "La presentación no puede estar vacía")
-    private String presentacion;
-
-    @NotNull(message = "La capacidad es obligatoria")
-    @Min(value = 1, message = "La capacidad debe ser mayor a 0")
-    private Integer capacidadCantidad;
+    @OneToMany(mappedBy = "producto", cascade = {CascadeType.MERGE})
+    private List<StockAlmacenDTO> stockAlmacenList;
 
     @NotNull(message = "Debe especificar si genera stock")
     private Boolean generarStock;
@@ -50,8 +45,8 @@ public class ProductoDTO {
     private Boolean estado;
 
     @NotNull(message = "El precio sugerido es obligatorio")
-    @DecimalMin(value = "0.0", inclusive = false, message = "El precio debe ser mayor que 0")
-    private Double precioSugerido;
+    @DecimalMin(value = "0.0", inclusive = true, message = "El precio debe ser mayor que 0")
+    private BigDecimal precioSugerido;
 
     @NotBlank(message = "El codigo del usuario creador es obligatorio")
     private String usuCreacion;

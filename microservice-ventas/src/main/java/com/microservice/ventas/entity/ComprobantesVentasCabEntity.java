@@ -8,7 +8,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Setter
@@ -24,7 +23,7 @@ public class ComprobantesVentasCabEntity {
     private Long id;
     @Column(name = "id_empresa", nullable = false)
     private Long idEmpresa;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "comprobante_tipo")
     private ComprobantesTiposVentasEntity comprobantesTiposEntity;
     private String serie;
@@ -35,14 +34,14 @@ public class ComprobantesVentasCabEntity {
     private Long idPuntoVenta;
     @Column(name = "fecha_emision", nullable = false)
     private LocalDate fechaEmision;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "estado")
     private ComprobantesVentasEstadoEntity comprobantesVentasEstadoEntity;
 
     @OneToMany(mappedBy = "comprobanteCabeceraEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ComprobantesVentasDetEntity> comprobantesVentasDetEntity = new ArrayList<>();
     @OneToMany(mappedBy = "comprobanteCabeceraEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ComprobantesVentasCuotas> comprobantesVentasCuotas = new ArrayList<>();
+    private List<ComprobantesVentasCuotasEntity> comprobantesVentasCuotas = new ArrayList<>();
     private String observacion;
     @Column(name = "id_moneda", nullable = false)
     private String codigoMoneda;

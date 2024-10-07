@@ -2,27 +2,31 @@ package com.microservice.ventas.service.ventas;
 
 import com.microservice.ventas.client.EmpresaClient;
 import com.microservice.ventas.controller.DTO.*;
+import com.microservice.ventas.controller.DTO.ventas.ComprobantesTiposVentasDTO;
+import com.microservice.ventas.controller.DTO.ventas.ComprobantesVentasCabDTO;
+import com.microservice.ventas.controller.DTO.ventas.VentaRequest;
 import com.microservice.ventas.entity.ComprobantesVentasCabEntity;
+import com.microservice.ventas.entity.ComprobantesVentasCuotasEntity;
 import com.microservice.ventas.entity.ComprobantesVentasEstadoEntity;
-import com.microservice.ventas.event.VentaCompensarEvent;
+import com.microservice.ventas.event.CompensacionCompraEvent;
+import com.microservice.ventas.event.CompensacionVentaEvent;
+import com.microservice.ventas.event.CompraFailedEvent;
 import com.microservice.ventas.event.VentaCreadaEvent;
+import com.microservice.ventas.exception.ComprobanteCompraException;
 import com.microservice.ventas.exception.ComprobanteVentaException;
 import com.microservice.ventas.exception.EmpresaNoEncontradaException;
-import com.microservice.ventas.repository.IComprobantesTiposVentasRepository;
-import com.microservice.ventas.repository.IComprobantesVentasEstadosRepository;
-import com.microservice.ventas.repository.ISeriesRepository;
-import com.microservice.ventas.repository.IcomprobantesVentasCabRepository;
+import com.microservice.ventas.repository.*;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -31,27 +35,21 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
+@Slf4j
 public class VentasServiceImpl implements IVentasService {
-    @Autowired
-    private IcomprobantesVentasCabRepository iComprobantesVentasCabRepository;
-    @Autowired
-    private IComprobantesVentasEstadosRepository iComprobantesVentasEstadosRepository;
-    @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
-    private EmpresaClient empresaClient;
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
-    @Autowired
-    private IComprobantesTiposVentasRepository iComprobantesTiposVentasRepository;
-    @Autowired
-    private ISeriesRepository iSeriesRepository;
+    private final IcomprobantesVentasCabRepository iComprobantesVentasCabRepository;
+    private final IComprobantesVentasEstadosRepository iComprobantesVentasEstadosRepository;
+    private final ModelMapper modelMapper;
+    private final EmpresaClient empresaClient;
+    private final RabbitTemplate rabbitTemplate;
+    private final IComprobantesTiposVentasRepository iComprobantesTiposVentasRepository;
+    private final ISeriesRepository iSeriesRepository;
+    private final IComprobantesVentasCuotasRepository iComprobantesVentasCuotasRepository;
 
     @Override
     public ComprobantesVentasCabDTO save(VentaRequest ventaRequest) {
-        List<ComprobanteDetalleRequest> comprobanteDetalleRequests =new ArrayList<>();
         ComprobantesVentasCabDTO comprobantesVentasCabDTO = ventaRequest.getComprobantesVentasCabDTO();
-        FormasDeCobrosRequest formasDeCobrosRequest = ventaRequest.getFormasDeCobrosRequest();
         boolean exist = empresaClient.verificarEmpresaExiste(comprobantesVentasCabDTO.getIdEmpresa());
         if (!exist) {
             throw new EmpresaNoEncontradaException("La empresa con ID " + comprobantesVentasCabDTO.getIdEmpresa() + " no existe.");
@@ -59,31 +57,61 @@ public class VentasServiceImpl implements IVentasService {
         try {
             ComprobantesVentasCabEntity comprobantesVentasCabEntity = modelMapper.map(comprobantesVentasCabDTO, ComprobantesVentasCabEntity.class);
             ComprobantesVentasCabEntity savedEntity = iComprobantesVentasCabRepository.save(comprobantesVentasCabEntity);
-            // Crear detalles de venta
-            savedEntity.getComprobantesVentasDetEntity().forEach(comprobantesVentasDetEntity -> {
-                ComprobanteDetalleRequest com = ComprobanteDetalleRequest.builder()
-                        .cantidad(comprobantesVentasDetEntity.getCantidad())
-                        .idProducto(comprobantesVentasDetEntity.getIdProducto())
-                        .build();
-                comprobanteDetalleRequests.add(com);
-            });
 
+            if(ventaRequest.getCodigoFormaCobro().equals("CRE")){
+                ventaRequest.getCuotasRequest().forEach(cuota -> {
+                    ComprobantesVentasCuotasEntity comprobantesVentasCuotas = ComprobantesVentasCuotasEntity.builder()
+                            .idEmpresa(savedEntity.getIdEmpresa())
+                            .comprobanteCabeceraEntity(savedEntity)
+                            .nroCuota(cuota.getNumeroCuota())
+                            .fechaVencimiento(cuota.getFechaVencimiento())
+                            .importe(cuota.getImporteTotal())
+                            .codigoMoneda(savedEntity.getCodigoMoneda())
+                            .usuarioCreacion(savedEntity.getUsuarioCreacion())
+                            .build();
+                    iComprobantesVentasCuotasRepository.save(comprobantesVentasCuotas);
+                });
+            }
             // Publicar evento de venta creada
             VentaCreadaEvent event = VentaCreadaEvent.builder()
-                    .idComprobanteVenta(savedEntity.getId())
-                    .moneda(savedEntity.getCodigoMoneda())
-                    .idUsuario(savedEntity.getUsuarioCreacion())
-                    .fechaCobro(savedEntity.getFechaEmision())
-                    .formasDeCobrosRequest(formasDeCobrosRequest)
-                    .idEmpresa(savedEntity.getIdEmpresa())
-                    .comprobanteDetalleRequest(comprobanteDetalleRequests)
+                    .comprobantesVentasCab(comprobantesVentasCabDTO)
                     .idAlmacen(ventaRequest.getIdAlmacen())
-                            .build();
-            rabbitTemplate.convertAndSend("ventasExchange", "venta.creada", event);
+                    .codigoFormaPago(ventaRequest.getCodigoFormaCobro())
+                    .build();
+            rabbitTemplate.convertAndSend("VentasExchange", "venta.creada", event);
 
             return modelMapper.map(savedEntity, ComprobantesVentasCabDTO.class);
         } catch (Exception e) {
             throw new ComprobanteVentaException("Error al guardar el comprobante de venta: " + e.getMessage());
+        }
+    }
+    @RabbitListener(queues = "FinanzasCobrosErrorQueue")
+    public void handleFinanzasPagoFallido(CompraFailedEvent event) {
+        log.error("Pago fallido en finanzas para la venta: " + event.getId() + " del source: " + event.getSource());
+        emitirEventoCompensacion(event.getId(), event.getSource());
+    }
+    @Transactional
+    private void emitirEventoCompensacion(Long ventaId, String source) {
+        try {
+            ComprobantesVentasCabEntity comprobanteVentaCa = iComprobantesVentasCabRepository.findById(ventaId).orElseThrow(() -> new RuntimeException("Comprobante de ventano encontrado"));
+            List<ComprobanteDetalleRequest> comprobanteDetalle = comprobanteVentaCa.getComprobantesVentasDetEntity().stream()
+                    .map(cd -> new ComprobanteDetalleRequest(cd.getCantidad(),cd.getIdProducto(),cd.getIdEnvase(),cd.getPeso(),cd.getPrecioUnitario(),cd.getDescuento()))
+                    .collect(Collectors.toList());
+            CompensacionVentaEvent compensacionEvent = CompensacionVentaEvent.builder()
+                    .ventaId(ventaId)
+                    .comprobanteDetalleRequest(comprobanteDetalle)
+                    .idPuntoVenta(comprobanteVentaCa.getIdPuntoVenta())
+                    .idEmpresa(comprobanteVentaCa.getIdEmpresa())
+                    .source(source)
+                    .build();
+            log.info("Compensación iniciada para la venta: " + ventaId + " debido a fallo en " + source);
+            log.info("Recibido evento de compensacion de venta");
+            // FALTA REVISAR QUE S ENVIA PARA LA COMPENSACION DE ESTA VENTA QEUE VIENE DE UN ERRROR EN FINANZAS
+            iComprobantesVentasCabRepository.deleteById(ventaId);
+            rabbitTemplate.convertAndSend("CompensacionVentasExchange", "venta.compensar", compensacionEvent);
+        } catch (Exception e) {
+            log.error("Error al eliminar el comprobante de venta en la compensacion: " + e.getMessage());
+            throw new ComprobanteCompraException("Error al eliminar el comprobante de venta en la compensacion: " + e.getMessage());
         }
     }
 
@@ -103,7 +131,7 @@ public class VentasServiceImpl implements IVentasService {
                     .orElseThrow(() -> new ComprobanteVentaException("Venta no encontrada con ID: " + id));
 
             if ("ANU".equals(entity.getComprobantesVentasEstadoEntity().getCodigo())) {
-                System.out.println("Venta ya fue anulada, no se requiere acción: " + id);
+                log.info("Venta ya anulada con ID: " + id);
                 return true;
             }
             Optional<ComprobantesVentasEstadoEntity> estado = iComprobantesVentasEstadosRepository.findById("ANU");
@@ -122,16 +150,16 @@ public class VentasServiceImpl implements IVentasService {
     @Override
     public String getNumeroXSerie(String serie, Long idPuntoVenta) {
         try {
-            System.out.println("Ejecutando consulta con serie: " + serie + ", idPuntoVenta: " + idPuntoVenta);
+            log.info("Ejecutando consulta con serie: " + serie + ", idPuntoVenta: " + idPuntoVenta);
             String serieMax = iComprobantesVentasCabRepository.findMaxNumero(serie, idPuntoVenta);
-            System.out.println("Resultado de la consulta: " + serieMax);
+            log.info("Resultado de la consulta: " + serieMax);
 
             if (serieMax == null || serieMax.equals("")) {
                 serieMax = "1";
             }
             return serieMax;
         } catch (Exception e) {
-            System.err.println("Error al ejecutar la consulta: " + e.getMessage());
+            log.error("Error al ejecutar la consulta: " + e.getMessage());
             throw new RuntimeException("Error al obtener el numero de serie: " + e.getMessage());
         }
     }
@@ -143,10 +171,10 @@ public class VentasServiceImpl implements IVentasService {
                 if (numero == null || numero.equals("")) {
                     numero = "1";
                 }
-                System.out.println("Numero: " + numero);
+                log.info("Numero: " + numero);
                 emitter.send(numero);
             } catch (IOException e) {
-                System.err.println("Error en la tarea asíncrona: " + e.getMessage());
+                log.error("Error en la tarea asíncrona: " + e.getMessage());
                 emitter.completeWithError(e);
             }
         }, 0, 5, TimeUnit.SECONDS);
@@ -169,20 +197,6 @@ public class VentasServiceImpl implements IVentasService {
             return series;
         } catch (Exception e) {
             throw new ComprobanteVentaException("Error al obtener las series de comprobantes de venta: " + e.getMessage());
-        }
-    }
-
-    @RabbitListener(queues = "ventasCompensarQueue")
-    public void recibirMensajeCompensacion(VentaCompensarEvent event) {
-        try {
-            Boolean anulada = this.anularVenta(event.getVentaId());
-            if (anulada) {
-                System.out.println("Venta compensada y anulada: " + event.getVentaId());
-                throw new ComprobanteVentaException("Se produjo un error al registrar el cobro, se anulo la venta");
-            }
-        } catch (Exception e) {
-            System.err.println("Error al compensar la venta: " + e.getMessage());
-            throw new ComprobanteVentaException("Error al anular la venta: " + e.getMessage());
         }
     }
 }

@@ -2,13 +2,14 @@ package com.microservice.inventario.persistence.especification;
 
 import com.microservice.inventario.persistence.entity.ProductosEntity;
 import com.microservice.inventario.persistence.entity.ProductosXAlmacenEntity;
+import com.microservice.inventario.persistence.entity.StockAlmacen;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
 
 public class ProductosSpecifications {
 
-    public static Specification<ProductosEntity> getProductos(Long id, Long idEmpresa, String codigo, String nombre, Long tipoId, Long almacenId) {
+    public static Specification<ProductosEntity> getProductos(Long id, Long idEmpresa, String codigo, String nombre, String codigoTipo, Long almacenId) {
         return (Root<ProductosEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
             Predicate predicate = cb.conjunction();
 
@@ -33,14 +34,14 @@ public class ProductosSpecifications {
             }
 
             // Filtrar por tipo de producto
-            if (tipoId != null) {
-                predicate = cb.and(predicate, cb.equal(root.get("tipo").get("id"), tipoId));
+            if (codigoTipo != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("tipo").get("codigo"), codigoTipo));
             }
 
             // Filtrar por almacén
             if (almacenId != null) {
-                Join<ProductosEntity, ProductosXAlmacenEntity> productosXAlmacenJoin = root.join("productosXAlmacen", JoinType.INNER);
-                predicate = cb.and(predicate, cb.equal(productosXAlmacenJoin.get("almacen").get("id"), almacenId));
+                Join<ProductosEntity, StockAlmacen> productosXStock = root.join("stockAlmacenList", JoinType.INNER);
+                predicate = cb.and(predicate, cb.equal(productosXStock.get("almacen").get("id"), almacenId));
             }
 
             return predicate;

@@ -1,26 +1,30 @@
 package com.microservice.inventario;
 
 import com.microservice.inventario.persistence.entity.*;
-import com.microservice.inventario.persistence.repository.AlmacenRepository;
+import com.microservice.inventario.persistence.repository.IAlmacenRepository;
 import com.microservice.inventario.persistence.repository.IAlmacenTipoRepository;
+import com.microservice.inventario.persistence.repository.IMovimientosMotivosRepository;
 import com.microservice.inventario.persistence.repository.IPuntoVentaRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import java.util.List;
 
 @EnableDiscoveryClient
 @SpringBootApplication
+@EnableAspectJAutoProxy
 public class MicroserviceInventarioApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(MicroserviceInventarioApplication.class, args);
 	}
 	@Bean
-	CommandLineRunner init(AlmacenRepository almacenRepository, IPuntoVentaRepository puntoVentaRepository, IAlmacenTipoRepository almacenTipoRepository) {
+	CommandLineRunner init(IAlmacenRepository IAlmacenRepository, IPuntoVentaRepository puntoVentaRepository, IAlmacenTipoRepository almacenTipoRepository, IMovimientosMotivosRepository movimientosMotivosRepository) {
 		return args -> {
 
 			AlmacenTipoEntity tipo = AlmacenTipoEntity.builder()
@@ -40,7 +44,7 @@ public class MicroserviceInventarioApplication {
 					.tipoAlmacen(tipo)
 					.build();
 
-			almacenRepository.save(almacen);
+			IAlmacenRepository.save(almacen);
 			UbigeoEntity ubigeo = UbigeoEntity.builder()
 					.departamento("002321")
 					.ubigeoCodigo("002321")
@@ -59,6 +63,17 @@ public class MicroserviceInventarioApplication {
 					.ubigeo(ubigeo)
 					.build();
 			puntoVentaRepository.save(punto);
+			MovimientosMotivosEntity motivo = MovimientosMotivosEntity.builder()
+					.codigo("COM")
+					.descripcion("COMPRA")
+					.usuarioCreacion("admin")
+					.build();
+			MovimientosMotivosEntity motivo2 = MovimientosMotivosEntity.builder()
+					.codigo("VEN")
+					.descripcion("VENTA")
+					.usuarioCreacion("admin")
+					.build();
+			movimientosMotivosRepository.saveAll(List.of(motivo2, motivo));
 		};
 	}
 }

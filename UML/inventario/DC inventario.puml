@@ -9,20 +9,6 @@ package "org-camal" {
         + EliminarProducto()
     }
 
-    class Productos {
-        - idProducto
-        - codigo
-        - tipo
-        - nombre
-        - marca
-        - presentacion
-        - generarStock
-        - estado
-        - idUnidad
-        - CantidadXEnvase // cantidad por java (pollos por envase)
-        - precioSugerido
-        -- metodos --
-    }
     class ProductosTipos {
         - idProductotipo
         - codigo
@@ -93,6 +79,26 @@ package "org-camal" {
         - total
         - unidadesCodigo
     }
+    class Embases {
+        - codigo
+        - tipoembase
+        - nombre
+        - capacidad
+        - pesototal
+        -estado
+    }
+    class Productos {
+            - idProducto
+            - codigo
+            - tipo
+            - nombre
+            - generarStock
+            - estado
+            - idUnidad
+            - CantidadXEnvase // cantidad por java (pollos por envase)
+            - precioSugerido
+            -- metodos --
+        }
 
     Productos --> MetodosProductos : implementa
     Productos "1" --* "1" Unidades : utiliza

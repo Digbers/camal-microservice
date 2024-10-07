@@ -14,5 +14,6 @@ import java.util.Optional;
 public interface IPuntoVentaRepository extends JpaRepository<PuntoVentaEntity, Long>, JpaSpecificationExecutor<PuntoVentaEntity> {
     @Query("SELECT u FROM PuntoVentaEntity u WHERE u.idAlmacen.id = ?1")
     List<PuntoVentaEntity> findAllByIdAlmacen(Long almacenId);
+    Optional<AlmacenEntity> findByIdAlmacen(Long almacenId);
 
 }

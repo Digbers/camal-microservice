@@ -60,6 +60,7 @@ public class MicroserviceAuthApplication {
 					.menuUrl("/")
 					.menuName("Mantenimiento")
 					.icon("fa-tools")
+					.orden(1)
 					.nivel(1L)
 					.build();
 
@@ -68,6 +69,7 @@ public class MicroserviceAuthApplication {
 					.menuName("Usuarios")
 					.icon("fa-user")
 					.nivel(2L)
+					.orden(1)
 					.padre(menusForAdmin)
 					.build();
 
@@ -75,17 +77,27 @@ public class MicroserviceAuthApplication {
 					.menuUrl("mantenimiento/empresas/")
 					.menuName("Empresas")
 					.icon("fa-building")
+					.orden(1)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menusProductos = MenusEntity.builder()
+					.menuUrl("mantenimiento/productos/")
+					.menuName("Productos")
+					.icon("fa-product-hunt")
+					.orden(1)
 					.nivel(2L)
 					.padre(menusForAdmin)
 					.build();
 
 // Asignar submenús al menú padre
-			menusForAdmin.setSubmenus(Set.of(menusUsuario, menusEmpresas));
+			menusForAdmin.setSubmenus(Set.of(menusUsuario, menusEmpresas, menusProductos));
 
 			MenusEntity menusVentas = MenusEntity.builder()
 					.menuUrl("/")
 					.menuName("Ventas")
 					.icon("fa-shopping-cart")
+					.orden(2)
 					.nivel(1L)
 					.build();
 
@@ -93,6 +105,7 @@ public class MicroserviceAuthApplication {
 					.menuUrl("ventas/nuevo/")
 					.menuName("Nueva Venta")
 					.icon("fa-plus")
+					.orden(1)
 					.nivel(2L)
 					.padre(menusVentas)
 					.build();
@@ -101,6 +114,7 @@ public class MicroserviceAuthApplication {
 					.menuUrl("ventas/comprobantes/")
 					.menuName("Comprobantes")
 					.icon("fa-file-invoice")
+					.orden(2)
 					.nivel(2L)
 					.padre(menusVentas)
 					.build();

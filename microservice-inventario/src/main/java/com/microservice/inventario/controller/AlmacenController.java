@@ -1,27 +1,33 @@
 package com.microservice.inventario.controller;
 
 import com.microservice.inventario.controller.DTO.AlmacenDTO;
+import com.microservice.inventario.controller.DTO.request.ConvertirProductoRequest;
 import com.microservice.inventario.service.almacenI.AlmacenService;
+import com.microservice.inventario.service.almacenI.StockAlmacenService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/inventario/almacenes")
+@RequestMapping("api/inventario/almacenes")
+@RequiredArgsConstructor
 public class AlmacenController {
-    @Autowired
-    private AlmacenService almacenService;
-    @Autowired
-    private ModelMapper modelMapper;
+    private final AlmacenService almacenService;
+    private final ModelMapper modelMapper;
+    private final StockAlmacenService stockAlmacenService;
+
+    @PostMapping("/trasformar-producto")
+    public ResponseEntity<Boolean> trasfomarProducto(@RequestBody ConvertirProductoRequest productoRequest) {
+        return ResponseEntity.ok(stockAlmacenService.convertirProducto(productoRequest));
+    }
+
 
     @GetMapping("/list")
     public Page<AlmacenDTO> findAll(Pageable pageable) {

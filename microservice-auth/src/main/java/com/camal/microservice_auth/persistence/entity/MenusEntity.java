@@ -24,6 +24,7 @@ public class MenusEntity {
     @Column(name = "menu_url")
     private String menuUrl;
     private String icon;
+    private Integer orden;
     private Long nivel;
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "menus")
     private Set<UserEntity> usuarios = new HashSet<>();

@@ -7,14 +7,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "productos_x_almacenes")
 public class ProductosXAlmacenEntity {
+    /*
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,7 +17,6 @@ public class ProductosXAlmacenEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_almacen", nullable = false, referencedColumnName = "id")
     private AlmacenEntity almacen;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false, referencedColumnName = "id")
     private ProductosEntity productos;
@@ -37,5 +30,5 @@ public class ProductosXAlmacenEntity {
     private String usuarioActualizacion;
     @UpdateTimestamp
     @Column(name = "fecha_actualizacion")
-    private Timestamp fechaActualizacion;
+    private Timestamp fechaActualizacion;*/
 }

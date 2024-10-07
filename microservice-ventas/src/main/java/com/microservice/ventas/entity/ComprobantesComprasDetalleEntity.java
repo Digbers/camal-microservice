@@ -19,20 +19,24 @@ public class ComprobantesComprasDetalleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "id_comprobante_cabecera")
-    private ComprobantesComprasCaEntity comprobanteCabeceraEntity;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_comprobante_cabecera", nullable = false, referencedColumnName = "id")
+    private ComprobantesComprasCaEntity comprobantesComprasCaEntity;
     private Long numero;
     @Column(nullable = false)
     private Integer cantidad;
     @Column(nullable = false, name = "id_producto")
     private Long idProducto;
+    @Column(nullable = false, name = "id_envase")
+    private Long idEnvase;
     @Column(precision = 10, scale = 2)
     private BigDecimal peso;
     @Column(precision = 10, scale = 2)
     private BigDecimal precioUnitario;
     @Column(nullable = false)
     private String descripcion;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal descuento;
     @Column(name = "usercodigo_creacion")
     private String usuarioCreacion;
     @CreationTimestamp

@@ -21,6 +21,10 @@ public class CompensarVentaEvent {
     @NotNull(message = "Los detalles de la venta son obligatorios")
     @Valid
     private List<ComprobanteDetalleRequest> comprobanteDetalleRequest;
-    @NotNull(message = "El id de la almacen es obligatorio")
-    private Long idAlmacen;
+    @NotNull(message = "El id del punto de venta es obligatorio")
+    private Long idPuntoVenta;
+    @NotNull(message = "El ID de la empresa es obligatorio")
+    private Long idEmpresa;
+    @NotNull(message = "El source es obligatorio")
+    private String source;
 }
