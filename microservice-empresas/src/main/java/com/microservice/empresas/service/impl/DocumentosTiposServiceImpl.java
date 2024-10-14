@@ -25,12 +25,16 @@ public class DocumentosTiposServiceImpl implements IDocumentosTiposService {
 
     @Override
     public Optional<DocumentoTiposEntity> findById(String docCodigo, Long empresa) {
-        DocumentosTiposId id = DocumentosTiposId.builder()
-                .docCodigo(docCodigo)
-                .empresa(empresa)
-                .build();
-        return documentosTiposRepository.findById(id)
-                .or(() -> Optional.empty());
+        try {
+            DocumentosTiposId id = DocumentosTiposId.builder()
+                    .docCodigo(docCodigo)
+                    .empresa(empresa)
+                    .build();
+            return documentosTiposRepository.findById(id)
+                    .or(() -> Optional.empty());
+        } catch (NullPointerException ex) {
+            throw new EntityNotFoundException("DocumentoTipos no encontrada con docCodigo: " + docCodigo + " y empresaId: " + empresa);
+        }
     }
 
     @Override

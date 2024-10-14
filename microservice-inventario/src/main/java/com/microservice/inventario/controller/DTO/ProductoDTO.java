@@ -13,15 +13,16 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductoDTO {
-    private Long id;
-    @NotNull(message = "El ID de la empresa es obligatorio")
-    private Long empresaId;
+    private Long idProducto;
+    @NotNull(message = "La empresa es obligatorio")
+    private EmpresaDTO empresa;
 
     @NotBlank(message = "El código del producto no puede estar vacío")
     @Size(max = 50, message = "El código no puede tener más de 50 caracteres")
@@ -33,10 +34,15 @@ public class ProductoDTO {
     @NotNull(message = "El tipo de producto es obligatorio")
     private ProductosTiposDTO tipo;
 
-    @NotNull(message = "La lista de productos por almacén no puede ser nula")
-    @Valid
-    @OneToMany(mappedBy = "producto", cascade = {CascadeType.MERGE})
-    private List<StockAlmacenDTO> stockAlmacenList;
+    // Campos que se agregarían desde StockAlmacen
+    private Long stockAlmacenId; // ID del StockAlmacen
+    private Long almacenId;       // ID del Almacén
+    private Long envaseId;        // ID del Envase
+    private Long empresaId;       // ID de la Empresa
+    private int cantidadEnvase; // Cantidad en envase
+    private int cantidadProducto; // Cantidad total del producto
+    private BigDecimal pesoTotal; // Peso total
+    private LocalDate fechaRegistro; // Fecha de registro
 
     @NotNull(message = "Debe especificar si genera stock")
     private Boolean generarStock;

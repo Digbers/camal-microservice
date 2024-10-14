@@ -11,7 +11,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "StockAlmacen", uniqueConstraints = {
@@ -29,7 +28,7 @@ import java.util.Date;
         @Column(name = "id_empresa", nullable = false)
         private Long idEmpresa;
 
-        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+        @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE, optional = false)
         @JoinColumn(name = "idProducto")
         private ProductosEntity producto;
 

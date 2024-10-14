@@ -31,7 +31,7 @@ public class ProductosEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "tipo_codigo", nullable = false)
     private ProductosTiposEntity tipo;
-    @OneToMany(mappedBy = "producto", cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<StockAlmacen> stockAlmacenList;
     @Column(name = "generar_stock")
     private Boolean generarStock;

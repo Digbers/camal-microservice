@@ -17,7 +17,7 @@ public class PuntoVentaDTO {
     private String direccion;
     private String nombre;
     private UbigeoDTO ubigeo;
-    private Long idAlmacen;
+    private AlmacenDTO almacen;
     private String usuarioCreacion;
     private Timestamp fechaCreacion;
     private String usuarioActualizacion;

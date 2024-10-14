@@ -41,24 +41,5 @@ public class EmpresaClient {
                 .block();
     }
 
-
-    public Mono<EmpresaDTO> obtenerDetallesEmpresa(Long empresaId) {
-        String url = "/empresas/find/" + empresaId;
-
-        return webClientBuilder.build()
-                .get()
-                .uri("http://msvc-gateway" + url)
-                .retrieve()
-                .onStatus(status -> status.is4xxClientError(), response -> {
-                    if (response.statusCode().equals(HttpStatus.NOT_FOUND)) {
-                        return Mono.error(new RuntimeException("Empresa no encontrada"));
-                    }
-                    return Mono.error(new RuntimeException("Error en la solicitud: " + response.statusCode()));
-                })
-                .onStatus(status -> status.is5xxServerError(),
-                        response -> Mono.error(new RuntimeException("Error en el servicio de empresas")))
-                .bodyToMono(EmpresaDTO.class)
-                .doOnError(e -> System.out.println("Error al obtener detalles de la empresa: " + e.getMessage()));
-    }
 }
 

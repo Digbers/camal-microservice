@@ -16,6 +16,7 @@ public class DocumentosTiposDTO {
     private EmpresaEntity empresa;
     private String docCodigo;
     private String descripcion;
+    private String codigoSunat;
     private String usuarioCreacion;
     private Timestamp fechaCreacion;
     private String usuarioActualizacion;

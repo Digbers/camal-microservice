@@ -1,11 +1,16 @@
 package com.microservice.inventario.service.puntoVentaI;
 
+import com.microservice.inventario.clients.EmpresaClient;
 import com.microservice.inventario.controller.DTO.AlmacenDTO;
+import com.microservice.inventario.controller.DTO.EmpresaDTO;
 import com.microservice.inventario.controller.DTO.PuntoVentaDTO;
+import com.microservice.inventario.controller.DTO.response.DatosGeneralesResponse;
 import com.microservice.inventario.persistence.entity.AlmacenEntity;
 import com.microservice.inventario.persistence.entity.PuntoVentaEntity;
 import com.microservice.inventario.persistence.repository.IPuntoVentaRepository;
 import com.microservice.inventario.service.almacenI.IAlmacenService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,13 +21,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class PuntoVentaService implements IPuntoVentaService {
-    @Autowired
-    IPuntoVentaRepository iPuntoVentaRepository;
-    @Autowired
-    IAlmacenService iAlmacenService;
-    @Autowired
-    ModelMapper modelMapper;
+    private final IPuntoVentaRepository iPuntoVentaRepository;
+    private final IAlmacenService iAlmacenService;
+    private final ModelMapper modelMapper;
+    private final EmpresaClient empresaClient;
     @Override
     public Page<PuntoVentaDTO> findAll(Pageable pageable) {
         return iPuntoVentaRepository.findAll(pageable).map(puntoVenta -> modelMapper.map(puntoVenta, PuntoVentaDTO.class));
@@ -30,7 +35,11 @@ public class PuntoVentaService implements IPuntoVentaService {
 
     @Override
     public Optional<PuntoVentaDTO> findById(Long id) {
-        return iPuntoVentaRepository.findById(id).map(puntoVenta -> modelMapper.map(puntoVenta, PuntoVentaDTO.class));
+        try {
+            return iPuntoVentaRepository.findById(id).map(puntoVenta -> modelMapper.map(puntoVenta, PuntoVentaDTO.class));
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener puntoVenta por id : " + e.getMessage());
+        }
     }
 
     @Override
@@ -54,7 +63,20 @@ public class PuntoVentaService implements IPuntoVentaService {
         try {
             return iPuntoVentaRepository.findAllByIdAlmacen(id).stream().map(puntoVenta -> modelMapper.map(puntoVenta, PuntoVentaDTO.class)).toList();
         } catch (Exception e) {
-            return List.of();
+            throw new RuntimeException("Error al obtener puntoVenta por idAlmacen : " + e.getMessage());
+        }
+    }
+
+    @Override
+    public DatosGeneralesResponse findDatosGenerales(Long idEmpresa, Long idAlmacen, Long idPuntoVenta) {
+        try {
+            EmpresaDTO emp = empresaClient.obtenerDetallesEmpresa(idEmpresa);
+            AlmacenDTO almacen = iAlmacenService.findById(idAlmacen).get();
+            PuntoVentaDTO puntoVenta = this.findById(idPuntoVenta).get();
+            DatosGeneralesResponse datos = new DatosGeneralesResponse(emp.getRazonSocial(), almacen.getNombre(), puntoVenta.getNombre());
+            return datos;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener datos generales de puntoVenta : " + e.getMessage());
         }
     }
 }

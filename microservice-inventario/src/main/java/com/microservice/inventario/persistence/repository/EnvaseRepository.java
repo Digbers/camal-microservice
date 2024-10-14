@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface EnvaseRepository extends JpaRepository<EnvaseEntity, Long>, JpaSpecificationExecutor<EnvaseEntity> {
-    @Query("SELECT e FROM EnvaseEntity e JOIN e.stockAlmacenList s WHERE s.almacen.idAlmacen = :idAlmacen")
+    @Query("SELECT e FROM EnvaseEntity e JOIN e.stockAlmacenList s WHERE s.almacen.id = :idAlmacen")
     List<EnvaseEntity> findEnvasesByAlmacen(@Param("idAlmacen") Long idAlmacen);
+
 }

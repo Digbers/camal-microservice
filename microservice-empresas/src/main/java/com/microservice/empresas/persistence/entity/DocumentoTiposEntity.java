@@ -24,11 +24,13 @@ public class DocumentoTiposEntity {
     private EmpresaEntity empresa;
 
     @Id
-    @Column(name = "doc_codigo", nullable = false, length = 3)
+    @Column(name = "doc_codigo", unique = true, nullable = false, length = 3)
     private String docCodigo;
 
     @Column(name = "doc_descripcion", nullable = false, length = 100)
     private String descripcion;
+    @Column(name = "codigo_sunat", nullable = false, length = 3)
+    private String codigoSunat;
     @Column(name = "usercodigo_creacion")
     private String usuarioCreacion;
     @CreationTimestamp

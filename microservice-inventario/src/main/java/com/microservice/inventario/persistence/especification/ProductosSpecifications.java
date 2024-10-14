@@ -1,7 +1,6 @@
 package com.microservice.inventario.persistence.especification;
 
 import com.microservice.inventario.persistence.entity.ProductosEntity;
-import com.microservice.inventario.persistence.entity.ProductosXAlmacenEntity;
 import com.microservice.inventario.persistence.entity.StockAlmacen;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;

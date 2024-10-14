@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.Set;
+
 @Component
 public class EmpresaClient {
 
@@ -20,7 +23,7 @@ public class EmpresaClient {
 
         return webClientBuilder.build()
                 .get()
-                .uri("http://msvc-gateway/empresas/find/" + empresaId)
+                .uri("http://msvc-gateway/api/empresas/find/" + empresaId)
                 .header("X-Internal-Request", "true")
                 .retrieve()
                 .onStatus(status -> status.is4xxClientError(), response -> {
@@ -40,25 +43,44 @@ public class EmpresaClient {
                 .doOnError(e -> System.out.println("Error al verificar empresa: " + e.getMessage()))
                 .block();
     }
-
-
-    public Mono<EmpresaDTO> obtenerDetallesEmpresa(Long empresaId) {
-        String url = "/empresas/find/" + empresaId;
-
+    public List<EmpresaDTO> getEmpresasByIds(Set<Long> empresaIds) {
         return webClientBuilder.build()
-                .get()
-                .uri("http://msvc-gateway" + url)
+                .post()
+                .uri("http://msvc-gateway/api/empresas/findAllByIds")
+                .header("X-Internal-Request", "true")
+                .bodyValue(empresaIds)
                 .retrieve()
-                .onStatus(status -> status.is4xxClientError(), response -> {
-                    if (response.statusCode().equals(HttpStatus.NOT_FOUND)) {
-                        return Mono.error(new RuntimeException("Empresa no encontrada"));
+                .onStatus(status -> status.is4xxClientError(), responseClient -> {
+                    if (responseClient.statusCode().equals(HttpStatus.NOT_FOUND)) {
+                        return responseClient.bodyToMono(String.class)
+                                .flatMap(errorMessage -> Mono.error(new RuntimeException(errorMessage)));
                     }
-                    return Mono.error(new RuntimeException("Error en la solicitud: " + response.statusCode()));
+                    return Mono.error(new RuntimeException("Error en la solicitud: " + responseClient.statusCode()));
                 })
                 .onStatus(status -> status.is5xxServerError(),
-                        response -> Mono.error(new RuntimeException("Error en el servicio de empresas")))
-                .bodyToMono(EmpresaDTO.class)
-                .doOnError(e -> System.out.println("Error al obtener detalles de la empresa: " + e.getMessage()));
+                        responseClient -> Mono.error(new RuntimeException("Error en el servicio de empresas")))
+                .bodyToFlux(EmpresaDTO.class)  // Mapear a una lista de EmpresaDTO
+                .collectList()  // Convertir el Flux en una List
+                .block();  // Bloquear para esperar la respuesta
+    }
+
+    public EmpresaDTO obtenerDetallesEmpresa(Long empresaId) {
+        return webClientBuilder.build()
+                .get()
+                .uri("http://msvc-gateway/api/empresas/find/" + empresaId)
+                .header("X-Internal-Request", "true")
+                .retrieve()
+                .onStatus(status -> status.is4xxClientError(), responseClient -> {
+                    if (responseClient.statusCode().equals(HttpStatus.NOT_FOUND)) {
+                        return responseClient.bodyToMono(String.class)
+                                .flatMap(errorMessage -> Mono.error(new RuntimeException(errorMessage)));
+                    }
+                    return Mono.error(new RuntimeException("Error en la solicitud: " + responseClient.statusCode()));
+                })
+                .onStatus(status -> status.is5xxServerError(),
+                        responseClient -> Mono.error(new RuntimeException("Error en el servicio de empresas")))
+                .bodyToMono(EmpresaDTO.class)  // Mapear a la estructura Empreass
+                .block();
     }
 }
 

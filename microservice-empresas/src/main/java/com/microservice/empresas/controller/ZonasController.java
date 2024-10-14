@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/zonas")
+@RequestMapping("/api/empresas/zonas")
 public class ZonasController {
     @Autowired
     private IZonasService zonasService;

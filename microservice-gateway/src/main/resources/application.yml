@@ -41,7 +41,7 @@ spring:
         - id: empresas
           uri: http://localhost:9093
           predicates:
-            - Path=/empresas/**
+            - Path=/api/empresas/**
           filters:
             - name: AuthFilter
         - id: finanzas

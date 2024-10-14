@@ -11,12 +11,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import java.util.List;
 import java.util.Set;
 
 @EnableDiscoveryClient
 @SpringBootApplication
+@EnableAspectJAutoProxy
+@ComponentScan("com.microservice.empresas")
 public class MicroserviceEmpresasApplication {
 
 	public static void main(String[] args) {
@@ -26,7 +30,7 @@ public class MicroserviceEmpresasApplication {
 	CommandLineRunner init(IDocumentosTiposRepository documentosTiposRepository, IEntidadesTiposRepository entidadesTiposRepository, IEmpresaRepository empresaRepository) {
 		return args -> {
 			EmpresaEntity empresa = EmpresaEntity.builder()
-					.empresaCodigo("001")
+					.empresaCodigo("AVI DON JOSE")
 					.departamento("Arequipa")
 					.celular("1221221")
 					.distrito("Cerro Colorado")
@@ -40,7 +44,7 @@ public class MicroserviceEmpresasApplication {
 					.ubigeo("150101")
 					.build();
 			EmpresaEntity empresa1 = EmpresaEntity.builder()
-					.empresaCodigo("002")
+					.empresaCodigo("CAFE SUB")
 					.departamento("Arequipa")
 					.celular("1221221")
 					.distrito("Cerro Colorado")
@@ -53,16 +57,18 @@ public class MicroserviceEmpresasApplication {
 					.usuarioCreacion("ADMIN")
 					.ubigeo("150101")
 					.build();
-			empresaRepository.saveAll(Set.of(empresa));
+			empresaRepository.saveAll(Set.of(empresa, empresa1));
 			DocumentoTiposEntity ruc = DocumentoTiposEntity.builder()
 					.empresa(empresa)
 					.descripcion("Registro Unico de Contribuyente")
 					.docCodigo("RUC")
+					.codigoSunat("6")
 					.usuarioCreacion("ADMIN")
 					.build();
 			DocumentoTiposEntity dni = DocumentoTiposEntity.builder()
 					.empresa(empresa)
 					.docCodigo("DNI")
+					.codigoSunat("1")
 					.descripcion("Documento Nacional de Identidad")
 					.usuarioCreacion("ADMIN")
 					.build();

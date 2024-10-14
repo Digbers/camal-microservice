@@ -1,8 +1,8 @@
 package com.microservice.inventario.controller;
-
 import com.microservice.inventario.controller.DTO.PuntoVentaDTO;
+import com.microservice.inventario.controller.DTO.response.DatosGeneralesResponse;
 import com.microservice.inventario.service.puntoVentaI.PuntoVentaService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +16,9 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("api/inventario/punto-venta")
+@RequiredArgsConstructor
 public class PuntoVentaController {
-    @Autowired
-    private PuntoVentaService puntoVentaService;
+    private final PuntoVentaService puntoVentaService;
     @GetMapping("/list")
     public Page<PuntoVentaDTO> findAll(Pageable pageable) {
         return puntoVentaService.findAll(pageable);
@@ -32,6 +32,11 @@ public class PuntoVentaController {
         }else{
             return ResponseEntity.notFound().build();
         }
+    }
+    @GetMapping("/find/{idEmpresa}/{idAlmacen}/{puntoVenta}")
+    ResponseEntity<DatosGeneralesResponse> findByIdEmpresaAlmacenPuntoVenta(@PathVariable Long idEmpresa, @PathVariable Long idAlmacen, @PathVariable Long puntoVenta) {
+        DatosGeneralesResponse datosGeneralesResponse = puntoVentaService.findDatosGenerales(idEmpresa, idAlmacen, puntoVenta);
+        return ResponseEntity.ok(datosGeneralesResponse);
     }
 
     @GetMapping("/find/almacen/{id}")

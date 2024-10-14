@@ -3,20 +3,28 @@ package com.microservice.empresas.service.impl;
 import com.microservice.empresas.controller.dto.EmpresaDTO;
 import com.microservice.empresas.persistence.entity.EmpresaEntity;
 import com.microservice.empresas.persistence.repository.IEmpresaRepository;
+import com.microservice.empresas.response.EmpresaResponseDTO;
 import com.microservice.empresas.service.IEmpresaService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class EmpresaServiceImpl implements IEmpresaService {
-    @Autowired
-    private IEmpresaRepository empresaRepository;
-    @Autowired
-    private ModelMapper modelMapper;
+
+    private final IEmpresaRepository empresaRepository;
+    private final ModelMapper modelMapper;
+
     @Override
     public List<EmpresaEntity> findAll() {
         return (List<EmpresaEntity>) empresaRepository.findAll();
@@ -59,5 +67,13 @@ public class EmpresaServiceImpl implements IEmpresaService {
         empresa.setWeb(empresaDTO.getWeb());
 
         return empresaRepository.save(empresa);
+    }
+
+    @Override
+    public List<EmpresaResponseDTO> findAllByIds(Set<Long> empresaIds) {
+        List<EmpresaEntity> empresas = empresaRepository.findAllById(empresaIds);
+        return empresas.stream()
+                .map(empresa -> modelMapper.map(empresa, EmpresaResponseDTO.class))
+                .collect(Collectors.toList());
     }
 }

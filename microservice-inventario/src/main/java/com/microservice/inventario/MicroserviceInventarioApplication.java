@@ -1,18 +1,16 @@
 package com.microservice.inventario;
 
 import com.microservice.inventario.persistence.entity.*;
-import com.microservice.inventario.persistence.repository.IAlmacenRepository;
-import com.microservice.inventario.persistence.repository.IAlmacenTipoRepository;
-import com.microservice.inventario.persistence.repository.IMovimientosMotivosRepository;
-import com.microservice.inventario.persistence.repository.IPuntoVentaRepository;
+import com.microservice.inventario.persistence.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @EnableDiscoveryClient
@@ -24,7 +22,14 @@ public class MicroserviceInventarioApplication {
 		SpringApplication.run(MicroserviceInventarioApplication.class, args);
 	}
 	@Bean
-	CommandLineRunner init(IAlmacenRepository IAlmacenRepository, IPuntoVentaRepository puntoVentaRepository, IAlmacenTipoRepository almacenTipoRepository, IMovimientosMotivosRepository movimientosMotivosRepository) {
+	CommandLineRunner init(IAlmacenRepository IAlmacenRepository,
+						   IPuntoVentaRepository puntoVentaRepository,
+						   IAlmacenTipoRepository almacenTipoRepository,
+						   IMovimientosMotivosRepository movimientosMotivosRepository,
+						   IUbigeoRepository ubigeoRepository,
+						   ProductosRepository productosRepository,
+						   ProductosTiposRepository productosTiposRepository,
+						   EnvaseRepository envaseRepository) {
 		return args -> {
 
 			AlmacenTipoEntity tipo = AlmacenTipoEntity.builder()
@@ -55,9 +60,10 @@ public class MicroserviceInventarioApplication {
 					.distritoCompleto("LIMA")
 					.provinciaCompleto("LIMA")
 					.build();
+			ubigeoRepository.save(ubigeo);
 			PuntoVentaEntity punto = PuntoVentaEntity.builder()
 					.direccion("AV. INDEPENDENCIA")
-					.idAlmacen(almacen)
+					.almacen(almacen)
 					.idEmpresa(1L)
 					.nombre("punto de venta 1")
 					.ubigeo(ubigeo)
@@ -74,6 +80,66 @@ public class MicroserviceInventarioApplication {
 					.usuarioCreacion("admin")
 					.build();
 			movimientosMotivosRepository.saveAll(List.of(motivo2, motivo));
+			ProductosTiposEntity tipoP = ProductosTiposEntity.builder()
+					.codigo("VIV")
+					.nombre("pollo vivo")
+					.usuarioCreacion("admin")
+					.build();
+			productosTiposRepository.save(tipoP);
+			EnvaseEntity envase = EnvaseEntity.builder()
+					.idEmpresa(1L)
+					.tipoEnvase("JAVA")
+					.descripcion("Java 8 hembras")
+					.capacidad(8)
+					.estado("VACIO")
+					.pesoReferencia(new BigDecimal(1))
+					.usuarioCreacion("admin")
+					.build();
+			EnvaseEntity envase2 = EnvaseEntity.builder()
+					.idEmpresa(1L)
+					.tipoEnvase("JAVA")
+					.descripcion("Java 6 machos")
+					.capacidad(6)
+					.estado("OCUPADO")
+					.pesoReferencia(new BigDecimal(1))
+					.usuarioCreacion("admin")
+					.build();
+			envaseRepository.saveAll(List.of(envase, envase2));
+			// Construir el objeto StockAlmacen
+			StockAlmacen stock = StockAlmacen.builder()
+					.idEmpresa(1L)
+					.envase(envase)
+					.almacen(almacen)
+					.cantidadEnvase(4)
+					.cantidadProducto(32)
+					.pesoTotal(new BigDecimal(32))
+					.fechaRegistro(LocalDate.now())
+					.usuarioCreacion("admin")
+					.build();
+			StockAlmacen stock2 = StockAlmacen.builder()
+					.idEmpresa(1L)
+					.envase(envase2)
+					.almacen(almacen)
+					.cantidadEnvase(2)
+					.cantidadProducto(16)
+					.pesoTotal(new BigDecimal(16))
+					.fechaRegistro(LocalDate.now())
+					.usuarioCreacion("admin")
+					.build();
+			ProductosEntity productosEntity = ProductosEntity.builder()
+					.empresaId(1L)
+					.codigo("001")
+					.nombre("pollo")
+					.tipo(tipoP)
+					.stockAlmacenList(List.of(stock, stock2))  // Añadir la lista con el stock
+					.generarStock(true)
+					.estado(true)
+					.precioSugerido(new BigDecimal(23))
+					.usuarioCreacion("admin")
+					.build();
+			stock.setProducto(productosEntity);
+			stock2.setProducto(productosEntity);
+			productosRepository.save(productosEntity);
 		};
 	}
 }

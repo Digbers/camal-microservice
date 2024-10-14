@@ -5,10 +5,10 @@ import com.microservice.inventario.persistence.entity.ProductosEntity;
 import com.microservice.inventario.service.productos.ProductosServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -20,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductControler {
     private final ProductosServiceImpl productosServiceImpl;
+    //private final PagedResourcesAssembler<ProductoDTO> pagedResourcesAssembler;
     @GetMapping("/list")
     public Page<ProductoDTO> getAll(
             @RequestParam int page,
@@ -33,6 +34,7 @@ public class ProductControler {
     ){
         return productosServiceImpl.finAll(id, idEmpresa, codigo, nombre, codigoTipo, almacenId, PageRequest.of(page, size));
     }
+
     @GetMapping("/all")
     public ResponseEntity<List<ProductoDTO>> getAll(){
         return ResponseEntity.ok(productosServiceImpl.findAll());

@@ -19,11 +19,10 @@ public class EntidadEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "empresa_id", nullable = false)
     private EmpresaEntity empresa;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(targetEntity = ZonasEntity.class, fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = ZonasEntity.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "zona_id")
     private ZonasEntity zona;
     private String nombre;
@@ -32,11 +31,11 @@ public class EntidadEntity {
     @Column(name = "apellido_materno")
     private String apellidoMaterno;
 
-    @ManyToOne(targetEntity = DocumentoTiposEntity.class, fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = DocumentoTiposEntity.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "doc_codigo", referencedColumnName = "doc_codigo")
     private DocumentoTiposEntity documentoTipo;
 
-    @Column(name = "nro_documento")
+    @Column(name = "nro_documento", length = 8, unique = true)
     private String nroDocumento;
     private String email;
     private String celular;

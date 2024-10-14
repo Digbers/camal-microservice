@@ -20,7 +20,6 @@ import java.util.Optional;
 public class ProductoAspect {
 
     private final IStockAlmacenRepository stockAlmacenRepository;
-
     /**
      * Aspecto para verificar el stock antes de realizar la conversión de productos.
      */

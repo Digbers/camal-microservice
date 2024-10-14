@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -98,16 +99,51 @@ public class ProductosServiceImpl implements IProductosService {
     }
     @Override
     public Page<ProductoDTO> finAll(Long id, Long idEmpresa, String codigo, String nombre, String tipoId, Long almacenId, Pageable pageable) {
-        Specification<ProductosEntity> specification = ProductosSpecifications.getProductos(id, idEmpresa, codigo, nombre, tipoId, almacenId);
+        try {
+            Specification<ProductosEntity> specification = ProductosSpecifications.getProductos(id, idEmpresa, codigo, nombre, tipoId, almacenId);
 
-        return productosRepository.findAll(specification, pageable).map(producto -> {
-            ProductoDTO dtoProducto = modelMapper.map(producto, ProductoDTO.class);
-            List<StockAlmacenDTO> stockAlmacenDTOs = producto.getStockAlmacenList().stream()
-                    .map(sa -> modelMapper.map(sa, StockAlmacenDTO.class))
-                    .collect(Collectors.toList());
-            dtoProducto.setStockAlmacenList(stockAlmacenDTOs);
-            return dtoProducto;
-        });
+            Set<Long> empresaIds = productosRepository.findAll(specification, pageable)
+                    .stream()
+                    .map(ProductosEntity::getEmpresaId)
+                    .collect(Collectors.toSet());
+            log.info("Enviando IDs de empresa: " + empresaIds);
+            // Hacer una sola petición al microservicio de empresas con los ids de empresa
+            List<EmpresaDTO> empresas = empresaClient.getEmpresasByIds(empresaIds);
+            // Crear un Map de idEmpresa -> EmpresaDTO
+            Map<Long, EmpresaDTO> empresaMap = empresas.stream()
+                    .collect(Collectors.toMap(EmpresaDTO::getId, empresa -> empresa));
+            log.info("Encontrados: " + empresas.size() + " empresas");
+            // List para almacenar todos los productos aplanados
+            List<ProductoDTO> productoDTOList = new ArrayList<>();
+
+            productosRepository.findAll(specification, pageable).forEach(producto -> {
+                // Asignar la empresa correspondiente
+                EmpresaDTO empresaDTO = empresaMap.get(producto.getEmpresaId());
+
+                // Iterar sobre cada StockAlmacen y crear un ProductoDTO por cada uno
+                producto.getStockAlmacenList().forEach(stockAlmacen -> {
+                    ProductoDTO dtoProducto = modelMapper.map(producto, ProductoDTO.class);
+                    dtoProducto.setEmpresa(empresaDTO);
+                    dtoProducto.setStockAlmacenId(stockAlmacen.getIdStock());
+                    dtoProducto.setAlmacenId(stockAlmacen.getAlmacen().getId());
+                    dtoProducto.setEnvaseId(stockAlmacen.getEnvase().getIdEnvase());
+                    dtoProducto.setCantidadEnvase(stockAlmacen.getCantidadEnvase());
+                    dtoProducto.setCantidadProducto(stockAlmacen.getCantidadProducto());
+                    dtoProducto.setPesoTotal(stockAlmacen.getPesoTotal());
+                    dtoProducto.setFechaRegistro(stockAlmacen.getFechaRegistro());
+
+                    productoDTOList.add(dtoProducto);
+                });
+            });
+
+            // Convertir la lista de ProductoDTO a Page
+            int start = (int) pageable.getOffset();
+            int end = Math.min((start + pageable.getPageSize()), productoDTOList.size());
+            return new PageImpl<>(productoDTOList.subList(start, end), pageable, productoDTOList.size());
+        } catch (Exception e) {
+            log.error("Error al buscar productos por descripción: " + e.getMessage());
+            throw new ProductoNotFoundException("No se pudo encontrar el producto con descripción " + e.getMessage());
+        }
     }
     @Override
     @Transactional
@@ -128,10 +164,23 @@ public class ProductosServiceImpl implements IProductosService {
         }
         ProductosEntity producto = producto1.get();
         ProductoDTO dto = modelMapper.map(producto, ProductoDTO.class);
-        List<StockAlmacenDTO> stockAlmacenDTOs = producto.getStockAlmacenList().stream()
-                .map(sa -> modelMapper.map(sa, StockAlmacenDTO.class))
-                .collect(Collectors.toList());
-        dto.setStockAlmacenList(stockAlmacenDTOs);
+        producto.getStockAlmacenList().stream()
+                .forEach(sa -> {
+                    List<EmpresaDTO> empresas = empresaClient.getEmpresasByIds(Set.of(sa.getIdEmpresa()));
+                    // Crear un Map de idEmpresa -> EmpresaDTO
+                    Map<Long, EmpresaDTO> empresaMap = empresas.stream()
+                            .collect(Collectors.toMap(EmpresaDTO::getId, empresa -> empresa));
+                    log.info("Encontrados: " + empresas.size() + " empresas");
+                    EmpresaDTO empresaDTO = empresaMap.get(producto.getEmpresaId());
+                    dto.setEmpresa(empresaDTO);
+                    dto.setStockAlmacenId(sa.getIdStock());
+                    dto.setAlmacenId(sa.getAlmacen().getId());
+                    dto.setEnvaseId(sa.getEnvase().getIdEnvase());
+                    dto.setCantidadEnvase(sa.getCantidadEnvase());
+                    dto.setCantidadProducto(sa.getCantidadProducto());
+                    dto.setPesoTotal(sa.getPesoTotal());
+                    dto.setFechaRegistro(sa.getFechaRegistro());
+                });
         return Optional.of(dto);
     }
     @Override
@@ -285,25 +334,6 @@ public class ProductosServiceImpl implements IProductosService {
                     .build();
             rabbitTemplate.convertAndSend("InventarioVentasExchange", "inventario.erroractualizado-ventas", compensarEvent);
             log.error("Error al actualizar el inventario, se procede a compensar la venta: " + event.getComprobantesVentasCab().getId());
-        }
-    }
-
-    @RabbitListener(queues = "InventarioCompensarQueue")
-    public void revertirInventario(CompensarVentaEvent event) {
-        try {
-            if (!event.getSource().equals("inventario")) {
-                Optional<AlmacenEntity> almacen = puntoVentaRepository.findByIdAlmacen(event.getIdPuntoVenta());
-                if (almacen.isEmpty()) {
-                    throw new RuntimeException("No se encontro el almacen con ID: " + event.getIdPuntoVenta());
-                }
-                revertirStock(event.getComprobanteDetalleRequest(), almacen.get().getId(), event.getIdEmpresa());
-                log.info("Inventario revertido para la venta compensada: " + event.getVentaId());
-            } else {
-                log.info("Ignorando compensación en Inventario porque la fuente de error es: " + event.getSource());
-            }
-        } catch (Exception e) {
-            log.error("Error al revertir el inventario: " + e.getMessage());
-            throw new RuntimeException("Error al revertir el inventario: " + e.getMessage());
         }
     }
     @RabbitListener(queues = "CompraCreadaQueue")

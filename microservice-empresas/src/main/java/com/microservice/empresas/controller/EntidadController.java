@@ -1,8 +1,14 @@
 package com.microservice.empresas.controller;
 
 import com.microservice.empresas.controller.dto.EntidadDTO;
+import com.microservice.empresas.controller.dto.PadronSunatDTO;
 import com.microservice.empresas.persistence.entity.EntidadEntity;
+import com.microservice.empresas.request.EntidadRequest;
+import com.microservice.empresas.request.ReniectRequest;
+import com.microservice.empresas.service.EntidadesSService;
 import com.microservice.empresas.service.IEntidadService;
+import com.microservice.empresas.service.WebScraperService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,11 +17,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/entidades")
+@RequestMapping("/api/empresas/entidades")
+@RequiredArgsConstructor
 public class EntidadController {
-    @Autowired
-    private IEntidadService entidadService;
 
+    private final IEntidadService entidadService;
+    private final EntidadesSService entidadesSService;
+    //solo por ruc para el momento
+    @GetMapping("/find-sunat/{tipodoc}/{numero}")
+    public ResponseEntity<PadronSunatDTO> findEntidad(@PathVariable String tipodoc, @PathVariable String numero) {
+        return ResponseEntity.ok(entidadesSService.findByNumeroDocTipoDocumento(numero, tipodoc));
+    }
+    @GetMapping("/find-entidad/{empresa}")
+    public ResponseEntity<EntidadRequest> findEntidadReniec(@PathVariable Long empresa, @RequestBody ReniectRequest reniecRecuest){
+        return ResponseEntity.ok(entidadesSService.findEntidadesByDNI(reniecRecuest, empresa));
+    }
     @GetMapping("/all")
     public ResponseEntity<?> findAll() {
         return ResponseEntity.ok(entidadService.findAll());

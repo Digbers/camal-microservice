@@ -17,10 +17,9 @@ public class EmpresaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(name = "razon_social", unique = true, nullable = false, length = 100)
     private String razonSocial;
-    @Column(name = "empresa_codigo", unique = true, nullable = false, length = 5)
+    @Column(name = "empresa_codigo", unique = true, nullable = false, length = 15)
     private String empresaCodigo;
     @Column(name = "ruc", unique = true, nullable = false, length = 11)
     private String ruc;

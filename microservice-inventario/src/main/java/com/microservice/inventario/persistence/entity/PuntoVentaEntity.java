@@ -22,12 +22,12 @@ public class PuntoVentaEntity {
     private Long idEmpresa;
     private String direccion;
     private String nombre;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @JoinColumn(name = "ubigeo_id")
     private UbigeoEntity ubigeo;
-    @ManyToOne
-    @JoinColumn(name = "almacen_id")
-    private AlmacenEntity idAlmacen;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
+    @JoinColumn(name = "almacen_id", referencedColumnName = "id")
+    private AlmacenEntity almacen;
     @Column(name = "usercodigo_creacion")
     private String usuarioCreacion;
     @CreationTimestamp

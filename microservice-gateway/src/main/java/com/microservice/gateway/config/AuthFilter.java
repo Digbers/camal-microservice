@@ -1,6 +1,8 @@
 package com.microservice.gateway.config;
 
 import com.microservice.gateway.util.JwtVericator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -14,6 +16,7 @@ import java.util.List;
 
 
 @Component
+@Slf4j
 public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> {
 
     @Autowired
@@ -33,17 +36,17 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             try{
-                System.out.println("GATEWAY");
+                log.info("Entro al filtro de autenticacion");
                 String requestPath = exchange.getRequest().getPath().toString();
-                System.out.println("Path: " + requestPath);
+                log.info("Request path: " + requestPath);
                 boolean isBypassPath = bypassPaths.stream().anyMatch(path -> pathMatcher.match(path, requestPath));
                 String internalHeader = exchange.getRequest().getHeaders().getFirst("X-Internal-Request");
-
+                log.info("Internal header: " + internalHeader);
                 if (isBypassPath || internalHeader != null) {
                     return chain.filter(exchange);
                 }
                 String token = extractToken(exchange.getRequest().getHeaders());
-                System.out.println("Token: " + token);
+                log.info("Token: " + token);
                 // Validate the token using JwtVericator
                 if (token != null && jwtVericator.validateToken(token)) {
                     // If token is valid, proceed with the request
@@ -51,7 +54,7 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
                 } else {
                     // If token is invalid, return an error response
                     exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                    System.out.println("ENTRO AL ERROR DEL GATEWAAY");
+                    log.info("Token no valido");
                     return exchange.getResponse().setComplete();
                 }
             }catch (Exception e){

@@ -10,4 +10,5 @@ class MicroserviceVentasApplicationTests {
 	void contextLoads() {
 	}
 
+
 }

@@ -1,11 +1,13 @@
 package com.microservice.gateway.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class FreePassFilter extends AbstractGatewayFilterFactory<FreePassFilter.Config> {
     public FreePassFilter() {
         super(FreePassFilter.Config.class);
@@ -17,9 +19,9 @@ public class FreePassFilter extends AbstractGatewayFilterFactory<FreePassFilter.
     public GatewayFilter apply(FreePassFilter.Config config) {
         return (exchange, chain) -> {
             try{
-                System.out.println("GATEWAY");
+                log.info("Entro al filtro de autenticacion");
                 String requestPath = exchange.getRequest().getPath().toString();
-                System.out.println("Path: " + requestPath);
+                log.info("Request path: " + requestPath);
                 return chain.filter(exchange);
 
             }catch (Exception e){
