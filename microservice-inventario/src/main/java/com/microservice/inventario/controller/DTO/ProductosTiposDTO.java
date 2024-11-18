@@ -14,12 +14,10 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductosTiposDTO {
-
+    private Long idTipoProducto;
+    private Long idEmpresa;
     private String codigo;
-
     private String nombre;
-
     private String  usuCreacion;
-
-    private Timestamp fechaCreacion;
+    private String usuarioActualizacion;
 }

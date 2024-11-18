@@ -1,24 +1,96 @@
 @startuml
-node "Dispositivo Móvil (Android)" {
-    [Aplicación Móvil]
+skinparam backgroundColor white
+skinparam componentStyle uml2
+
+' Definición de nodos principales
+node "Cliente" {
+    [Frontend React] as FE
 }
 
-node "Internet" {
-    interface "HTTP/HTTPS" as http
+cloud "Internet" {
+    interface "HTTPS" as https
 }
 
-node "Servidor VPS (Ubuntu)" {
-    [API REST (Spring Boot)]
-    [Servidor Web (Nginx)]
-    database "Base de Datos (PostgreSQL)" {
-        [Tabla Usuarios]
-        [Tabla Roles]
-        [Tabla Permisos]
+node "VPS Ubuntu Server" {
+    node "NGINX" as NGINX {
+        [Reverse Proxy] as RP
+    }
+
+    rectangle "Servicios de Infraestructura" {
+        [API Gateway] as GW
+        [Eureka Server] as EU
+        [Config Server] as CS
+    }
+
+    rectangle "Microservicios de Negocio" {
+        [Compras/Ventas] as CV
+        [Finanzas] as FI
+        [Empresas] as EM
+        [Inventario] as IN
+        [Autenticación] as AU
+    }
+
+    database "Bases de Datos" {
+        database "BD ComprasVentas" as DB_CV
+        database "BD Finanzas" as DB_FI
+        database "BD Empresas" as DB_EM
+        database "BD Inventario" as DB_IN
+        database "BD Autenticación" as DB_AU
     }
 }
 
-[Aplicación Móvil] --> http : Peticiones REST
-http --> [Servidor Web (Nginx)] : Proxy inverso
-[Servidor Web (Nginx)] --> [API REST (Spring Boot)] : Delegación de peticiones
-[API REST (Spring Boot)] --> [Base de Datos (PostgreSQL)] : CRUD Usuarios, Roles, Permisos
+' Conexiones Frontend
+FE --> https
+https --> RP
+RP --> GW
+
+' Conexiones Gateway a Microservicios
+GW --> CV : "Load Balance"
+GW --> FI : "Load Balance"
+GW --> EM : "Load Balance"
+GW --> IN : "Load Balance"
+GW --> AU : "Load Balance"
+
+' Registro en Eureka
+CV ..> EU : "Registro"
+FI ..> EU : "Registro"
+EM ..> EU : "Registro"
+IN ..> EU : "Registro"
+AU ..> EU : "Registro"
+
+' Configuración desde Config Server
+CV ..> CS : "Config"
+FI ..> CS : "Config"
+EM ..> CS : "Config"
+IN ..> CS : "Config"
+AU ..> CS : "Config"
+
+' Conexiones a Bases de Datos
+CV --> DB_CV : "JDBC/JPA"
+FI --> DB_FI : "JDBC/JPA"
+EM --> DB_EM : "JDBC/JPA"
+IN --> DB_IN : "JDBC/JPA"
+AU --> DB_AU : "JDBC/JPA"
+
+' Estilos y colores
+skinparam database {
+    BackgroundColor LightBlue
+    BorderColor Blue
+}
+
+skinparam rectangle {
+    BackgroundColor LightGreen
+    BorderColor Green
+}
+
+skinparam node {
+    BackgroundColor White
+    BorderColor Black
+}
+
+skinparam component {
+    BackgroundColor LightYellow
+    BorderColor Yellow
+}
+
 @enduml

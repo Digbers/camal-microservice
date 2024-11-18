@@ -13,7 +13,10 @@ import java.util.Optional;
 @Repository
 public interface ProductosRepository extends JpaRepository<ProductosEntity, Long>, JpaSpecificationExecutor<ProductosEntity> {
 
-    Optional<ProductosEntity> findByCodigo(String codigo);
+    // En el repositorio de ProductosRepository
+    @Query("SELECT p FROM ProductosEntity p LEFT JOIN FETCH p.stockAlmacenList WHERE p.codigo = :codigo")
+    Optional<ProductosEntity> findByCodigo(@Param("codigo") String codigo);
+
 
     @Query("SELECT p FROM ProductosEntity p " +
             "LEFT JOIN p.tipo t " +
@@ -23,7 +26,5 @@ public interface ProductosRepository extends JpaRepository<ProductosEntity, Long
             "OR LOWER(t.nombre) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
             "OR LOWER(a.nombre) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<ProductosEntity> searchByFields(@Param("searchTerm") String searchTerm);
-
-
 
 }

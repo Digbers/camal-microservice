@@ -64,34 +64,182 @@ public class MicroserviceAuthApplication {
 					.nivel(1L)
 					.build();
 
-			MenusEntity menusUsuario = MenusEntity.builder()
-					.menuUrl("mantenimiento/usuarios/")
-					.menuName("Usuarios")
-					.icon("fa-user")
-					.nivel(2L)
-					.orden(1)
-					.padre(menusForAdmin)
-					.build();
-
 			MenusEntity menusEmpresas = MenusEntity.builder()
 					.menuUrl("mantenimiento/empresas/")
 					.menuName("Empresas")
 					.icon("fa-building")
-					.orden(1)
+					.orden(2)
 					.nivel(2L)
 					.padre(menusForAdmin)
 					.build();
 			MenusEntity menusProductos = MenusEntity.builder()
 					.menuUrl("mantenimiento/productos/")
 					.menuName("Productos")
-					.icon("fa-product-hunt")
-					.orden(1)
+					.icon("fa-basket-shopping")
+					.orden(3)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menuEnvaces = MenusEntity.builder()
+					.menuUrl("mantenimiento/envaces/")
+					.menuName("Envaces")
+					.icon("fa-envelope")
+					.orden(4)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menuEstadosCCompras = MenusEntity.builder()
+					.menuUrl("mantenimiento/estadoccompras/")
+					.menuName("Estados de compras")
+					.icon("fa-envelope")
+					.orden(5)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menusEstadosCVentas = MenusEntity.builder()
+					.menuUrl("mantenimiento/estadocventas/")
+					.menuName("Estados de ventas")
+					.icon("fa-envelope")
+					.orden(6)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menusMonedas = MenusEntity.builder()
+					.menuUrl("mantenimiento/monedas/")
+					.menuName("Monedas")
+					.icon("fa-envelope")
+					.orden(7)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menuPuntosVentas = MenusEntity.builder()
+					.menuUrl("mantenimiento/puntosventas/")
+					.menuName("Puntos de venta")
+					.icon("fa-envelope")
+					.orden(8)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menuTipoCVentas = MenusEntity.builder()
+					.menuUrl("mantenimiento/tipocventas/")
+					.menuName("Tipos de ventas")
+					.icon("fa-envelope")
+					.orden(10)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menusTipoDocumentos = MenusEntity.builder()
+					.menuUrl("mantenimiento/tipodocumentos/")
+					.menuName("Tipos de documentos")
+					.icon("fa-envelope")
+					.orden(11)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menusTipoEntidades = MenusEntity.builder()
+					.menuUrl("mantenimiento/tipoentidades/")
+					.menuName("Tipos de entidades")
+					.icon("fa-envelope")
+					.orden(12)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menusTipoProductos = MenusEntity.builder()
+					.menuUrl("mantenimiento/tipoproductos/")
+					.menuName("Tipos de productos")
+					.icon("fa-envelope")
+					.orden(13)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menusTipoCCompras = MenusEntity.builder()
+					.menuUrl("mantenimiento/tipoccompras/")
+					.menuName("Tipos de compras")
+					.icon("fa-envelope")
+					.orden(14)
 					.nivel(2L)
 					.padre(menusForAdmin)
 					.build();
 
+			MenusEntity menusUnidades = MenusEntity.builder()
+					.menuUrl("mantenimiento/unidades/")
+					.menuName("Unidades")
+					.icon("fa-envelope")
+					.orden(16)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menusAlmacenes = MenusEntity.builder()
+					.menuUrl("mantenimiento/almacenes/")
+					.menuName("Almacenes")
+					.icon("fa-envelope")
+					.orden(17)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
+			MenusEntity menusEntidades = MenusEntity.builder()
+					.menuUrl("mantenimiento/entidades/")
+					.menuName("Entidades")
+					.icon("fa-envelope")
+					.orden(18)
+					.nivel(2L)
+					.padre(menusForAdmin)
+					.build();
 // Asignar submenús al menú padre
-			menusForAdmin.setSubmenus(Set.of(menusUsuario, menusEmpresas, menusProductos));
+			menusForAdmin.setSubmenus(Set.of(menusEmpresas,
+					menusProductos, menuEnvaces, menuEstadosCCompras, menusEstadosCVentas, menusMonedas, menuPuntosVentas,
+					menuTipoCVentas, menusTipoDocumentos, menusTipoEntidades, menusTipoProductos, menusTipoCCompras,
+					menusUnidades, menusAlmacenes, menusEntidades));
+			MenusEntity menusCompras = MenusEntity.builder()
+					.menuUrl("/")
+					.menuName("Compras")
+					.icon("fa-bag-shopping")
+					.orden(2)
+					.nivel(1L)
+					.build();
+			MenusEntity nuevaCompra = MenusEntity.builder()
+					.menuUrl("compras/nuevo/")
+					.menuName("Nueva Compra")
+					.icon("fa-circle-plus")
+					.orden(1)
+					.nivel(2L)
+					.padre(menusCompras)
+					.build();
+			MenusEntity comprobantesCompras = MenusEntity.builder()
+					.menuUrl("compras/comprobantes/")
+					.menuName("Comprobantes")
+					.icon("fa-ticket")
+					.orden(2)
+					.nivel(2L)
+					.padre(menusCompras)
+					.build();
+			// Asignar submenús al menú padre
+			menusCompras.setSubmenus(Set.of(nuevaCompra, comprobantesCompras));
+			MenusEntity caja = MenusEntity.builder()
+					.menuUrl("/")
+					.menuName("Caja")
+					.icon("fa-vault")
+					.orden(2)
+					.nivel(1L)
+					.build();
+			MenusEntity cuentasPorPagar = MenusEntity.builder()
+					.menuUrl("caja/cuentasxpagar/")
+					.menuName("Cuentas por Pagar")
+					.icon("fa-credit-card")
+					.orden(1)
+					.nivel(2L)
+					.padre(caja)
+					.build();
+			MenusEntity cuentasPorComprar = MenusEntity.builder()
+					.menuUrl("caja/cuentasxcomprar/")
+					.menuName("Cuentas por Comprar")
+					.icon("fa-receipt")
+					.orden(2)
+					.nivel(2L)
+					.padre(caja)
+					.build();
+			// Asignar submenús al menú padre
+			caja.setSubmenus(Set.of(cuentasPorPagar, cuentasPorComprar));
 
 			MenusEntity menusVentas = MenusEntity.builder()
 					.menuUrl("/")
@@ -104,7 +252,7 @@ public class MicroserviceAuthApplication {
 			MenusEntity nuevaVenta = MenusEntity.builder()
 					.menuUrl("ventas/nuevo/")
 					.menuName("Nueva Venta")
-					.icon("fa-plus")
+					.icon("fa-circle-plus")
 					.orden(1)
 					.nivel(2L)
 					.padre(menusVentas)
@@ -113,13 +261,13 @@ public class MicroserviceAuthApplication {
 			MenusEntity comprobantes = MenusEntity.builder()
 					.menuUrl("ventas/comprobantes/")
 					.menuName("Comprobantes")
-					.icon("fa-file-invoice")
+					.icon("fa-ticket")
 					.orden(2)
 					.nivel(2L)
 					.padre(menusVentas)
 					.build();
 
-// Asignar submenús al menú padre
+			// Asignar submenús al menú padre
 			menusVentas.setSubmenus(Set.of(nuevaVenta, comprobantes));
 
 			/*USUARIOS*/
@@ -132,7 +280,7 @@ public class MicroserviceAuthApplication {
 					.accountNoLocked(true)
 					.credentialsNoExpired(true)
 					.roles(Set.of(roleAdmin))
-					.menus(Set.of(menusForAdmin, menusUsuario, menusEmpresas, menusVentas, nuevaVenta, comprobantes))
+					.menus(Set.of(menusForAdmin, menusEmpresas, menusVentas, nuevaVenta, comprobantes, menusCompras, caja))
 					.build();
 			UserEntity userUser = UserEntity.builder()
 					.usercodigo("USER")
@@ -143,7 +291,7 @@ public class MicroserviceAuthApplication {
 					.accountNoLocked(true)
 					.credentialsNoExpired(true)
 					.roles(Set.of(roleUser))
-					.menus(Set.of(menusUsuario, menusEmpresas, menusVentas, nuevaVenta, comprobantes))
+					.menus(Set.of( menusEmpresas, menusVentas, nuevaVenta, comprobantes, menusCompras, caja))
 					.build();
 			UserEntity userDeveloper = UserEntity.builder()
 					.usercodigo("DEV")
@@ -154,7 +302,7 @@ public class MicroserviceAuthApplication {
 					.accountNoLocked(true)
 					.credentialsNoExpired(true)
 					.roles(Set.of(roleDeveloper))
-					.menus(Set.of(menusEmpresas, menusUsuario, menusForAdmin, menusVentas, nuevaVenta, comprobantes))
+					.menus(Set.of(menusVentas, nuevaVenta, comprobantes))
 					.build();
 			UserEntity userTester = UserEntity.builder()
 					.usercodigo("TEST")
@@ -165,7 +313,7 @@ public class MicroserviceAuthApplication {
 					.accountNoLocked(true)
 					.credentialsNoExpired(true)
 					.roles(Set.of(roleTester))
-					.menus(Set.of(menusUsuario, menusEmpresas))
+					.menus(Set.of(menusEmpresas))
 					.build();
 			UserEntity userInvited = UserEntity.builder()
 					.usercodigo("INV")
@@ -176,7 +324,7 @@ public class MicroserviceAuthApplication {
 					.accountNoLocked(true)
 					.credentialsNoExpired(true)
 					.roles(Set.of(roleInvited))
-					.menus(Set.of(menusUsuario, menusEmpresas))
+					.menus(Set.of(menusEmpresas))
 					.build();
 			userRepository.saveAll(List.of(userAdmin, userUser, userDeveloper, userTester, userInvited));
 

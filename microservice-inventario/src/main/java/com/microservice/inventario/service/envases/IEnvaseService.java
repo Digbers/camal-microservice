@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface IEnvaseService {
     EnvaseDTO save(EnvaseDTO envaseDTO);
-    Page<EnvaseDTO> findAll(Long idEnvase, Long idEmpresa, String tipoEnvase,String descripcion, Integer capacidad, Double pesoReferencia, String estado,Pageable pageable);
+    Page<EnvaseDTO> findAll(Long idEnvase,String tipoEnvase,String descripcion, Integer capacidad, Double pesoReferencia, String estado,Pageable pageable, Long idEmpresa);
     List<EnvaseDTO> findByIdAlmacen(Long id);
+    List<EnvaseDTO> findByIdEmpresa(Long idEmpresa);
 }

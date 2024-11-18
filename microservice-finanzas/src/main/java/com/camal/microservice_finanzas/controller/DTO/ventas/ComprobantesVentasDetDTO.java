@@ -19,6 +19,8 @@ public class ComprobantesVentasDetDTO {
     private Long comprobanteCabecera;
     @NotBlank(message = "El numero del detalle es obligatorio")
     private Long numero;
+    //falta la descripcion
+    private String descripcion;
     @Min(value = 1, message = "La cantidad debe ser mayor a 0")
     private Integer cantidad;
     @NotNull(message = "El ID del producto es nulo")

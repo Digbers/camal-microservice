@@ -7,8 +7,9 @@ import com.camal.microservice_finanzas.persistence.entity.FormasPagosEntity;
 import com.camal.microservice_finanzas.persistence.entity.MonedasEntity;
 import com.camal.microservice_finanzas.persistence.repository.IFormasPagosRepository;
 import com.camal.microservice_finanzas.persistence.repository.IMonedasRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,15 +17,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class FormasPagosServiceImlp implements IFormasPagosService{
-    @Autowired
-    private IFormasPagosRepository formasPagosRepository;
-    @Autowired
-    private EmpresaClient empresaClient;
-    @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
-    private IMonedasRepository monedasRepository;
+    private final IFormasPagosRepository formasPagosRepository;
+    private final EmpresaClient empresaClient;
+    private final ModelMapper modelMapper;
+    private final IMonedasRepository monedasRepository;
     @Override
     public FormasPagosDTO save(FormasPagosDTO formasPagosDTO) {
         Boolean existeEmpresa = empresaClient.verificarEmpresaExiste(formasPagosDTO.getIdEmpresa());
@@ -37,13 +36,13 @@ public class FormasPagosServiceImlp implements IFormasPagosService{
     }
 
     @Override
-    public FormasPagosDTO findById(String id) {
+    public FormasPagosDTO findById(Long id) {
         FormasPagosEntity formasPagos = formasPagosRepository.findById(id).orElseThrow(() -> new RuntimeException("Forma de pago no encontrada"));
         return modelMapper.map(formasPagos, FormasPagosDTO.class);
     }
 
     @Override
-    public boolean deleteById(String id) {
+    public boolean deleteById(Long id) {
         Optional<FormasPagosEntity> formasPagos = formasPagosRepository.findById(id);
         if (formasPagos.isEmpty()) {
             return false;
@@ -53,7 +52,7 @@ public class FormasPagosServiceImlp implements IFormasPagosService{
     }
 
     @Override
-    public FormasPagosDTO update(String id, FormasPagosDTO formasPagosDTO) {
+    public FormasPagosDTO update(Long id, FormasPagosDTO formasPagosDTO) {
         boolean existeEmpresa = empresaClient.verificarEmpresaExiste(formasPagosDTO.getIdEmpresa());
         if (!existeEmpresa) {
             throw new EmpresaNotFoundException("La empresa no existe");
@@ -62,7 +61,7 @@ public class FormasPagosServiceImlp implements IFormasPagosService{
         formasPagos.setCodigo(formasPagosDTO.getCodigo());
         formasPagos.setDescripcion(formasPagosDTO.getDescripcion());
         formasPagos.setIdEmpresa(formasPagosDTO.getIdEmpresa());
-        MonedasEntity monedas = monedasRepository.findById(formasPagosDTO.getMoneda().getCodigo()).orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
+        MonedasEntity monedas = monedasRepository.findById(formasPagosDTO.getMoneda().getId()).orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
         formasPagos.setMoneda(monedas);
         formasPagos.setUsuarioCreacion(formasPagosDTO.getUsuarioCreacion());
         formasPagos.setFechaCreacion(formasPagosDTO.getFechaCreacion());
@@ -74,9 +73,14 @@ public class FormasPagosServiceImlp implements IFormasPagosService{
 
     @Override
     public List<FormasPagosDTO> findByIdEmpresa(Long idEmpresa) {
-        return formasPagosRepository.findByIdEmpresa(idEmpresa).stream()
-                .map(formasPagos -> modelMapper.map(formasPagos, FormasPagosDTO.class))
-                .collect(Collectors.toList());
+        try {
+            return formasPagosRepository.findByIdEmpresa(idEmpresa).stream()
+                    .map(formasPagos -> modelMapper.map(formasPagos, FormasPagosDTO.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error al obtener formas de pago por empresa", e);
+            throw new RuntimeException("Error al obtener formas de pago por empresa");
+        }
     }
 
     @Override

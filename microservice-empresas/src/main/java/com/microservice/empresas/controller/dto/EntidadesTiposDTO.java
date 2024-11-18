@@ -15,19 +15,12 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class EntidadesTiposDTO {
-    private EmpresaEntity empresa;
-
+    private Long id;
+    private Long empresa;
     private String tipoCodigo;
-
     private String descripcion;
-
     private String usuarioCreacion;
-
     private Timestamp fechaCreacion;
-
     private String usuarioActualizacion;
-
     private Timestamp fechaActualizacion;
-
-    private List<EntidadEntity> entidadesEntityList;
 }

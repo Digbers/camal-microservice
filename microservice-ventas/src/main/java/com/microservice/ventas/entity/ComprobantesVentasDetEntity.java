@@ -25,6 +25,7 @@ public class ComprobantesVentasDetEntity {
     @JoinColumn(name = "id_comprobante_venta_cab", nullable = false, referencedColumnName = "id")
     private ComprobantesVentasCabEntity comprobanteCabeceraEntity;
     private Long numero;
+    private String descripcion;
     @Column(nullable = false)
     private Integer cantidad;
     @Column(nullable = false, name = "id_producto")
@@ -34,7 +35,7 @@ public class ComprobantesVentasDetEntity {
     @Column(precision = 10, scale = 2)
     private BigDecimal peso;
     @Column(precision = 10, scale = 2)
-    private BigDecimal precioUnitario;
+    private BigDecimal precioUnitario;// importe total
     @Column(precision = 10, scale = 2)
     private BigDecimal descuento;
     @Column(name = "usercodigo_creacion")

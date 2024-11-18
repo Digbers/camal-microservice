@@ -13,19 +13,13 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FormasPagosDTO {
+    private Long id;
     private String codigo;
-
     private String descripcion;
-
     private Long idEmpresa;
-
     private MonedasEntity moneda;
-
     private String usuarioCreacion;
-
     private Timestamp fechaCreacion;
-
     private String usuarioActualizacion;
-
     private Timestamp fechaActualizacion;
 }

@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface IUserRepository extends JpaRepository<UserEntity,Long>, JpaSpecificationExecutor<UserEntity> {
     Optional<UserEntity> findUserEntityByUsername(String username);
+    Optional<UserEntity> findByUsercodigo(String usercodigo);
 
     @Query("SELECT u FROM UserEntity u WHERE u.username = ?1")
     Optional<UserEntity> findUser(String username);

@@ -1,17 +1,21 @@
 package com.microservice.inventario.event;
 
-import com.microservice.inventario.controller.DTO.compras.ComprobantesComprasCaDTO;
 import com.microservice.inventario.controller.DTO.ventas.ComprobantesVentasCabDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class InventarioActualizadoVentasEvent {
     @NotNull(message = "La cabecera del documento es obligatoria")
     @Valid
@@ -23,4 +27,5 @@ public class InventarioActualizadoVentasEvent {
     private String codigoFormaPago;
     @NotNull(message = "El monto total es obligatorio")
     private BigDecimal montoTotal;
+    private List<ComprobantesVentasCobrosEventDTO> comprobantesVentasCobrosDTO;
 }

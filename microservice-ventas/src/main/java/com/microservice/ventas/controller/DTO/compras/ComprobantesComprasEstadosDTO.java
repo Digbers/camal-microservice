@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ComprobantesComprasEstadosDTO {
+    private Long id;
     @NotBlank(message = "El codigo es obligatorio")
     private String codigo;
     @NotNull(message = "El ID empresa es nulo")

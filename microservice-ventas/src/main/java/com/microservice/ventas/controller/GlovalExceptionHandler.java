@@ -6,8 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.io.FileNotFoundException;
+
 @RestControllerAdvice
 public class GlovalExceptionHandler {
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<String> handleFileNotFoundException(FileNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 
     @ExceptionHandler(EmpresaNoEncontradaException.class)
     public ResponseEntity<String> handleEmpresaNoEncontradaException(EmpresaNoEncontradaException ex) {

@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface IFormasCobrosService {
     FormasDeCobrosDTO save(FormasDeCobrosDTO formasCobrosDTO);
-    FormasDeCobrosDTO findById(String id);
-    boolean deleteById(String id);
-    FormasDeCobrosDTO update(String id, FormasDeCobrosDTO formasCobrosDTO);
+    FormasDeCobrosDTO findById(Long id);
+    boolean deleteById(Long id);
+    FormasDeCobrosDTO update(Long id, FormasDeCobrosDTO formasCobrosDTO);
     List<FormasDeCobrosDTO> findByIdEmpresa(Long idEmpresa);
     List<FormasDeCobrosDTO> findAll();
 

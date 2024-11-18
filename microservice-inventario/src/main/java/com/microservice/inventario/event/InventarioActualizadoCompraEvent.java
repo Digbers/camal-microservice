@@ -8,6 +8,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -22,4 +23,6 @@ public class InventarioActualizadoCompraEvent {
     private String codigoFormaPago;
     @NotNull(message = "El monto total es obligatorio")
     private BigDecimal montoTotal;
+    @Valid
+    private List<ComprobantesComprasPagosEventDTO> comprobantesComprasPagosDTO;
 }

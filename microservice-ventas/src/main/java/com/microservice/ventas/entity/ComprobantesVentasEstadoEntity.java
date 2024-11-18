@@ -1,9 +1,6 @@
 package com.microservice.ventas.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -16,10 +13,12 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "comprobantes_ventas_estados")
+@Table(name = "comprobantes_ventas_estados", uniqueConstraints = {@UniqueConstraint(columnNames = {"id_empresa","codigo"})})
 public class ComprobantesVentasEstadoEntity {
     @Id
-    @Column(name = "codigo", length = 3, unique = true, nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "codigo", length = 3, unique = true)
     private String codigo;
     @Column(name = "descripcion", length = 50, nullable = false)
     private String descripcion;

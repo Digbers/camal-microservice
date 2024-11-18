@@ -35,7 +35,7 @@ public class EnvaseService implements IEnvaseService{
     }
 
     @Override
-    public Page<EnvaseDTO> findAll(Long idEnvase, Long idEmpresa, String tipoEnvase,String descripcion, Integer capacidad, Double pesoReferencia, String estado,Pageable pageable) {
+    public Page<EnvaseDTO> findAll(Long idEnvase, String tipoEnvase,String descripcion, Integer capacidad, Double pesoReferencia, String estado,Pageable pageable, Long idEmpresa) {
         log.info("Buscando envase con parametros: idEnvase: {}, idEmpresa: {}, tipoEnvase: {}, descripcion: {}, capacidad: {}, pesoReferencia: {}, estado: {}", idEnvase, idEmpresa, tipoEnvase, descripcion, capacidad, pesoReferencia, estado);
         try {
             Specification<EnvaseEntity> specification = EnvaseSpecifications.getEnvase(idEnvase, idEmpresa, tipoEnvase, descripcion, capacidad, pesoReferencia, estado);
@@ -52,6 +52,21 @@ public class EnvaseService implements IEnvaseService{
     public List<EnvaseDTO> findByIdAlmacen(Long id) {
         try {
             List<EnvaseEntity> envaseList = envaseRepository.findEnvasesByAlmacen(id);
+            return envaseList.stream()
+                    .map(envase -> {
+                        EnvaseDTO dtoEnvase = modelMapper.map(envase, EnvaseDTO.class);
+                        return dtoEnvase;
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new EnvaseNotFoundException("No se pudo listar los envases");
+        }
+    }
+
+    @Override
+    public List<EnvaseDTO> findByIdEmpresa(Long idEmpresa) {
+        try{
+            List<EnvaseEntity> envaseList = envaseRepository.findByIdEmpresa(idEmpresa);
             return envaseList.stream()
                     .map(envase -> {
                         EnvaseDTO dtoEnvase = modelMapper.map(envase, EnvaseDTO.class);

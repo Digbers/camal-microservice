@@ -10,6 +10,8 @@ import com.camal.microservice_finanzas.persistence.repository.IFormasCobrosRepos
 import com.camal.microservice_finanzas.persistence.repository.IMonedasRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FormasCobrosServiceImpl implements IFormasCobrosService{
 
+    private static final Logger log = LoggerFactory.getLogger(FormasCobrosServiceImpl.class);
     private final IFormasCobrosRepository formasCobrosRepository;
     private final EmpresaClient empresaClient;
     private final ModelMapper modelMapper;
@@ -37,7 +40,7 @@ public class FormasCobrosServiceImpl implements IFormasCobrosService{
     }
 
     @Override
-    public FormasDeCobrosDTO findById(String id) {
+    public FormasDeCobrosDTO findById(Long id) {
         try {
             FormasCobrosEntity formasCobros = formasCobrosRepository.findById(id).orElseThrow(() -> new RuntimeException("Forma de cobro no encontrada"));
             return modelMapper.map(formasCobros, FormasDeCobrosDTO.class);
@@ -47,7 +50,7 @@ public class FormasCobrosServiceImpl implements IFormasCobrosService{
     }
 
     @Override
-    public boolean deleteById(String id) {
+    public boolean deleteById(Long id) {
         Optional<FormasCobrosEntity> formasCobros = formasCobrosRepository.findById(id);
         if (formasCobros.isEmpty()) {
             return false;
@@ -57,16 +60,12 @@ public class FormasCobrosServiceImpl implements IFormasCobrosService{
     }
 
     @Override
-    public FormasDeCobrosDTO update(String id, FormasDeCobrosDTO formasCobrosDTO) {
-        boolean existeEmpresa = empresaClient.verificarEmpresaExiste(formasCobrosDTO.getIdEmpresa());
-        if (!existeEmpresa) {
-            throw new EmpresaNotFoundException("La empresa no existe");
-        }
+    public FormasDeCobrosDTO update(Long id, FormasDeCobrosDTO formasCobrosDTO) {
         FormasCobrosEntity formasCobros = formasCobrosRepository.findById(id).orElseThrow(() -> new RuntimeException("Forma de cobro no encontrada"));
         formasCobros.setCodigo(formasCobrosDTO.getCodigo());
         formasCobros.setDescripcion(formasCobrosDTO.getDescripcion());
         formasCobros.setIdEmpresa(formasCobrosDTO.getIdEmpresa());
-        MonedasEntity monedas = monedasRepository.findById(formasCobrosDTO.getMoneda().getCodigo()).orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
+        MonedasEntity monedas = monedasRepository.findById(formasCobrosDTO.getMoneda().getId()).orElseThrow(() -> new RuntimeException("Moneda no encontrada"));
         formasCobros.setMoneda(monedas);
         formasCobros.setUsuarioCreacion(formasCobrosDTO.getUsuarioCreacion());
         formasCobros.setFechaCreacion(formasCobrosDTO.getFechaCreacion());
@@ -78,13 +77,15 @@ public class FormasCobrosServiceImpl implements IFormasCobrosService{
 
     @Override
     public List<FormasDeCobrosDTO> findByIdEmpresa(Long idEmpresa) {
-        boolean existeEmpresa = empresaClient.verificarEmpresaExiste(idEmpresa);
-        if (!existeEmpresa) {
-            throw new EmpresaNotFoundException("La empresa no existe");
+        try {
+            return formasCobrosRepository.findByIdEmpresa(idEmpresa).stream()
+                    .map(formasCobros -> modelMapper.map(formasCobros, FormasDeCobrosDTO.class))
+                    .collect(Collectors.toList());
+        }catch (Exception e){
+            log.info("Ocurrio un error al buscar las formas de cobors para la empresa :  "+ idEmpresa);
+            throw new RuntimeException("Ocurrio un error al buscar las formas de cobros para la empresa : "+ idEmpresa);
         }
-        return formasCobrosRepository.findByIdEmpresa(idEmpresa).stream()
-                .map(formasCobros -> modelMapper.map(formasCobros, FormasDeCobrosDTO.class))
-                .collect(Collectors.toList());
+
     }
 
     @Override

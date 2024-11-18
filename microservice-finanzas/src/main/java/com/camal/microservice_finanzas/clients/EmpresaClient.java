@@ -17,7 +17,6 @@ public class EmpresaClient {
 
     public Boolean verificarEmpresaExiste(Long empresaId) {
         String url = "/empresas/find/" + empresaId;
-
         return webClientBuilder.build()
                 .get()
                 .uri("http://msvc-gateway/empresas/find/" + empresaId)

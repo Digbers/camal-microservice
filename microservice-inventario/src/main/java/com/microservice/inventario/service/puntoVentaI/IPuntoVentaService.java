@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IPuntoVentaService {
-    Page<PuntoVentaDTO> findAll(Pageable pageable);
+    Page<PuntoVentaDTO> findAllByEmpresa(String direccion, String nombre, Pageable pageable, Long idEmpresa);
 
     Optional<PuntoVentaDTO> findById(Long id);
     PuntoVentaDTO save(PuntoVentaDTO puntoVentaDTO);

@@ -11,6 +11,8 @@ import com.camal.microservice_auth.persistence.repository.IUserRepository;
 import com.camal.microservice_auth.persistence.repository.RoleRepository;
 import com.camal.microservice_auth.service.userDetail.UserDetailServicePersonalizado;
 import jakarta.ws.rs.NotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,21 +35,17 @@ import com.camal.microservice_auth.util.JwtUtil;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class UserDetailServiceImpl implements UserDetailsService, UserDetailServicePersonalizado {
-    @Autowired
-    private JwtUtil jwtUtil;
-    @Autowired
-    private IUserRepository userRepository;
-    @Autowired
-    private IMenuRepository menuRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private ModelMapper modelMapper;
+    private final JwtUtil jwtUtil;
+    private final IUserRepository userRepository;
+    private final IMenuRepository menuRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
+    private final ModelMapper modelMapper;
+    private final IMenuRepository menusRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -108,6 +106,37 @@ public class UserDetailServiceImpl implements UserDetailsService, UserDetailServ
         }
         return  new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities());
     }
+    public UserDTO saveUser (AuthCreateUserRequest authCreateUserRequest) {
+        try {
+            String usercodigo = authCreateUserRequest.usercodigo();
+            String username = authCreateUserRequest.username();
+            String password = authCreateUserRequest.password();
+            List<String> roleRequest = authCreateUserRequest.rolesRequest().roleListName();
+
+            Set<RolesEntity> roleEntitySet = roleRepository.findRoleEntityByRoleEnumIn(roleRequest).stream().collect(Collectors.toSet());
+
+            if(roleEntitySet.isEmpty()){
+                throw new IllegalArgumentException("Roles especificados sin existencias");
+            }
+            UserEntity userEntity = UserEntity.builder()
+                    .usercodigo(usercodigo)
+                    .username(username)
+                    .password(passwordEncoder.encode(password))
+                    .roles(roleEntitySet)
+                    .isEnabled(true)
+                    .accountNoLocked(true)
+                    .accountNoExpired(true)
+                    .credentialsNoExpired(true)
+                    .build();
+
+            UserEntity userCreated = userRepository.save(userEntity);
+            return modelMapper.map(userCreated, UserDTO.class);
+        } catch (Exception e) {
+            log.error("Error al crear usuario", e);
+            throw new NotFoundException("Error al crear usuario");
+        }
+
+    }
     public AuthResponse createUser (AuthCreateUserRequest authCreateUserRequest) {
         String usercodigo = authCreateUserRequest.usercodigo();
         String username = authCreateUserRequest.username();
@@ -147,8 +176,7 @@ public class UserDetailServiceImpl implements UserDetailsService, UserDetailServ
 
         String accessToken =  jwtUtil.generateJwtToken(authentication, userCreated.getUsercodigo());
 
-        AuthResponse authResponse = new AuthResponse(userCreated.getUsercodigo(), userCreated.getUsername(), "User created successfuly", accessToken, true);
-        return authResponse;
+        return new AuthResponse(userCreated.getUsercodigo(), userCreated.getUsername(), "User created successfuly", accessToken, true);
     }
     public AuthResponse updateUser(Long userId, AuthUserUpdate authUpdateUserRequest) {
         UserEntity existingUser = userRepository.findById(userId)
@@ -245,35 +273,94 @@ public class UserDetailServiceImpl implements UserDetailsService, UserDetailServ
     }
 
     @Override
-    public List<MenuDTO> obtenerMenus(String userId) {
+    public List<MenuDTO> obtenerMenus(String userCode) {
+        try {
+            UserEntity userEntity = userRepository.findByUsercodigo(userCode)
+                    .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
-        UserEntity userEntity = userRepository.findUserEntityByUsername(userId).orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+            Set<MenusEntity> userMenus = userEntity.getMenus();
 
-        if (userEntity.getMenus().isEmpty()) {
-            throw new NotFoundException("El usuario no tiene menus");
+            if (userMenus.isEmpty()) {
+                throw new NotFoundException("El usuario no tiene menús");
+            }
+            // Filtra para incluir solo los menús de nivel 1 que el usuario tiene disponibles y que contienen submenús disponibles
+            List<MenuDTO> userMenusDTO = userMenus.stream()
+                    .filter(menu -> menu.getNivel() == 1) // Filtra solo menús de nivel 1
+                    .sorted(Comparator.comparing(MenusEntity::getOrden))
+                    .map(menu -> {
+                        // Convierte a DTO y verifica si el menú tiene submenús disponibles antes de agregarlo
+                        MenuDTO menuDTO = convertToDTO2(menu, userMenus);
+                        // Solo incluir el menú si tiene submenús disponibles o si está directamente asignado al usuario
+                        return menuDTO.getSubmenus().isEmpty() && !userMenus.contains(menu) ? null : menuDTO;
+                    })
+                    .filter(Objects::nonNull) // Elimina los menús nulos (sin submenús disponibles)
+                    .collect(Collectors.toList());
+
+            return userMenusDTO;
+        } catch (Exception e) {
+            log.error("Error obteniendo menus del usuario con codigo: " + userCode, e);
+            throw new NotFoundException("Usuario no encontrado");
         }
-        List<MenuDTO> allMenus = userEntity.getMenus().stream()
-                .filter(menu -> menu.getNivel() == 1)
-                .sorted(Comparator.comparing(menu -> menu.getOrden()))
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-
-        return allMenus;
     }
 
     @Override
     public List<MenuDTO> obtenerMenus(Long userId) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
-        if (user.getMenus().isEmpty()) {
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+        if (userEntity.getMenus().isEmpty()) {
             throw new NotFoundException("El usuario no tiene menus");
         }
-        List<MenuDTO> allMenus = user.getMenus().stream()
+        List<MenusEntity> allMenusDisponibles = menusRepository.findAll();
+        // Obtener los menús del usuario
+        Set<MenusEntity> userMenus = userEntity.getMenus();
+        // Convertir todos los menús de nivel 1 a DTO, marcando los disponibles
+        List<MenuDTO> allMenus = allMenusDisponibles.stream()
                 .filter(menu -> menu.getNivel() == 1)
                 .sorted(Comparator.comparing(menu -> menu.getOrden()))
-                .map(this::convertToDTO)
+                .map(menu -> convertToDTO2(menu, userMenus))
                 .collect(Collectors.toList());
-
         return allMenus;
+    }
+    @Override
+    public List<MenuDTO> obtenerMenusConfiguracion(String usercode) {
+        try {
+            log.info("Obteniendo los menus de usuario con codigo: " + usercode);
+            // Obtener el usuario
+            UserEntity userEntity = userRepository.findByUsercodigo(usercode)
+                    .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+            // Obtener todos los menús disponibles
+            List<MenusEntity> allMenusDisponibles = menusRepository.findAll();
+            // Obtener los menús del usuario
+            Set<MenusEntity> userMenus = userEntity.getMenus();
+            // Convertir todos los menús de nivel 1 a DTO, marcando los disponibles
+            List<MenuDTO> allMenus = allMenusDisponibles.stream()
+                    .filter(menu -> menu.getNivel() == 1)
+                    .sorted(Comparator.comparing(menu -> menu.getOrden()))
+                    .map(menu -> convertToDTO(menu, userMenus))
+                    .collect(Collectors.toList());
+            return allMenus;
+        } catch (Exception e) {
+            log.error("Error obteniendo menus del usuario con codigo: " + usercode, e);
+            throw new NotFoundException("Error al obtener los menús");
+        }
+    }
+
+    @Override
+    public Boolean guardarMenus(String usercode, List<Long> menus) {
+        try {
+            log.info("Obteniendo los menus de usuario con codigo: " + usercode);
+            // Obtener el usuario
+            UserEntity userEntity = userRepository.findByUsercodigo(usercode)
+                    .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+            // Obtener todos los menús disponibles
+            List<MenusEntity> allMenusDisponibles = menusRepository.findAllById(menus);
+            userEntity.setMenus(new HashSet<>(allMenusDisponibles));
+            userRepository.save(userEntity);
+            log.info("Menús guardados correctamente");
+            return true;
+        } catch (Exception e) {
+            log.error("Error guardando menus del usuario con codigo: " + usercode, e);
+            throw new NotFoundException("Error al obtener los menús");
+        }
     }
 
     private MenuDTO convertToDTO(MenusEntity menuEntity) {
@@ -288,10 +375,60 @@ public class UserDetailServiceImpl implements UserDetailsService, UserDetailServ
         menuDTO.setOrden(menuEntity.getOrden());
         menuDTO.setNivel(menuEntity.getNivel());
         menuDTO.setPadre(menuEntity.getPadre() != null ? menuEntity.getPadre().getId() : 0);
-
         // Convertir submenús recursivamente
         Set<MenuDTO> submenusDTO = menuEntity.getSubmenus().stream()
                 .map(this::convertToDTO) // Recursivamente convertir submenús
+                .collect(Collectors.toSet());
+
+        menuDTO.setSubmenus(submenusDTO);
+
+        return menuDTO;
+    }
+    // trae solo los menus del usuario
+    private MenuDTO convertToDTO2(MenusEntity menuEntity, Set<MenusEntity> userMenus) {
+        if (menuEntity == null) {
+            return null;
+        }
+
+        MenuDTO menuDTO = new MenuDTO();
+        menuDTO.setId(menuEntity.getId());
+        menuDTO.setMenuName(menuEntity.getMenuName());
+        menuDTO.setMenuUrl(menuEntity.getMenuUrl());
+        menuDTO.setIcon(menuEntity.getIcon());
+        menuDTO.setOrden(menuEntity.getOrden());
+        menuDTO.setNivel(menuEntity.getNivel());
+        menuDTO.setPadre(menuEntity.getPadre() != null ? menuEntity.getPadre().getId() : 0);
+        menuDTO.setMenuDisponible(userMenus.contains(menuEntity)); // Marca el menú como disponible si está en userMenus
+
+        // Filtra submenús para incluir solo aquellos asignados al usuario
+        Set<MenuDTO> submenusDTO = menuEntity.getSubmenus().stream()
+                .filter(userMenus::contains) // Solo submenús que el usuario tiene asignados
+                .map(submenu -> convertToDTO(submenu, userMenus))
+                .collect(Collectors.toSet());
+
+        menuDTO.setSubmenus(submenusDTO);
+
+        return menuDTO;
+    }
+    // Método modificado para convertir MenuEntity a DTO
+    private MenuDTO convertToDTO(MenusEntity menuEntity, Set<MenusEntity> userMenus) {
+        if (menuEntity == null) {
+            return null;
+        }
+
+        MenuDTO menuDTO = new MenuDTO();
+        menuDTO.setId(menuEntity.getId());
+        menuDTO.setMenuName(menuEntity.getMenuName());
+        menuDTO.setMenuUrl(menuEntity.getMenuUrl());
+        menuDTO.setIcon(menuEntity.getIcon());
+        menuDTO.setOrden(menuEntity.getOrden());
+        menuDTO.setNivel(menuEntity.getNivel());
+        menuDTO.setPadre(menuEntity.getPadre() != null ? menuEntity.getPadre().getId() : 0);
+        menuDTO.setMenuDisponible(userMenus.contains(menuEntity));
+
+        // Convertir submenús recursivamente
+        Set<MenuDTO> submenusDTO = menuEntity.getSubmenus().stream()
+                .map(submenu -> convertToDTO(submenu, userMenus))
                 .collect(Collectors.toSet());
 
         menuDTO.setSubmenus(submenusDTO);

@@ -4,6 +4,7 @@ import com.camal.microservice_auth.controller.dto.*;
 import com.camal.microservice_auth.exception.InvalidCredentialsException;
 import com.camal.microservice_auth.service.UserDetailServiceImpl;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
+@Slf4j
 public class AuthController {
     @Autowired
     private UserDetailServiceImpl userDetailServiceImpl;
@@ -60,6 +62,11 @@ public class AuthController {
         return new ResponseEntity<>(this.userDetailServiceImpl.createUser(authCreateUser), HttpStatus.OK);
 
     }
+    @PostMapping("/users/save")
+    public ResponseEntity<UserDTO> save(@RequestBody @Valid AuthCreateUserRequest authCreateUser){
+        return new ResponseEntity<>(this.userDetailServiceImpl.saveUser(authCreateUser), HttpStatus.OK);
+    }
+
     @PatchMapping("/users/update/{id}")
     public ResponseEntity<AuthResponse> update(@PathVariable Long id,@RequestBody @Valid AuthUserUpdate authUpdateUser){
         return new ResponseEntity<>(this.userDetailServiceImpl.updateUser(id,authUpdateUser), HttpStatus.OK);
@@ -96,12 +103,26 @@ public class AuthController {
         userDetailServiceImpl.eliminarMenus(id, menus);
         return ResponseEntity.ok("Menús eliminados correctamente");
     }
-
-
-    @GetMapping("/menus/{userName}")
-    public ResponseEntity<List<MenuDTO>> obtenerMenusDeUsuario(@PathVariable String userName) {
+    @GetMapping("/menus/menus-permisos/{usercode}")
+    public ResponseEntity<List<MenuDTO>> obtenerMenusDeUsuarioConfig(@PathVariable String usercode) {
         try{
-            List<MenuDTO> menus = userDetailServiceImpl.obtenerMenus(userName);
+            //log.info("en el controller obtener menus configuracion");
+            List<MenuDTO> menus = userDetailServiceImpl.obtenerMenusConfiguracion(usercode);
+            return ResponseEntity.ok(menus);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @PostMapping("/menus/guardar-menus-permisos/{usercode}")
+    public ResponseEntity<Boolean> guardarMenus(@PathVariable String usercode, @RequestBody List<Long> menus) {;
+        return ResponseEntity.ok(userDetailServiceImpl.guardarMenus(usercode, menus));
+    }
+
+    @GetMapping("/menus/{userCode}")
+    public ResponseEntity<List<MenuDTO>> obtenerMenusDeUsuario(@PathVariable String userCode) {
+        try{
+            List<MenuDTO> menus = userDetailServiceImpl.obtenerMenus(userCode);
             return ResponseEntity.ok(menus);
         } catch (Exception e) {
             e.printStackTrace();

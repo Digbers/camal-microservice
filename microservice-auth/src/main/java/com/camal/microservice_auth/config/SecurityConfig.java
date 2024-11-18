@@ -44,6 +44,10 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.PATCH, "/auth/users/**").permitAll();
                     http.requestMatchers(HttpMethod.DELETE, "/auth/users/**").hasAnyRole("ADMIN");
                     http.requestMatchers(HttpMethod.GET, "/auth/list").permitAll();
+                    http.requestMatchers(HttpMethod.GET, "/auth/roles/**").permitAll();
+                    http.requestMatchers(HttpMethod.PATCH, "/auth/roles/**").permitAll();
+                    http.requestMatchers(HttpMethod.DELETE, "/auth/roles/**").hasAnyRole("ADMIN");
+                    http.requestMatchers(HttpMethod.POST, "/auth/roles/**").permitAll();
                     http.requestMatchers(HttpMethod.GET, "/auth/menus/**").permitAll();
                     http.anyRequest().denyAll();
                 })

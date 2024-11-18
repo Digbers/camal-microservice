@@ -1,7 +1,11 @@
 package com.microservice.inventario.config;
 
+import com.microservice.inventario.controller.DTO.AlmacenDTO;
+import com.microservice.inventario.controller.DTO.ProductoDTO;
 import com.microservice.inventario.controller.DTO.PuntoVentaDTO;
 import com.microservice.inventario.controller.DTO.StockAlmacenDTO;
+import com.microservice.inventario.persistence.entity.AlmacenEntity;
+import com.microservice.inventario.persistence.entity.ProductosEntity;
 import com.microservice.inventario.persistence.entity.PuntoVentaEntity;
 import com.microservice.inventario.persistence.entity.StockAlmacen;
 import org.modelmapper.ModelMapper;
@@ -18,6 +22,19 @@ public class ModelMapperConfig {
         modelMapper.typeMap(PuntoVentaEntity.class, PuntoVentaDTO.class).addMappings(mapper -> {
             mapper.map(PuntoVentaEntity::getAlmacen, PuntoVentaDTO::setAlmacen);
             mapper.map(PuntoVentaEntity::getUbigeo, PuntoVentaDTO::setUbigeo);
+        });
+        modelMapper.typeMap(AlmacenEntity.class, AlmacenDTO.class).addMappings(mapper -> {
+            mapper.map(src -> src.getAlmacenPadre().getId(), AlmacenDTO::setAlmacenPadre);
+            mapper.map(src -> src.getTipoAlmacen().getCodigo(), AlmacenDTO::setTipoAlmacen);
+        });
+        modelMapper.typeMap(ProductosEntity.class, ProductoDTO.class).addMappings(mapper -> {
+            mapper.map(src -> src.getUnidad().getCodigo(), ProductoDTO::setUnidad);
+            mapper.map(src -> src.getTipo().getCodigo(), ProductoDTO::setTipo);
+            mapper.map(src -> src.getEmpresaId(), ProductoDTO::setEmpresa);
+        });
+        modelMapper.typeMap(PuntoVentaEntity.class, PuntoVentaDTO.class).addMappings(mapper -> {
+            mapper.map(src -> src.getAlmacen().getId(), PuntoVentaDTO::setAlmacen);
+            mapper.map(src -> src.getUbigeo().getId(), PuntoVentaDTO::setUbigeo);
         });
         // Desactivar la coincidencia implícita para evitar ambigüedades.
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);

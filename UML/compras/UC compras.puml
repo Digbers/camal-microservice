@@ -13,9 +13,9 @@ note "Se podra actualizar la informacion de los proveedores, como eliminarlos." 
     ges ..N2
     co .. pro :[1.1] extend
 }
-cli --> co :[101]
-cli --> pro :[102]
-cli --> recom :[103]
+cli --> co :[101] realizar registro
+cli --> pro :[102] realizar registro
+cli --> recom :[103] realizar consulta
 adm --> ges :[104]
 adm --> repCompras :[105]
 @enduml

@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
 import java.util.List;
 import java.util.Set;
 
@@ -82,5 +81,6 @@ public class EmpresaClient {
                 .bodyToMono(EmpresaDTO.class)  // Mapear a la estructura Empreass
                 .block();
     }
+
 }
 

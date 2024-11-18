@@ -22,7 +22,7 @@ public class VentasAspect {
     private IcomprobantesVentasCabRepository iComprobantesVentasCabRepository;
     @Autowired
     private InventarioClient inventarioClient;
-
+/*
     @Around("execution(* com.microservice.ventas.service.ventas.VentasServiceImpl.save(..)) && args(comprobantesVentasCabDTO)")
     public Object verificarYAsignarNumero(ProceedingJoinPoint joinPoint, ComprobantesVentasCabDTO comprobantesVentasCabDTO) throws Throwable {
         String maxNumero = iComprobantesVentasCabRepository.findMaxNumero(comprobantesVentasCabDTO.getSerie(), comprobantesVentasCabDTO.getIdPuntoVenta());

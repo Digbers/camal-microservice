@@ -28,7 +28,7 @@ public class AlmacenEntity {
     @JsonBackReference
     private AlmacenEntity almacenPadre;
     private String nombre;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @JoinColumn(name = "tipo_codigo", nullable = false)
     private AlmacenTipoEntity tipoAlmacen;
     @Column(name = "usercodigo_creacion")

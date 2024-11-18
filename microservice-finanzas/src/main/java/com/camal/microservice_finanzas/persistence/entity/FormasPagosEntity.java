@@ -13,9 +13,11 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "formas_pagos")
+@Table(name = "formas_pagos", uniqueConstraints = {@UniqueConstraint(columnNames = {"id_empresa", "codigo"})})
 public class FormasPagosEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Column(unique = true, nullable = false, length = 3)
     private String codigo;
     @Column(nullable = false, length = 100)

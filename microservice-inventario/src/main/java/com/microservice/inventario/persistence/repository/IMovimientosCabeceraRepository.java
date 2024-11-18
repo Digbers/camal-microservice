@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface IMovimientosCabeceraRepository extends JpaRepository<MovimientosCabeceraEntity, Long> {
     @Query("SELECT COALESCE(MAX(m.numero), 0) FROM MovimientosCabeceraEntity m")
     Long findMaxNumber();
+
 }

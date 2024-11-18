@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.3.final using JasperReports Library version 6.20.6  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="TIKv6" pageWidth="230" pageHeight="842" columnWidth="190" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="11f77c36-d761-4b10-b306-9bc50762b017">
+	<property name="net.sf.jasperreports.print.create.bookmarks" value="false"/>
+	<subDataset name="Dataset1" uuid="07dd749a-1f50-4f93-b84a-833f320a2bf8">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+		<parameter name="detalleDataSource" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+	</subDataset>
+	<parameter name="detalleDataSource" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
+	<parameter name="tirulo" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="numero" class="java.lang.Long"/>
+	<field name="descripcion" class="java.lang.String"/>
+	<field name="peso" class="java.math.BigDecimal"/>
+	<field name="cantidad" class="java.lang.Integer"/>
+	<field name="precioUnitario" class="java.math.BigDecimal"/>
+	<field name="total" class="java.math.BigDecimal"/>
+	<field name="descuento" class="java.math.BigDecimal"/>
+	<field name="empresa" class="java.lang.String"/>
+	<field name="rucEmpresa" class="java.lang.String"/>
+	<field name="empresaDireccion" class="java.lang.String"/>
+	<field name="serieNumero" class="java.lang.String"/>
+	<field name="fechaEmision" class="java.time.LocalDate"/>
+	<field name="nombreCompleto" class="java.lang.String"/>
+	<field name="direccion" class="java.lang.String"/>
+	<field name="estadoComprobante" class="java.lang.String"/>
+	<field name="observacion" class="java.lang.String"/>
+	<field name="usuCodigo" class="java.lang.String"/>
+	<field name="igv" class="java.math.BigDecimal"/>
+	<field name="descuentoTotal" class="java.math.BigDecimal"/>
+	<field name="importeTotal" class="java.math.BigDecimal"/>
+	<field name="totalTexto" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="85" splitType="Stretch">
+			<textField>
+				<reportElement x="46" y="20" width="100" height="30" uuid="2ac194c4-c6b9-44fc-9ea3-88dfb84a183f"/>
+				<textFieldExpression><![CDATA[$F{empresa}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<staticText>
+				<reportElement x="74" y="30" width="36" height="30" uuid="377e4c6d-e023-4ea7-a119-7f3390a8a452">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="43c05291-a88e-44ef-9a0a-fa0f30c61f7a"/>
+				</reportElement>
+				<text><![CDATA[peso]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="110" y="31" width="20" height="30" uuid="40855332-028b-4cf0-8fea-91609384e36e">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d3d371e6-c546-40dd-9bdc-ab49752a27b7"/>
+				</reportElement>
+				<text><![CDATA[cantidad]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="130" y="30" width="31" height="30" uuid="00d208a3-7101-41a4-a589-0026e5a0e752">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5e33a3ce-eb1e-4e24-9538-c309f600c563"/>
+				</reportElement>
+				<text><![CDATA[precioUnitario]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="30" width="31" height="30" uuid="1d9f9e3e-2342-414f-9739-de2d22a9bd82">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="9151445d-5968-4a4d-8b4e-015cf7246c13"/>
+				</reportElement>
+				<text><![CDATA[numero]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="30" width="45" height="30" uuid="53a11c10-61ca-466a-a679-2416ba7fb348">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e7f3831d-39ce-4854-a868-ad8d32f45c03"/>
+				</reportElement>
+				<text><![CDATA[descripcion]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="161" y="30" width="29" height="30" uuid="6eea8f31-ae89-49fb-9e00-68eef367b391">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="630c9894-81e0-4149-a0b8-e96c8471adca"/>
+				</reportElement>
+				<text><![CDATA[total]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="75" y="0" width="35" height="30" uuid="02c3971f-b533-467a-aff8-b23345a09ef1">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="43c05291-a88e-44ef-9a0a-fa0f30c61f7a"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{peso}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="110" y="0" width="20" height="30" uuid="dc5a12a8-0e3f-4c32-8dbd-5d93f3ff4c48">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="d3d371e6-c546-40dd-9bdc-ab49752a27b7"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="130" y="0" width="31" height="30" uuid="66f3382c-d71a-4709-832b-e964260be40f">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="5e33a3ce-eb1e-4e24-9538-c309f600c563"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{precioUnitario}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="31" height="30" uuid="34001592-10bc-4b86-a6a6-4090d738409c">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="9151445d-5968-4a4d-8b4e-015cf7246c13"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{numero}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="31" y="0" width="43" height="30" uuid="b994040b-beed-44e4-a4c1-c78fddeb0b4f">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="e7f3831d-39ce-4854-a868-ad8d32f45c03"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="161" y="0" width="29" height="30" uuid="0be58d8f-df82-4d10-be1b-6f6739a2dde4">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="630c9894-81e0-4149-a0b8-e96c8471adca"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="0" y="30" width="190" height="30" uuid="ca39d9df-abc6-4889-bfc1-f97260a99d47"/>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Dataset1" uuid="0fc3db16-4a0d-47a6-99ea-5b08a15f0a4b">
+						<dataSourceExpression><![CDATA[$P{detalleDataSource}]]></dataSourceExpression>
+					</datasetRun>
+					<jr:listContents height="30" width="190"/>
+				</jr:list>
+			</componentElement>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

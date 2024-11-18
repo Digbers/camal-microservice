@@ -14,9 +14,9 @@ import java.sql.Timestamp;
 public class EmpresaDTO {
     @NotNull(message = "El ID de la empresa es obligatorio")
     private Long id;
-    @NotBlank(message = "El razón social de la empresa no puede estar vacío")
+    //@NotBlank(message = "El razón social de la empresa no puede estar vacío")
     private String razonSocial;
-    @NotBlank(message = "El código de la empresa no puede estar vacío")
+    //@NotBlank(message = "El código de la empresa no puede estar vacío")
     private String empresaCodigo;
 
 }

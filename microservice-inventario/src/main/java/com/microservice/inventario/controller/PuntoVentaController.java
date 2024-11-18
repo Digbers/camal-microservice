@@ -1,15 +1,14 @@
 package com.microservice.inventario.controller;
 import com.microservice.inventario.controller.DTO.PuntoVentaDTO;
+import com.microservice.inventario.controller.DTO.UnidadesDTO;
 import com.microservice.inventario.controller.DTO.response.DatosGeneralesResponse;
 import com.microservice.inventario.service.puntoVentaI.PuntoVentaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,9 +18,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PuntoVentaController {
     private final PuntoVentaService puntoVentaService;
-    @GetMapping("/list")
-    public Page<PuntoVentaDTO> findAll(Pageable pageable) {
-        return puntoVentaService.findAll(pageable);
+
+    @GetMapping("/findAll/{idEmpresa}")
+    public ResponseEntity<Page<PuntoVentaDTO>> findAll(@PathVariable Long idEmpresa,
+                                                     @RequestParam(name = "direccion", required = false) String direccion,
+                                                     @RequestParam(name = "nombre", required = false) String nombre,
+                                                     @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+                                                     @RequestParam(name = "size", required = false, defaultValue = "10") Integer size) {
+        return ResponseEntity.ok(puntoVentaService.findAllByEmpresa(direccion, nombre, PageRequest.of(page, size), idEmpresa));
     }
 
     @GetMapping("/find/{id}")

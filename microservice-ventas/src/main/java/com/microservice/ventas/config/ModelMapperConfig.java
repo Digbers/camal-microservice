@@ -1,9 +1,11 @@
 package com.microservice.ventas.config;
 
 import com.microservice.ventas.controller.DTO.compras.ComprobantesComprasDetalleDTO;
+import com.microservice.ventas.controller.DTO.ventas.ComprobantesVentasCabDTO;
 import com.microservice.ventas.controller.DTO.ventas.ComprobantesVentasDetDTO;
 import com.microservice.ventas.entity.ComprobantesComprasCaEntity;
 import com.microservice.ventas.entity.ComprobantesComprasDetalleEntity;
+import com.microservice.ventas.entity.ComprobantesVentasCabEntity;
 import com.microservice.ventas.entity.ComprobantesVentasDetEntity;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

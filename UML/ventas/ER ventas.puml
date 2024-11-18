@@ -1,0 +1,70 @@
+@startuml
+
+' Estilo del diagrama
+!define ENTITY(name,desc) class name as "desc" << (E,#FFAAAA) >>
+!define PK(x) <b><color:red>PK</color> x</b>
+!define FK(x) <color:blue>FK</color> x
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+' Definición de entidades
+ENTITY(ComprobanteVentaCabecera, "COMPROBANTE_VENTA_CABECERA") {
+    PK(idEmpresa)
+    PK(idComprovanteV)
+    FK(idComprobanteVTipo)
+    numero: string
+    serie: string
+    idCliente: integer
+    fechaEmision: date
+    FK(idEstado)
+    usuCodigo: string
+    observaciones: string
+    idMonedas: integer
+}
+
+ENTITY(ComprobanteVentaDetalle, "COMPROBANTE_VENTA_DETALLE") {
+    PK(idEmpresa)
+    PK(idComprovanteD)
+    FK(idComprovanteV)
+    numero: string
+    idProducto: integer
+    cantidadEnvases: decimal
+    peso: decimal
+    precioUnitario: decimal
+    descuento: decimal
+    descripcion: string
+    idUsuario: integer
+}
+
+ENTITY(ComprobantesTipos, "COMPROBANTES_TIPOS") {
+    PK(idComprobanteTipo)
+    codigo: string
+    descripcion: string
+}
+
+ENTITY(ComprobantesEstados, "COMPROBANTES_ESTADOS") {
+    PK(idComprobanteEstado)
+    codigo: string
+    descripcion: string
+}
+
+ENTITY(ComprobantesVentasCuotas, "COMPROBANTES_VENTAS_CUOTAS") {
+    PK(idComprobanteCuota)
+    FK(idComprovanteV)
+    numerocuota: integer
+    fechavencimiento: date
+    montocuota: decimal
+    importe: decimal
+    idMonedas: integer
+}
+
+' Relaciones
+ComprobanteVentaCabecera "1" --o "0..*" ComprobanteVentaDetalle : tiene
+ComprobanteVentaCabecera "1" --o "0..*" ComprobantesVentasCuotas : tiene
+ComprobantesTipos "1" --o "0..*" ComprobanteVentaCabecera : clasifica
+ComprobantesEstados "1" --o "0..*" ComprobanteVentaCabecera : define_estado
+
+@enduml

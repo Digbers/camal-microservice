@@ -1,9 +1,6 @@
 package com.camal.microservice_finanzas.persistence.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -16,10 +13,12 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "monedas")
+@Table(name = "monedas", uniqueConstraints = {@UniqueConstraint(columnNames = {"id_empresa", "codigo"})})
 public class MonedasEntity {
     @Id
-    @Column(unique = true, nullable = false, length = 3)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false, length = 3)
     private String codigo;
     @Column(name = "id_empresa", nullable = false)
     private Long idEmpresa;

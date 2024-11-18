@@ -2,65 +2,86 @@ package com.microservice.empresas.service.impl;
 
 import com.microservice.empresas.controller.dto.EntidadesTiposDTO;
 import com.microservice.empresas.persistence.entity.EntidadesTiposEntity;
-import com.microservice.empresas.persistence.entity.ids.EntidadesTiposId;
+import com.microservice.empresas.persistence.especification.EntidadesTiposEspecification;
 import com.microservice.empresas.persistence.repository.IEntidadesTiposRepository;
 import com.microservice.empresas.service.IEntidadesTiposService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class EntidadesTiposServiceImpl implements IEntidadesTiposService {
 
-    @Autowired
-    private IEntidadesTiposRepository entidadesTiposRepository;
-    @Autowired
-    private ModelMapper modelMapper;
+    private final IEntidadesTiposRepository entidadesTiposRepository;
+    private final ModelMapper modelMapper;
 
     @Override
-    public List<EntidadesTiposEntity> findAll() {
-        return (List<EntidadesTiposEntity>) entidadesTiposRepository.findAll();
+    public Page<EntidadesTiposDTO> findAllByEmpresa(String tipoCodigo, String descripcion, Pageable pageable, Long idEmpresa) {
+        try {
+            Specification<EntidadesTiposEntity> specification = EntidadesTiposEspecification.getEntidadesTipos(tipoCodigo, descripcion, idEmpresa);
+            return entidadesTiposRepository.findAll(specification, pageable).map(entidadesTipos -> modelMapper.map(entidadesTipos, EntidadesTiposDTO.class));
+        } catch (Exception e) {
+            log.error("Error al obtener EntidadesTipos", e);
+            throw new RuntimeException("Error al obtener EntidadesTipos");
+        }
     }
 
     @Override
-    public EntidadesTiposEntity findById(String tipoCodigo, Long empresa) {
-        EntidadesTiposId id = EntidadesTiposId.builder()
-                .empresa(empresa)
-                .tipoCodigo(tipoCodigo)
-                .build();
-        return entidadesTiposRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("EntidadTipos no encontrada con tipoCodigo: " + tipoCodigo + " y empresaId: " + empresa));
+    public EntidadesTiposDTO findById(String tipoCodigo, Long empresa) {
+        try {
+            EntidadesTiposEntity entidadesTipos = entidadesTiposRepository.findByEmpresaAndTipoCodigo(empresa, tipoCodigo).orElseThrow(() -> new EntityNotFoundException("EntidadTipos no encontrada con tipoCodigo: " + tipoCodigo + " y empresaId: " + empresa));
+            return modelMapper.map(entidadesTipos, EntidadesTiposDTO.class);
+        } catch (NullPointerException ex) {
+            log.error("Error al obtener EntidadesTipos", ex);
+            throw new RuntimeException("Error al obtener EntidadesTipos");
+        }
     }
 
     @Override
-    public EntidadesTiposEntity save(EntidadesTiposDTO entidadesTiposDTO) {
-        EntidadesTiposEntity entidadesTiposEntity = modelMapper.map(entidadesTiposDTO, EntidadesTiposEntity.class);
-        return entidadesTiposRepository.save(entidadesTiposEntity);
+    public EntidadesTiposDTO save(EntidadesTiposDTO entidadesTiposDTO) {
+        try {
+            EntidadesTiposEntity entidadesTiposEntity = modelMapper.map(entidadesTiposDTO, EntidadesTiposEntity.class);
+            EntidadesTiposEntity entidadesTipos = entidadesTiposRepository.save(entidadesTiposEntity);
+            return modelMapper.map(entidadesTipos, EntidadesTiposDTO.class);
+        } catch (Exception e) {
+            log.error("Error al guardar EntidadesTipos", e);
+            throw new RuntimeException("Error al guardar EntidadesTipos");
+        }
     }
 
     @Override
     public void deleteById(String tipoCodigo,Long empresa) {
-        EntidadesTiposId id = EntidadesTiposId.builder()
-                .empresa(empresa)
-                .tipoCodigo(tipoCodigo)
-                .build();
-        entidadesTiposRepository.deleteById(id);
+        try {
+            EntidadesTiposEntity entidadesTipos = entidadesTiposRepository.findByEmpresaAndTipoCodigo(empresa, tipoCodigo).orElseThrow(() -> new EntityNotFoundException("EntidadTipos no encontrada con tipoCodigo: " + tipoCodigo + " y empresaId: " + empresa));
+            entidadesTiposRepository.delete(entidadesTipos);
+        } catch (Exception e) {
+            log.error("Error al eliminar EntidadesTipos", e);
+            throw new RuntimeException("Error al eliminar EntidadesTipos");
+        }
     }
 
     @Override
-    public EntidadesTiposEntity update(String tipoCodigo, Long empresa, EntidadesTiposDTO entidadesTiposDTO) {
-        EntidadesTiposId id = EntidadesTiposId.builder()
-                .empresa(empresa)
-                .tipoCodigo(tipoCodigo)
-                .build();
-        EntidadesTiposEntity entidadExistente = entidadesTiposRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("EntidadTipos no encontrada con tipoCodigo: " + tipoCodigo + " y empresaId: " + empresa));
+    public EntidadesTiposDTO update(String tipoCodigo, Long empresa, EntidadesTiposDTO entidadesTiposDTO) {
+        try {
+            EntidadesTiposEntity entidadExistente = entidadesTiposRepository.findByEmpresaAndTipoCodigo(empresa, tipoCodigo)
+                    .orElseThrow(() -> new EntityNotFoundException("EntidadTipos no encontrada con tipoCodigo: " + tipoCodigo + " y empresaId: " + empresa));
 
-        entidadExistente.setTipoCodigo(entidadesTiposDTO.getTipoCodigo());
-        entidadExistente.setDescripcion(entidadesTiposDTO.getDescripcion());
-        entidadExistente.setUsuarioActualizacion(entidadesTiposDTO.getUsuarioActualizacion());
+            entidadExistente.setTipoCodigo(entidadesTiposDTO.getTipoCodigo());
+            entidadExistente.setDescripcion(entidadesTiposDTO.getDescripcion());
+            entidadExistente.setUsuarioActualizacion(entidadesTiposDTO.getUsuarioActualizacion());
 
-        return entidadesTiposRepository.save(entidadExistente);
+            EntidadesTiposEntity entidadesTipos = entidadesTiposRepository.save(entidadExistente);
+            return modelMapper.map(entidadesTipos, EntidadesTiposDTO.class);
+        } catch (Exception e) {
+            log.error("Error al actualizar EntidadesTipos", e);
+            throw new RuntimeException("Error al actualizar EntidadesTipos");
+        }
     }
 }

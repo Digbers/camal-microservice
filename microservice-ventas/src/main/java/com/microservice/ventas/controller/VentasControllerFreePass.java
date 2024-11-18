@@ -5,14 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 @RestController
 @RequestMapping("/api/free-pass")
 public class VentasControllerFreePass {
-
     @Autowired
     private VentasServiceImpl ventasService;
     @GetMapping("/stream-numero/{serie}/{idPuntoVenta}")

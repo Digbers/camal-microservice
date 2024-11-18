@@ -1,5 +1,6 @@
 package com.microservice.inventario.controller.DTO;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -11,6 +12,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class ComprobanteDetalleRequest {
+    private Long numero;
+    @NotBlank(message = "La descripcion es obligatoria")
+    private String descripcion;
     @NotNull(message = "La cantidad es obligatoria")
     private Integer cantidad;
     @NotNull(message = "El idProducto es obligatorio")

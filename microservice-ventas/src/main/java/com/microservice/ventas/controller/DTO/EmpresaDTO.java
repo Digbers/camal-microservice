@@ -18,4 +18,9 @@ public class EmpresaDTO {
     private String razonSocial;
     @NotBlank(message = "El código de la empresa no puede estar vacío")
     private String empresaCodigo;
+    private String ruc;
+    private String direccion;
+    private String telefono;
+    private String celular;
+    private String correo;
 }

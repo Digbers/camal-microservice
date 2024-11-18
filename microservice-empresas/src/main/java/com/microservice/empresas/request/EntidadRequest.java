@@ -7,6 +7,7 @@ public record EntidadRequest(
         String nombre_completo,
         String nombres,
         String apellido_paterno,
-        String apellido_materno
+        String apellido_materno,
+        String direccion
 ) {
 }

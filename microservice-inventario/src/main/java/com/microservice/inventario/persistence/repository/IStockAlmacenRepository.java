@@ -24,6 +24,8 @@ public interface IStockAlmacenRepository extends JpaRepository<StockAlmacen, Lon
             @Param("productoId") Long productoId,
             @Param("idEmpresa") Long idEmpresa,
             @Param("envaseId") Long envaseId);
+    @Query("SELECT s FROM StockAlmacen s WHERE s.producto.codigo = :codigo AND s.envase IS NULL")
+    Optional<StockAlmacen> findByProductoCodigoAndEnvaseIsNull(String codigo);
 
 
 }

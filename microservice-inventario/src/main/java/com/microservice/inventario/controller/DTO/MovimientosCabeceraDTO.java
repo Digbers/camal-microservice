@@ -19,7 +19,7 @@ import java.util.List;
 public class MovimientosCabeceraDTO {
     private Long id;
     private Long idEmpresa;
-    private String numero;
+    private Long numero;
     private LocalDate fechaEmision;
     private BigDecimal total;
     private MovimientosMotivosDTO motivoCodigo;

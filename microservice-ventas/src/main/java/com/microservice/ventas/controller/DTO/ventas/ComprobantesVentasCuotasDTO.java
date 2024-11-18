@@ -16,7 +16,6 @@ import java.util.Date;
 @AllArgsConstructor
 public class ComprobantesVentasCuotasDTO {
     private Long id;
-    @NotNull(message = "El ID de la empresa es nulo")
     private Long idEmpresa;
     private Long idComprobanteCabecera;
     @NotNull(message = "El nro de cuota es obligatorio")

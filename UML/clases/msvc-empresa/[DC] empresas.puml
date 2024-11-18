@@ -76,6 +76,8 @@ package "org-camal" {
     }
     interface EntidadesMetodos {
             + BuscarXNombre()
+            + BuscarXDNI()
+            + BuscarxRUC()
     }
 
     Empresas "1" --* "n*" Zonas : composicion
@@ -89,6 +91,7 @@ package "org-camal" {
 
     Empresas --> MetodosGenerales: implementa
     Empresas --> EmpresaMetodos: implementa
+    Entidades --> EntidadesMetodos: implementa
 
 
 @enduml

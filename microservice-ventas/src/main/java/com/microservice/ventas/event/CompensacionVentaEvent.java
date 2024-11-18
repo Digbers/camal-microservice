@@ -26,4 +26,5 @@ public class CompensacionVentaEvent {
     private Long idEmpresa;
     @NotNull(message = "El source es obligatorio")
     private String source;
+    private String codigoProductoVenta;
 }

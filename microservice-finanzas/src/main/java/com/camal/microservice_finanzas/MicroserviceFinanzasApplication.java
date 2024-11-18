@@ -23,13 +23,13 @@ public class MicroserviceFinanzasApplication {
 	CommandLineRunner init(IMonedasRepository monedasRepository, IFormasCobrosRepository formasCobrosRepository, IFormasPagosRepository formasPagosRepository) {
 		return args -> {
 			MonedasEntity moneda1 = MonedasEntity.builder()
-					.codigo("PEN")
+					.codigo("SOL")
 					.simbolo("S/.")
 					.idEmpresa(1L)
 					.usuarioCreacion("ADMIN")
 					.nombre("Soles").build();
 			MonedasEntity moneda2 = MonedasEntity.builder()
-					.codigo("USD")
+					.codigo("DOL")
 					.simbolo("$")
 					.idEmpresa(1L)
 					.usuarioCreacion("ADMIN")
@@ -37,15 +37,15 @@ public class MicroserviceFinanzasApplication {
 			monedasRepository.saveAll(Set.of(moneda1, moneda2));
 
 			FormasPagosEntity formaPago1 = FormasPagosEntity.builder()
-					.codigo("CRE")
-					.descripcion("CREDITO")
+					.codigo("EFE")
+					.descripcion("EFECTIVO")
 					.idEmpresa(1L)
 					.usuarioCreacion("ADMIN")
 					.moneda(moneda1)
 					.build();
 			FormasPagosEntity formaPago2 = FormasPagosEntity.builder()
-					.codigo("CAN")
-					.descripcion("CANCELADO")
+					.codigo("YAP")
+					.descripcion("YAPE")
 					.idEmpresa(1L)
 					.usuarioCreacion("ADMIN")
 					.moneda(moneda1)
@@ -59,14 +59,7 @@ public class MicroserviceFinanzasApplication {
 					.usuarioCreacion("ADMIN")
 					.moneda(moneda1)
 					.build();
-			FormasCobrosEntity formaCobro2 = FormasCobrosEntity.builder()
-					.codigo("CRE")
-					.descripcion("CREDITO")
-					.idEmpresa(1L)
-					.usuarioCreacion("ADMIN")
-					.moneda(moneda1)
-					.build();
-			formasCobrosRepository.saveAll(Set.of(formaCobro1, formaCobro2));
+			formasCobrosRepository.saveAll(Set.of(formaCobro1));
 
 		};
 	}

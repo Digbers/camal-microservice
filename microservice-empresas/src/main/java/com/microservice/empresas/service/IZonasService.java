@@ -7,13 +7,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IZonasService {
-    List<ZonasEntity> findAll();
+    List<ZonasDTO> findAll();
 
-    Optional<ZonasEntity> findById(Long id);
+    Optional<ZonasDTO> findById(Long id);
 
-    ZonasEntity save(ZonasDTO zonaDTO);
+    ZonasDTO save(ZonasDTO zonaDTO);
 
     void deleteById(Long id);
-
-    ZonasEntity update(Long id,ZonasDTO zonaDTO);
 }

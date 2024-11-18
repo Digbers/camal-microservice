@@ -6,12 +6,14 @@ import com.microservice.ventas.controller.DTO.SeriesDTO;
 import com.microservice.ventas.controller.DTO.ventas.VentaRequest;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface IVentasService {
-    ComprobantesVentasCabDTO save(VentaRequest ventaRequest);
+    CompletableFuture<Long> save(VentaRequest ventaRequest);
     Boolean deleteById(Long id);
     Boolean anularVenta(Long id);
     String getNumeroXSerie(String serie, Long idPuntoVenta);
     List<ComprobantesTiposVentasDTO> getComprobantesTiposVentas(Long idEmpresa);
     List<SeriesDTO> getSeries(String codigoTipoComprobante, Long idPuntoVenta);
+    String getComprobante(Long idComprobante);
 }

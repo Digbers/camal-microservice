@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface IAlmacenRepository extends JpaRepository<AlmacenEntity, Long> {
+public interface IAlmacenRepository extends JpaRepository<AlmacenEntity, Long>, JpaSpecificationExecutor<AlmacenEntity> {
 
     @Query("SELECT u FROM AlmacenEntity u WHERE u.idEmpresa = ?1")
     List<AlmacenEntity> findAllByIdEmpresa(Long idEmpresa);

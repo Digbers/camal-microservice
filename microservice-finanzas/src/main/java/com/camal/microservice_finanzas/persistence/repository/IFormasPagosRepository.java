@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 @Repository
-public interface IFormasPagosRepository extends JpaRepository<FormasPagosEntity, String> {
+public interface IFormasPagosRepository extends JpaRepository<FormasPagosEntity, Long> {
     List<FormasPagosEntity> findByIdEmpresa(Long idEmpresa);
 }

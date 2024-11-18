@@ -1,7 +1,7 @@
 @startuml
 
 package "org-camal" {
-    class ComprobanteVentaCabecera{
+    class ComprobanteVenta{
         -idEmpresa
         -idComprovanteV
         -idComprobanteVTipo
@@ -9,24 +9,10 @@ package "org-camal" {
         -serie
         -idCliente
         -fechaEmision
-        -idComprobanteReferencia // Para el caso de las notas de crédito
         -idEstado
         -usuCodigo // Usuario de creación
         -observaciones
         -idMonedas
-    }
-    class ComprobanteVentaDetalle{
-        -idEmpresa
-        -idComprovanteD
-        -idComprovanteV
-        -numero
-        -idProducto
-        -cantidadEnvases // Cantidad de javas
-        -peso
-        -precioUnitario
-        -descuento
-        -descripcion
-        -idUsuario
     }
     class ComprobantesTipos {
         -idComprobanteTipo
@@ -47,11 +33,15 @@ package "org-camal" {
         -importe
         -idMonedas
     }
-
-    ComprobanteVentaCabecera "1" *-- "n*" ComprobanteVentaDetalle : composicion
-    ComprobanteVentaCabecera "n*" *-- "1" ComprobantesTipos : compocision
-    ComprobanteVentaCabecera "n*" *-- "1" ComprobantesEstados : compocision
-    ComprobanteVentaCabecera "1" *-- "n* - 0" ComprobantesVentasCuotas : compocision
-}
+    interface ComprobanteVentaMetodos {
+        + RegistrarVenta()
+        + AnularVenta()
+        + ObtenerComprobante()
+    }
+    ComprobanteVenta "n*" *-- "1" ComprobantesTipos : compocision
+    ComprobanteVenta "n*" *-- "1" ComprobantesEstados : compocision
+    ComprobanteVenta "1" *-- "n* - 0" ComprobantesVentasCuotas : compocision
+    ComprobanteVenta --> ComprobanteVentaMetodos : implementa
+    }
 
 @enduml

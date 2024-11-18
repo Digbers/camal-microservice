@@ -2,17 +2,18 @@ package com.microservice.inventario.service.almacenI;
 
 import com.microservice.inventario.controller.DTO.AlmacenDTO;
 import com.microservice.inventario.persistence.entity.AlmacenEntity;
+import com.microservice.inventario.persistence.especification.AlmacenSpecifications;
 import com.microservice.inventario.persistence.repository.IAlmacenRepository;
-import com.microservice.inventario.persistence.repository.IStockAlmacenRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AlmacenService implements IAlmacenService {
@@ -21,8 +22,13 @@ public class AlmacenService implements IAlmacenService {
     private final ModelMapper modelMapper;
 
     @Override
-    public Page<AlmacenDTO> findAll(Pageable pageable) {
-        return iAlmacenRepository.findAll(pageable).map(almacen -> modelMapper.map(almacen, AlmacenDTO.class));
+    public Page<AlmacenDTO> findAllByEmpresa(String nombre, String tipoAlmacen, Pageable pageable, Long idEmpresa) {
+        try {
+            Specification<AlmacenEntity> specification = AlmacenSpecifications.getAlmacenes(nombre, tipoAlmacen, idEmpresa);
+            return iAlmacenRepository.findAll(specification, pageable).map(almacen -> modelMapper.map(almacen, AlmacenDTO.class));
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener almacenes por nombre y tipoAlmacen: " + e.getMessage());
+        }
     }
 
     @Override

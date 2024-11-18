@@ -142,53 +142,26 @@ public class StockAlmacenService implements IStockAlmacenService {
 
         return true;
     }
-    public boolean crearMovimiento(MovimientosCabeceraDTO movimiento) {
+    @Transactional
+    public boolean crearMovimiento(MovimientosCabeceraEntity movimiento) {
         try {
-            MovimientosMotivosEntity movimientoMotivo = movimientosMotivosRepository.findById(movimiento.getMotivoCodigo().getCodigo()).orElseThrow(() -> new EntityNotFoundException("Motivo no encontrado"));
-            List<MovimientosDetallesEntity> movimientosDetalles = movimiento.getMovimientosDetalles().stream()
-                    .map(movimientoDetalle -> {
-                        // Buscar las entidades relacionadas por ID
-                        ProductosEntity productoEntity = productoRepository.findById(movimientoDetalle.getIdProducto())
-                                .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + movimientoDetalle.getIdProducto()));
-                        EnvaseEntity envaseEntity = envaseRepository.findById(movimientoDetalle.getEnvase())
-                                .orElseThrow(() -> new EntityNotFoundException("Envase no encontrado con ID: " + movimientoDetalle.getEnvase()));
+            MovimientosMotivosEntity movimientoMotivo = movimientosMotivosRepository.findById(movimiento.getMotivoCodigo().getCodigo())
+                    .orElseThrow(() -> new EntityNotFoundException("Motivo no encontrado"));
+            // Obtener la entidad Almacen desde el repositorio
+            AlmacenEntity almacenEntity = almacenRepository.findById(movimiento.getIdAlmacen().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Almacén no encontrado"));
+            // Guardar el movimiento
+            movimiento.setMotivoCodigo(movimientoMotivo);
+            movimiento.setIdAlmacen(almacenEntity);
+            // Guardar el movimiento en la base de datos
+            movimientosCabeceraRepository.save(movimiento);
 
-                        return MovimientosDetallesEntity.builder()
-                                .idEmpresa(movimiento.getIdEmpresa())
-                                .idProducto(productoEntity)
-                                .envase(envaseEntity)
-                                .peso(movimientoDetalle.getPeso())
-                                .total(movimientoDetalle.getTotal())
-                                .cantidad(movimientoDetalle.getCantidad())
-                                .usuarioCreacion(movimiento.getUsuarioCreacion())
-                                .build();
-                    })
-                    .toList();
-
-            MovimientosCabeceraEntity movimientoC = MovimientosCabeceraEntity.builder()
-                    .idEmpresa(movimiento.getIdEmpresa())
-                    .numero(String.valueOf(movimientosCabeceraRepository.findMaxNumber() + 1))
-                    .fechaEmision(LocalDate.now())
-                    .total(movimiento.getTotal())
-                    .motivoCodigo(movimientoMotivo)
-                    .idUsuario(movimiento.getIdUsuario())
-                    .monedaCodigo(movimiento.getMonedaCodigo())
-                    .movimientosDetallesEntity(movimientosDetalles)
-                    .idAlmacen(modelMapper.map(movimiento.getIdAlmacen(), AlmacenEntity.class))
-                    .tipoDocumentoReferencia(movimiento.getTipoDocumentoReferencia())
-                    .serieDocumentoReferencia(movimiento.getSerieDocumentoReferencia())
-                    .numeroDocumentoReferencia(movimiento.getNumeroDocumentoReferencia())
-                    .observaciones(movimiento.getObservaciones())
-                    .idEntidad(movimiento.getIdEntidad())
-                    .cantidadEnvaces(movimiento.getCantidadEnvaces())
-                    .fechaIngresoSalida(movimiento.getFechaIngresoSalida())
-                    .usuarioCreacion(movimiento.getUsuarioCreacion())
-                    .build();
-            movimientosCabeceraRepository.save(movimientoC);
-            return true;
+            log.info("Movimiento creado para la venta: " + movimiento.getNumero());
+            return true; // Devuelves true si el movimiento se creó correctamente
         } catch (Exception e) {
             log.error("Error al crear movimiento", e);
-            return false;
+            return false; // Devuelves false si hubo un error
         }
     }
+
 }

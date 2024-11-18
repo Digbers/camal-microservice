@@ -1,10 +1,4 @@
 package com.microservice.inventario.controller.DTO;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.microservice.inventario.persistence.entity.AlmacenEntity;
-import com.microservice.inventario.persistence.entity.EnvaseEntity;
-import com.microservice.inventario.persistence.entity.ProductosEntity;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

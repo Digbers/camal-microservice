@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class ComprobantesComprasTiposDTO {
+    private Long id;
     private String codigo;
     private String descripcion;
     private Long idEmpresa;

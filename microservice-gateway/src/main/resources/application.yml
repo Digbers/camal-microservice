@@ -24,11 +24,23 @@ spring:
             - Path=/api/inventario/**
           filters:
             - name: AuthFilter
+        - id: free-pass-inventario
+          uri: http://localhost:9091
+          predicates:
+            - Path=/api/product-free-pass/**
+          filters:
+            - name: FreePassFilter
 
         - id: ventas
           uri: http://localhost:9092
           predicates:
             - Path=/api/ventas/**
+          filters:
+            - name: AuthFilter
+        - id: compras
+          uri: http://localhost:9092
+          predicates:
+            - Path=/api/compras/**
           filters:
             - name: AuthFilter
         - id: free-pass

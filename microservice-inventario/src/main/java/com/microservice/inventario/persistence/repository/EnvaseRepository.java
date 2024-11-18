@@ -13,4 +13,6 @@ public interface EnvaseRepository extends JpaRepository<EnvaseEntity, Long>, Jpa
     @Query("SELECT e FROM EnvaseEntity e JOIN e.stockAlmacenList s WHERE s.almacen.id = :idAlmacen")
     List<EnvaseEntity> findEnvasesByAlmacen(@Param("idAlmacen") Long idAlmacen);
 
+    List<EnvaseEntity> findByIdEmpresa(Long idEmpresa);
+
 }

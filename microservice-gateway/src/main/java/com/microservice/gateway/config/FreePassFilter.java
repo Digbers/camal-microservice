@@ -19,11 +19,10 @@ public class FreePassFilter extends AbstractGatewayFilterFactory<FreePassFilter.
     public GatewayFilter apply(FreePassFilter.Config config) {
         return (exchange, chain) -> {
             try{
-                log.info("Entro al filtro de autenticacion");
+                log.info("-------------- Free Pass Filter --------------");
                 String requestPath = exchange.getRequest().getPath().toString();
                 log.info("Request path: " + requestPath);
                 return chain.filter(exchange);
-
             }catch (Exception e){
                 e.printStackTrace();
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);

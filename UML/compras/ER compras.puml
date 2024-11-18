@@ -1,0 +1,63 @@
+@startuml
+
+' Estilo del diagrama
+!define ENTITY(name,desc) class name as "desc" << (E,#FFAAAA) >>
+!define PK(x) <b><color:red>PK</color> x</b>
+!define FK(x) <color:blue>FK</color> x
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+
+' Definición de entidades
+ENTITY(ComprobanteCabecera, "COMPROBANTE_CABECERA") {
+    PK(idEmpresa)
+    PK(idComprovanteC)
+    FK(idComprobanteCTipo)
+    FK(idComprobanteTipo)
+    FK(idEstado)
+    numero: string
+    serie: string
+    idCliente: integer
+    fechaEmision: date
+    usuCodigo: string
+    observaciones: string
+    idMonedas: integer
+}
+
+ENTITY(ComprobanteDetalle, "COMPROBANTE_DETALLE") {
+    PK(idEmpresa)
+    PK(idComprovanteD)
+    FK(idComprovanteC)
+    numero: string
+    idProducto: integer
+    cantidadEnvases: decimal
+    peso: decimal
+    precioUnitario: decimal
+    descuento: decimal
+    descripcion: string
+    idUsuario: integer
+}
+
+ENTITY(ComprobantesEstados, "COMPROBANTES_ESTADOS") {
+    PK(idComprobanteEstado)
+    codigo: string
+    descripcion: string
+}
+
+ENTITY(ComprobantesTipos, "COMPROBANTES_TIPOS") {
+    PK(idComprobanteTipo)
+    codigo: string
+    descripcion: string
+}
+
+' Relaciones
+ComprobanteCabecera "1" --o "0..*" ComprobanteDetalle : tiene
+ComprobantesEstados "1" --o "0..*" ComprobanteCabecera : define_estado
+ComprobantesTipos "1" --o "0..*" ComprobanteCabecera : clasifica
+
+note "cantidadEnvases representa\nla cantidad de javas" as N1
+N1 .. ComprobanteDetalle
+
+@enduml

@@ -1,9 +1,6 @@
 package com.microservice.inventario.persistence.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -16,10 +13,14 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "productos_tipos")
+@Table(name = "productos_tipos", uniqueConstraints = {@UniqueConstraint(columnNames = {"id_empresa", "codigo"})})
 public class ProductosTiposEntity {
-
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_tipo_producto")
+    private Long idTipoProducto;
+    @Column(name = "id_empresa", nullable = false)
+    private Long idEmpresa;
     @Column(unique = true, nullable = false, length = 3)
     private String codigo;
     @Column(nullable = false, length = 150)

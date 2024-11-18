@@ -1,6 +1,7 @@
 package com.microservice.inventario.controller;
 
 import com.microservice.inventario.controller.DTO.ProductoDTO;
+import com.microservice.inventario.controller.DTO.response.ProductoAResponse;
 import com.microservice.inventario.persistence.entity.ProductosEntity;
 import com.microservice.inventario.service.productos.ProductosServiceImpl;
 import jakarta.validation.Valid;
@@ -8,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductControler {
     private final ProductosServiceImpl productosServiceImpl;
-    //private final PagedResourcesAssembler<ProductoDTO> pagedResourcesAssembler;
+
     @GetMapping("/list")
     public Page<ProductoDTO> getAll(
             @RequestParam int page,
@@ -30,9 +33,25 @@ public class ProductControler {
             @RequestParam(required = false) String codigo,
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) String codigoTipo,
-            @RequestParam(required = false) Long almacenId
+            @RequestParam(required = false) Long almacenId,
+            @RequestParam(required = false) String sort // Parámetro sort opcional
     ){
-        return productosServiceImpl.finAll(id, idEmpresa, codigo, nombre, codigoTipo, almacenId, PageRequest.of(page, size));
+        Pageable pageable;
+
+        // Verificar si el parámetro sort está presente
+        if (sort != null && !sort.isEmpty()) {
+            // Dividir el sort en columna y dirección
+            String[] sortParams = sort.split(",");
+            String column = sortParams[0];
+            Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc")
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            pageable = PageRequest.of(page, size, Sort.by(direction, column));
+        } else {
+            // Solo paginación si no hay sort
+            pageable = PageRequest.of(page, size);
+        }
+        return productosServiceImpl.finAll(id, idEmpresa, codigo, nombre, codigoTipo, almacenId, pageable);
     }
 
     @GetMapping("/all")
@@ -54,15 +73,10 @@ public class ProductControler {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
-    }/*
-    @GetMapping("/verificar-stock/{id}")
-    public ResponseEntity<Integer> verificarStock(@PathVariable Long id) {
-        Integer stockDisponible = productosServiceImpl.obtenerStockDisponible(id);
-        return ResponseEntity.ok(stockDisponible);
-    }*/
+    }
     @GetMapping("/find-autocomplete/{descripcion}")
-    public ResponseEntity<List<ProductoDTO>> findByDescripcionAutocomplete(@PathVariable String descripcion) {
-        List<ProductoDTO> productos = productosServiceImpl.findByDescripcionAutocomplete(descripcion);
+    public ResponseEntity<List<ProductoAResponse>> findByDescripcionAutocomplete(@PathVariable String descripcion) {
+        List<ProductoAResponse> productos = productosServiceImpl.findByDescripcionAutocomplete(descripcion);
         return ResponseEntity.ok(productos);
     }
     @GetMapping("/find-test/{param}")

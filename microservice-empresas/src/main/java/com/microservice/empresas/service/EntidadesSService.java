@@ -4,6 +4,7 @@ import com.microservice.empresas.client.EntidadesSClient;
 import com.microservice.empresas.controller.dto.PadronSunatDTO;
 import com.microservice.empresas.request.EntidadRequest;
 import com.microservice.empresas.request.ReniectRequest;
+import com.microservice.empresas.response.EntidadResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,12 +23,29 @@ public class EntidadesSService implements IEmpresaSService {
     private String tokenReniec;
 
     @Override
-    public PadronSunatDTO findByNumeroDocTipoDocumento(String numeroDoc, String tipoDocumento) {
-        return entidadesSClient.obtenerEntidad(numeroDoc, tipoDocumento, urlSunat);
+        public EntidadResponse findByNumeroDocTipoDocumento(String numeroDoc, String tipoDocumento, Long empresa) {
+        PadronSunatDTO padron =entidadesSClient.obtenerEntidad(numeroDoc, tipoDocumento, urlSunat, empresa);
+        //log.info("nombre entidadSService: " + padron.getRazonSocial());
+        EntidadResponse entidadResponse = EntidadResponse.builder()
+                .documento(tipoDocumento)
+                .numeroDocumento(padron.getNumeroDoc())
+                .nombre(padron.getRazonSocial())
+                .direccion(padron.getDomiciloFiscal())
+                .estado(padron.getEstado())
+                .condicion(padron.getCondicion())
+                .build();
+        return entidadResponse;
     }
     @Override
-    public EntidadRequest findEntidadesByDNI(ReniectRequest reniectRequest,Long empresa) {
-        return entidadesSClient.findEntidadByDNI(reniectRequest.dni(), urlReniec, tokenReniec);
+    public EntidadResponse findEntidadesByDNI(ReniectRequest reniectRequest,Long empresa) {
+        EntidadRequest entidad = entidadesSClient.findEntidadByDNI(reniectRequest.dni(), urlReniec, tokenReniec, empresa);
+        EntidadResponse entidadResponse = EntidadResponse.builder()
+                .documento("DNI")
+                .numeroDocumento(entidad.numero())
+                .nombre(entidad.nombre_completo())
+                .direccion(entidad.direccion())
+                .build();
+        return entidadResponse;
     }
 
 }

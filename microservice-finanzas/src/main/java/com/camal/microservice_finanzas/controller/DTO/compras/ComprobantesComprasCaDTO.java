@@ -30,7 +30,7 @@ public class ComprobantesComprasCaDTO {
     private LocalDate fechaEmision;
     private String observacion;
     @NotBlank(message = "El id moneda es obligatorio")
-    private String idMoneda;
+    private String codigoMoneda;
     @NotNull(message = "El tipo de cambio es obligatorio")
     private Double tipoCambio;
     private ComprobantesComprasTiposDTO comprobantesTipos;
@@ -44,8 +44,6 @@ public class ComprobantesComprasCaDTO {
     private List<ComprobantesComprasDetalleDTO> comprobantesComprasDetalle = new ArrayList<>();
     @NotNull(message = "El id proveedor es obligatorio")
     private Long idProveedor;
-    @NotBlank(message = "La moneda es obligatoria")
-    private String codigoMoneda;
     @NotNull(message = "El usuario de creacion es obligatorio")
     private String usuarioCreacion;
     private String usuarioActualizacion;

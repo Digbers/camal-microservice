@@ -1,14 +1,8 @@
 package com.camal.microservice_auth.controller.dto;
-
-import com.camal.microservice_auth.persistence.entity.MenusEntity;
-import com.camal.microservice_auth.persistence.entity.UserEntity;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.OneToMany;
 import lombok.*;
-
-
 import java.util.HashSet;
 import java.util.Set;
+
 @Builder
 @Getter
 @Setter
@@ -22,5 +16,6 @@ public class MenuDTO {
     private Integer orden;
     private Long nivel;
     private long padre;
+    private boolean menuDisponible;
     private Set<MenuDTO> submenus = new HashSet<>();
 }

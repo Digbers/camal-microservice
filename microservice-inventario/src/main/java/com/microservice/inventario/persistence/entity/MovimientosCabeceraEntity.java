@@ -25,7 +25,7 @@ public class MovimientosCabeceraEntity {
     private Long id;
     @Column(name = "id_empresa", nullable = false)
     private Long idEmpresa;
-    private String numero;
+    private Long numero;
     @Column(name = "fecha_emision")
     private LocalDate fechaEmision;
     @Column(precision = 10, scale = 2)
@@ -39,7 +39,7 @@ public class MovimientosCabeceraEntity {
     private String monedaCodigo;
     @OneToMany(mappedBy = "idMovimiento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MovimientosDetallesEntity> movimientosDetallesEntity = new ArrayList<>();
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @JoinColumn(name = "id_almacen")
     private AlmacenEntity idAlmacen;
     @Column(name = "tipo_doc_ref")

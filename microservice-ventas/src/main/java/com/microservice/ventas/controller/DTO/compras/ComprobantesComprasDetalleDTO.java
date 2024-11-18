@@ -39,5 +39,4 @@ public class ComprobantesComprasDetalleDTO {
     @NotNull(message = "El ID del usuario creador es nulo")
     private String usuarioCreacion;
     private String usuarioActualizacion;
-
 }

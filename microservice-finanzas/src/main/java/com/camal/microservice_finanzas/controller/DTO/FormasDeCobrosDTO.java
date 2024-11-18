@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FormasDeCobrosDTO {
+    private Long id;
     private String codigo;
     private String descripcion;
     private Long idEmpresa;

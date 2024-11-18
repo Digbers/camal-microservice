@@ -2,8 +2,10 @@ package com.microservice.empresas.client;
 
 import com.microservice.empresas.controller.dto.PadronSunatDTO;
 import com.microservice.empresas.exception.EntidadNotFoundException;
+import com.microservice.empresas.persistence.entity.EmpresaEntity;
 import com.microservice.empresas.persistence.entity.EntidadEntity;
 import com.microservice.empresas.persistence.entity.PadronSunat;
+import com.microservice.empresas.persistence.repository.IEmpresaRepository;
 import com.microservice.empresas.persistence.repository.IEntidadRepository;
 import com.microservice.empresas.persistence.repository.IPadronSunatRepository;
 import com.microservice.empresas.request.EntidadRequest;
@@ -30,19 +32,31 @@ import java.util.Optional;
 public class EntidadesSClient {
     private final WebScraperService webScraperService;
     private final WebClient.Builder webClientBuilder;
-    private final IPadronSunatRepository padronSunatRepository;
+    private final IEmpresaRepository empresaRepository;
     private final IEntidadRepository entidadRepository;
-    private final ModelMapper modelMapper;
 
 
-    public PadronSunatDTO obtenerEntidad(String numeroDoc, String tipoDoc, String url) {
+
+    public PadronSunatDTO obtenerEntidad(String numeroDoc, String tipoDoc, String url, Long empresa) {
         try {
             String searchInputId = "txtRuc"; // Id del input en la página de consulta
             String searchButtonId = "btnAceptar";  // Id del botón de búsqueda
-            Optional<PadronSunat> padronSunat = padronSunatRepository.findById(numeroDoc);
-            if (padronSunat.isPresent()) {
+            Optional<EmpresaEntity> empresaEntity = empresaRepository.findById(empresa);
+            if (empresaEntity.isEmpty()) {
+                log.warn("Empresa no encontrada en la base de datos.");
+                throw new RuntimeException("Empresa no encontrada en la base de datos.");
+            }
+            Optional<EntidadEntity> entidad = entidadRepository.findByEmpresaAndNroDocumento(empresaEntity.get(), numeroDoc);
+            if (entidad.isPresent()) {
+                EntidadEntity entidadEntity = entidad.get();
                 log.info("Entidad encontrada en la base de datos.");
-                return modelMapper.map(padronSunat.get(), PadronSunatDTO.class);
+                return PadronSunatDTO.builder()
+                        .numeroDoc(entidadEntity.getNroDocumento())
+                        .razonSocial(entidadEntity.getNombre())
+                        .estado(entidadEntity.getEstado() ? "ACTIVO" : "INACTIVO")
+                        .condicion(entidadEntity.getCondicion())
+                        .domiciloFiscal(entidadEntity.getDireccion())
+                        .build();
             }
             return webScraperService.navigateAndExtract(url, searchInputId, searchButtonId, numeroDoc, tipoDoc);
         } catch (EntidadNotFoundException ex) {
@@ -51,14 +65,19 @@ public class EntidadesSClient {
             throw new RuntimeException("Error al obtener la entidad: ", ex);
         }
     }
-    public EntidadRequest findEntidadByDNI(String dni, String urlReniec, String tokenReniec) {
+    public EntidadRequest findEntidadByDNI(String dni, String urlReniec, String tokenReniec, Long empresa) {
         try {
-            Optional<EntidadEntity> entidad = entidadRepository.findByNroDocumento(dni);
+            Optional<EmpresaEntity> empresaEntity = empresaRepository.findById(empresa);
+            if (empresaEntity.isEmpty()) {
+                log.warn("Empresa no encontrada en la base de datos.");
+                throw new RuntimeException("Empresa no encontrada en la base de datos.");
+            }
+            Optional<EntidadEntity> entidad = entidadRepository.findByEmpresaAndNroDocumento(empresaEntity.get(), dni);
             if (entidad.isPresent()) {
                 log.info("Entidad encontrada en la base de datos.");
                 EntidadEntity entidadEntity = entidad.get();
                 String nombrecompleto = entidadEntity.getNombre() + " " + entidadEntity.getApellidoPaterno() + " " + entidadEntity.getApellidoMaterno();
-                EntidadRequest entidadRequest = new EntidadRequest(entidadEntity.getNroDocumento(), nombrecompleto, entidadEntity.getNombre(),entidadEntity.getApellidoPaterno(), entidadEntity.getApellidoMaterno());
+                EntidadRequest entidadRequest = new EntidadRequest(entidadEntity.getNroDocumento(), nombrecompleto, entidadEntity.getNombre(),entidadEntity.getApellidoPaterno(), entidadEntity.getApellidoMaterno(), entidadEntity.getDireccion());
                 return entidadRequest;
             }
             Map<String, String> requestBody = new HashMap<>();

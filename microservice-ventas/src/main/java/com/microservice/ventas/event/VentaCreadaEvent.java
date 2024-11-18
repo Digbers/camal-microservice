@@ -1,8 +1,4 @@
 package com.microservice.ventas.event;
-
-import com.microservice.ventas.controller.DTO.ComprobanteDetalleRequest;
-import com.microservice.ventas.controller.DTO.CuotasRequestDTO;
-import com.microservice.ventas.controller.DTO.compras.ComprobantesComprasCaDTO;
 import com.microservice.ventas.controller.DTO.ventas.ComprobantesVentasCabDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -28,5 +23,6 @@ public class VentaCreadaEvent {
     @NotNull(message = "El ID de la forma de pago es obligatorio")
     @Length(min = 1, max = 3, message = "El ID de la forma de pago debe tener entre 1 y 3 caracteres")
     private String codigoFormaPago;
-
+    private List<ComprobantesVentasCobrosEventDTO> comprobantesVentasCobrosDTO;
+    private String codigoProductoVenta;
 }

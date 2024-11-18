@@ -32,7 +32,7 @@ public class ComprobantesVentasCobrosEntity {
     @Column(name = "fecha_cobro", nullable = false)
     private LocalDate fechaCobro;
     private String descripcion;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "moneda")
     private MonedasEntity monedasEntity;
     @Column(name = "usercodigo_creacion")

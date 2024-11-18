@@ -16,8 +16,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @Builder
 public class ZonasDTO {
-
-    private EmpresaEntity empresa;
+    private Long empresa;
     private Long id;
     private String nombre;
     private String ubiCodigo;
@@ -25,8 +24,6 @@ public class ZonasDTO {
     private String provincia;
     private String distrito;
     private String usuarioCreacion;
-
-    private Timestamp fechaCreacion;
     private String usuarioActualizacion;
-    private Timestamp fechaActualizacion;
+
 }

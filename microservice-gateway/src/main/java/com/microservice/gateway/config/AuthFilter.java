@@ -36,12 +36,12 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             try{
-                log.info("Entro al filtro de autenticacion");
+                log.info("---------- Auth Filter ----------");
                 String requestPath = exchange.getRequest().getPath().toString();
-                log.info("Request path: " + requestPath);
+                //log.info("Request path: " + requestPath);
                 boolean isBypassPath = bypassPaths.stream().anyMatch(path -> pathMatcher.match(path, requestPath));
                 String internalHeader = exchange.getRequest().getHeaders().getFirst("X-Internal-Request");
-                log.info("Internal header: " + internalHeader);
+                log.info("Internal header: " + internalHeader + " path: " + requestPath);
                 if (isBypassPath || internalHeader != null) {
                     return chain.filter(exchange);
                 }
@@ -58,7 +58,7 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
                     return exchange.getResponse().setComplete();
                 }
             }catch (Exception e){
-                e.printStackTrace();
+                log.error("Error en el filtro de autenticación: " + e.getMessage());
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }

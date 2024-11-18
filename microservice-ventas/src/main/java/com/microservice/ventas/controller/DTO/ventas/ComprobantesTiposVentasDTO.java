@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ComprobantesTiposVentasDTO {
+    private Long id;
     private String codigo;
     private String descripcion;
     private Long idEmpresa;

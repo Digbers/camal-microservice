@@ -19,7 +19,6 @@ public class ZonasEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "empresa_id", nullable = false)
     private EmpresaEntity empresa;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

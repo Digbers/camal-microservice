@@ -13,7 +13,8 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Builder
 public class DocumentosTiposDTO {
-    private EmpresaEntity empresa;
+    private Long id;
+    private Long empresa;
     private String docCodigo;
     private String descripcion;
     private String codigoSunat;

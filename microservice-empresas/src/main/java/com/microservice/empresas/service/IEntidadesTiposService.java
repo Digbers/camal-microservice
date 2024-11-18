@@ -2,17 +2,19 @@ package com.microservice.empresas.service;
 
 import com.microservice.empresas.controller.dto.EntidadesTiposDTO;
 import com.microservice.empresas.persistence.entity.EntidadesTiposEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface IEntidadesTiposService {
-    List<EntidadesTiposEntity> findAll();
+    Page<EntidadesTiposDTO> findAllByEmpresa(String tipoCodigo, String descripcion, Pageable pageable, Long idEmpresa);
 
-    EntidadesTiposEntity findById(String tipoCodigo,Long empresa);
+    EntidadesTiposDTO findById(String tipoCodigo,Long empresa);
 
-    EntidadesTiposEntity save(EntidadesTiposDTO entidadesTiposDTO);
+    EntidadesTiposDTO save(EntidadesTiposDTO entidadesTiposDTO);
 
     void deleteById(String tipoCodigo,Long empresa);
 
-    EntidadesTiposEntity update(String tipoCodigo,Long empresa,EntidadesTiposDTO entidadesTiposDTO);
+    EntidadesTiposDTO update(String tipoCodigo,Long empresa,EntidadesTiposDTO entidadesTiposDTO);
 }

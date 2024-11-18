@@ -14,4 +14,6 @@ public interface UserDetailServicePersonalizado {
     void eliminarMenus(Long userId, List<Long> menusId);
      List<MenuDTO> obtenerMenus(String userName);
      List<MenuDTO> obtenerMenus(Long userId);
+     List<MenuDTO> obtenerMenusConfiguracion(String usercode);
+     Boolean guardarMenus(String usercode, List<Long> menus);
 }

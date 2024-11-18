@@ -7,11 +7,13 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import java.util.Set;
 
 @EnableDiscoveryClient
 @SpringBootApplication
+@EnableAspectJAutoProxy
 public class MicroserviceVentasApplication {
 
 	public static void main(String[] args) {
@@ -121,7 +123,6 @@ public class MicroserviceVentasApplication {
 					.build();
 			comprobantesTiposComprasRepository.saveAll(Set.of(comprobantesTiposCompras1, comprobantesTiposCompras2, comprobantesTiposCompras3));
 			SeriesEntity serie1 = SeriesEntity.builder()
-					.id(1L)
 					.idEmpresa(1L)
 					.idPuntoVenta(1L)
 					.codigoTipoComprobante(comprobantesTiposVentas1)
@@ -129,7 +130,6 @@ public class MicroserviceVentasApplication {
 					.defaultSerie(true)
 					.build();
 			SeriesEntity serie2 = SeriesEntity.builder()
-					.id(2L)
 					.idEmpresa(1L)
 					.idPuntoVenta(1L)
 					.codigoTipoComprobante(comprobantesTiposVentas1)
@@ -137,7 +137,6 @@ public class MicroserviceVentasApplication {
 					.defaultSerie(false)
 					.build();
 			SeriesEntity serie3 = SeriesEntity.builder()
-					.id(3L)
 					.idEmpresa(1L)
 					.idPuntoVenta(1L)
 					.codigoTipoComprobante(comprobantesTiposVentas2)
@@ -145,20 +144,18 @@ public class MicroserviceVentasApplication {
 					.defaultSerie(false)
 					.build();
 			SeriesEntity serie4 = SeriesEntity.builder()
-					.id(4L)
 					.idEmpresa(1L)
 					.idPuntoVenta(1L)
-					.codigoTipoComprobante(comprobantesTiposVentas1)
+					.codigoTipoComprobante(comprobantesTiposVentas2)
 					.codigoSerie("B002")
 					.defaultSerie(true)
 					.build();
 			SeriesEntity serie5 = SeriesEntity.builder()
-					.id(5L)
 					.idEmpresa(1L)
 					.idPuntoVenta(1L)
 					.codigoTipoComprobante(comprobantesTiposVentas3)
 					.codigoSerie("F003")
-					.defaultSerie(false)
+					.defaultSerie(true)
 					.build();
 			iSeriesRepository.saveAll(Set.of(serie1, serie2, serie3, serie4, serie5));
 		};
