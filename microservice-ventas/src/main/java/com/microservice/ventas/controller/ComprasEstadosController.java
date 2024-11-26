@@ -23,6 +23,19 @@ public class ComprasEstadosController {
     public ResponseEntity<List<ComprobantesComprasEstadosDTO>> findByIdEmpresa(@PathVariable Long idEmpresa) {
         return ResponseEntity.ok(comprasEstadosService.findByIdEmpresa(idEmpresa));
     }
+    @PostMapping("/save")
+    public ResponseEntity<ComprobantesComprasEstadosDTO> save(@RequestBody ComprobantesComprasEstadosDTO comprobantesComprasEstadosDTO) {
+        return ResponseEntity.ok(comprasEstadosService.save(comprobantesComprasEstadosDTO));
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        comprasEstadosService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<ComprobantesComprasEstadosDTO> update(@PathVariable Long id, @RequestBody ComprobantesComprasEstadosDTO comprobantesComprasEstadosDTO) {
+        return ResponseEntity.ok(comprasEstadosService.update(id, comprobantesComprasEstadosDTO));
+    }
     @GetMapping("/findAll/{idEmpresa}")
     public ResponseEntity<Page<ComprobantesComprasEstadosDTO>> findAll(@PathVariable Long idEmpresa,
                                                                        @RequestParam(name = "codigo", required = false) String codigo,

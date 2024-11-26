@@ -16,6 +16,22 @@ import org.springframework.web.bind.annotation.*;
 public class EntidadTipoController {
     private final EntidadesTiposServiceImpl entidadesTiposServiceImpl;
 
+    @PostMapping("/save")
+    public ResponseEntity<EntidadesTiposDTO> save(@RequestBody EntidadesTiposDTO entidadesTiposDTO) {
+        return ResponseEntity.ok(entidadesTiposServiceImpl.save(entidadesTiposDTO));
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<EntidadesTiposDTO> update(@PathVariable Long id, @RequestBody EntidadesTiposDTO entidadesTiposDTO) {
+        return ResponseEntity.ok(entidadesTiposServiceImpl.update(id, entidadesTiposDTO));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        entidadesTiposServiceImpl.deleteByIdOriginal(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/findAll/{idEmpresa}")
     public ResponseEntity<Page<EntidadesTiposDTO>> findAll(@PathVariable Long idEmpresa,
                                                            @RequestParam(name = "tipoCodigo", required = false) String tipoCodigo,

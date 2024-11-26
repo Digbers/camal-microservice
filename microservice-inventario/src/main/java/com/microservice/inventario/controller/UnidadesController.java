@@ -22,6 +22,20 @@ public class UnidadesController {
     public ResponseEntity<List<UnidadesDTO>> findByIdEmpresa(@PathVariable Long idEmpresa){
         return ResponseEntity.ok(unidadesService.findByIdEmpresa(idEmpresa));
     }
+    @PostMapping("/save")
+    public ResponseEntity<UnidadesDTO> save(@RequestBody UnidadesDTO unidadesDTO) {
+        return ResponseEntity.ok(unidadesService.save(unidadesDTO));
+    }
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<UnidadesDTO> update(@PathVariable Long id, @RequestBody UnidadesDTO unidadesDTO) {
+        return ResponseEntity.ok(unidadesService.update(id, unidadesDTO));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        unidadesService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
     @GetMapping("/findAll/{idEmpresa}")
     public ResponseEntity<Page<UnidadesDTO>> findAll(@PathVariable Long idEmpresa,
                                                            @RequestParam(name = "codigo", required = false) String codigo,

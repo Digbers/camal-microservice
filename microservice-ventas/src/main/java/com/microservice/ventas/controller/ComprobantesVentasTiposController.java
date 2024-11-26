@@ -15,6 +15,20 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ComprobantesVentasTiposController {
     private final ComprobantesVentasTiposService comprobantesVentasTiposService;
+
+    @PostMapping("/save")
+    public ResponseEntity<ComprobantesTiposVentasDTO> save(@RequestBody ComprobantesTiposVentasDTO comprobantesTiposVentasDTO) {
+        return ResponseEntity.ok(comprobantesVentasTiposService.save(comprobantesTiposVentasDTO));
+    }
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<ComprobantesTiposVentasDTO> update(@PathVariable Long id, @RequestBody ComprobantesTiposVentasDTO comprobantesTiposVentasDTO) {
+        return ResponseEntity.ok(comprobantesVentasTiposService.update(id, comprobantesTiposVentasDTO));
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        comprobantesVentasTiposService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
     @GetMapping("/findAll/{idEmpresa}")
     public ResponseEntity<Page<ComprobantesTiposVentasDTO>> findAll(@PathVariable Long idEmpresa,
                                                                     @RequestParam(name = "codigo", required = false) String codigo,

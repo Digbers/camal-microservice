@@ -15,4 +15,5 @@ public interface IAlmacenService {
     AlmacenDTO save(AlmacenDTO almacenDTO);
     boolean deleteById(Long id);
     List<AlmacenDTO> findByIdEmpresa(Long id);
+    AlmacenDTO update(Long id, AlmacenDTO almacenDTO);
 }

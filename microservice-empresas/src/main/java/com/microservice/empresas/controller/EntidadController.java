@@ -1,10 +1,13 @@
 package com.microservice.empresas.controller;
 
 import com.microservice.empresas.controller.dto.EntidadDTO;
+import com.microservice.empresas.request.AsistenciaRequest;
 import com.microservice.empresas.request.CreateEntidadRequest;
 import com.microservice.empresas.request.ReniectRequest;
 import com.microservice.empresas.response.EntidadResponse;
+import com.microservice.empresas.response.EntidadResponseAsistencias;
 import com.microservice.empresas.response.IdsEntidades;
+import com.microservice.empresas.response.TrabajadoresResponse;
 import com.microservice.empresas.service.EntidadesSService;
 import com.microservice.empresas.service.IEntidadService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,6 +83,10 @@ public class EntidadController {
     public ResponseEntity<EntidadResponse> save(@RequestBody CreateEntidadRequest entidad) {
         return ResponseEntity.ok(entidadService.save(entidad));
     }
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<EntidadResponse> update(@PathVariable Long id, @RequestBody CreateEntidadRequest entidad) {
+        return ResponseEntity.ok(entidadService.update(id, entidad));
+    }
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<EntidadDTO> delete(@PathVariable Long id) {
         Optional<EntidadDTO> entidad = entidadService.findById(id);
@@ -108,6 +116,32 @@ public class EntidadController {
         // Llama al servicio que obtiene los clientes en lote
         List<EntidadResponse> entidades = entidadService.findEntidadesByIds(ids);
         return ResponseEntity.ok(entidades);
+    }
+    @GetMapping("/findAsistenciaAndTrabajadores/{idEmpresa}")
+    public ResponseEntity<Page<EntidadResponseAsistencias>> findWorkers(
+            @PathVariable Long idEmpresa,
+            @RequestParam(name = "startDate", required = false) LocalDate startDate,
+            @RequestParam(name = "endDate", required = false) LocalDate endDate,
+            @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(name = "size", required = false, defaultValue = "10") Integer size) {
+        Pageable pageable;
+        pageable = PageRequest.of(page, size);
+
+        return ResponseEntity.ok(entidadService.findWorkers(idEmpresa, startDate, endDate, pageable));
+    }
+    @GetMapping("/trabajadores/findAll/{idEmpresa}")
+    public ResponseEntity<Page<TrabajadoresResponse>> findAllWorkers(
+            @PathVariable Long idEmpresa,
+            @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(name = "size", required = false, defaultValue = "10") Integer size) {
+        Pageable pageable;
+        pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(entidadService.findAllWorkers(idEmpresa, pageable));
+    }
+    @PostMapping("/trabajadores/marcarAsistencia")
+    public ResponseEntity<?> marcarAsistencia(@RequestBody AsistenciaRequest asistencia) {
+        entidadService.marcarAsistencia(asistencia);
+        return ResponseEntity.ok("Se marco la asistencia correctamente");
     }
 
 }

@@ -83,6 +83,7 @@ public class ComprobantesVentasController {
                 .nombreCliente(entity.getNombreCliente())
                 .codigoMoneda(entity.getCodigoMoneda())
                 .total(total)
+                .fechaEmision(entity.getFechaEmision())
                 .build();
     }
 }

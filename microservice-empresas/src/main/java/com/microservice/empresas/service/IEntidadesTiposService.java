@@ -13,6 +13,8 @@ public interface IEntidadesTiposService {
     EntidadesTiposDTO findById(String tipoCodigo,Long empresa);
 
     EntidadesTiposDTO save(EntidadesTiposDTO entidadesTiposDTO);
+    EntidadesTiposDTO update(Long id, EntidadesTiposDTO entidadesTiposDTO);
+    void deleteByIdOriginal(Long id);
 
     void deleteById(String tipoCodigo,Long empresa);
 

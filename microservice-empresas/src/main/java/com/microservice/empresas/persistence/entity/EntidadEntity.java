@@ -43,6 +43,7 @@ public class EntidadEntity {
     private String sexo;
     private Boolean estado = true;
     private String condicion;
+    private Double sueldo;
     @Column(name = "usercodigo_creacion")
     private String usuarioCreacion;
     @CreationTimestamp
@@ -54,7 +55,7 @@ public class EntidadEntity {
     @Column(name = "fecha_actualizacion")
     private Timestamp fechaActualizacion;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "entidades_x_entidades_tipos",
             joinColumns = @JoinColumn(name = "id_entidad"),
@@ -64,5 +65,9 @@ public class EntidadEntity {
             }
     )
     private List<EntidadesTiposEntity> entidadesTiposList;
+
+    @OneToMany(mappedBy = "entidad", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<AsistenciasEntity> asistencias;
+
 
 }

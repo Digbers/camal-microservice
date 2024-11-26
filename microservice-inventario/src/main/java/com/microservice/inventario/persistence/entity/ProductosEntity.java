@@ -24,7 +24,7 @@ public class ProductosEntity {
     private Long idProducto;
     @Column(name = "id_empresa", nullable = false)
     private Long empresaId;
-    @Column(unique = true, nullable = false, length = 50)
+    @Column(unique = true, nullable = false, length = 20)
     private String codigo;
     @Column(nullable = false, length = 150)
     private String nombre;
@@ -40,7 +40,9 @@ public class ProductosEntity {
     @Column(nullable = false)
     private Boolean estado;
     @Column(precision = 10, scale = 2)
-    private BigDecimal precioSugerido;
+    private BigDecimal precioVenta;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal precioCompra;
     @Column(name = "usercodigo_creacion")
     private String usuarioCreacion;
     @CreationTimestamp

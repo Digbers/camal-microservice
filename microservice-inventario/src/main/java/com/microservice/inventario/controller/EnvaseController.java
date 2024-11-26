@@ -22,6 +22,10 @@ public class EnvaseController {
     public ResponseEntity<EnvaseDTO> save(@RequestBody EnvaseDTO envaseRequest){
         return ResponseEntity.ok(envaseService.save(envaseRequest));
     }
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<EnvaseDTO> update(@PathVariable Long id, @RequestBody EnvaseDTO envaseRequest){
+        return ResponseEntity.ok(envaseService.update(id, envaseRequest));
+    }
     @GetMapping("/all/{idEmpresa}")
     public ResponseEntity<List<EnvaseDTO>> findAll(@PathVariable Long idEmpresa){
         return ResponseEntity.ok(envaseService.findByIdEmpresa(idEmpresa));

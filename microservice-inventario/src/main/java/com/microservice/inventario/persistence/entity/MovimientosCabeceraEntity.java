@@ -26,6 +26,8 @@ public class MovimientosCabeceraEntity {
     @Column(name = "id_empresa", nullable = false)
     private Long idEmpresa;
     private Long numero;
+    @Column(name = "serie")
+    private String serie;
     @Column(name = "fecha_emision")
     private LocalDate fechaEmision;
     @Column(precision = 10, scale = 2)
@@ -33,6 +35,10 @@ public class MovimientosCabeceraEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @JoinColumn(name = "cod_motivo", nullable = false)
     private MovimientosMotivosEntity motivoCodigo;//motivo venta, compra, traslado
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
+    @JoinColumn(name="estado", nullable = false)
+    private MovimientosEstadosEntity estadoCodigo;
     @Column(name = "id_usuario")
     private String idUsuario;
     @Column(name = "moneda_codigo")
@@ -42,12 +48,8 @@ public class MovimientosCabeceraEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @JoinColumn(name = "id_almacen")
     private AlmacenEntity idAlmacen;
-    @Column(name = "tipo_doc_ref")
-    private String tipoDocumentoReferencia;
-    @Column(name = "serie_doc_ref")
-    private String serieDocumentoReferencia;
-    @Column(name = "numero_doc_ref")
-    private String numeroDocumentoReferencia;
+    @Column(name = "doc_ref")
+    private String documentoReferencia;
     private String observaciones;
     @Column(name = "id_entidad")
     private Long idEntidad;

@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,6 +53,19 @@ public class ComprobantesComprasService implements IComprobantesComprasService {
                 dto.setNombreProveedor(cliente.getNombre());
                 dto.setNroDocumentoProveedor(cliente.getNumeroDocumento());
             }
+            BigDecimal totalSinInpuesto = entity.getComprobantesComprasDetalleEntity().stream()
+                    .map(comprobantesVentasDetEntity -> (comprobantesVentasDetEntity.getPrecioUnitario().multiply(comprobantesVentasDetEntity.getPeso())).subtract(comprobantesVentasDetEntity.getDescuento()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal impuestoDelTotal = totalSinInpuesto
+                    .multiply(new BigDecimal("0.18")) // Calcula el 18%
+                    .setScale(2, RoundingMode.HALF_UP); // Redondea a 2 decimales
+
+            BigDecimal subtotalFinal = totalSinInpuesto
+                    .subtract(impuestoDelTotal) // Resta el impuesto
+                    .setScale(2, RoundingMode.HALF_UP); // Redondea a 2 decimales
+            dto.setSubtotal(subtotalFinal);
+            dto.setImpuesto(impuestoDelTotal);
+            dto.setTotal(totalSinInpuesto);
             return dto;
         });
         return page.map(comprobantesComprasCaEntity -> modelMapper.map(comprobantesComprasCaEntity, ComprobantesComprasCaDTO.class));

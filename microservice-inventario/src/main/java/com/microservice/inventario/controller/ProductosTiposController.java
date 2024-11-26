@@ -53,4 +53,14 @@ public class ProductosTiposController {
     public ResponseEntity<ProductosTiposDTO> save(@RequestBody ProductosTiposDTO productosTiposDTO) {
         return ResponseEntity.ok(productosTiposService.save(productosTiposDTO));
     }
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<ProductosTiposDTO> update(@PathVariable Long id, @RequestBody ProductosTiposDTO productosTiposDTO) {
+        return ResponseEntity.ok(productosTiposService.update(id, productosTiposDTO));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        productosTiposService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
 }

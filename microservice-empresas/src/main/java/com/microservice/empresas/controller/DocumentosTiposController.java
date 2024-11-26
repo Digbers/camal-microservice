@@ -19,6 +19,16 @@ import java.util.Optional;
 public class DocumentosTiposController {
     private final DocumentosTiposServiceImpl documentosTiposService;
 
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<DocumentosTiposDTO> update(@PathVariable Long id, @RequestBody DocumentosTiposDTO documentosTiposDTO) {
+        return ResponseEntity.ok(documentosTiposService.update(id, documentosTiposDTO));
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+        documentosTiposService.deleteByIdOriginal(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/findAll/{idEmpresa}")
     public ResponseEntity<Page<DocumentosTiposDTO>> findAll(@PathVariable Long idEmpresa,
                                                             @RequestParam(name = "docCodigo", required = false) String docCodigo,

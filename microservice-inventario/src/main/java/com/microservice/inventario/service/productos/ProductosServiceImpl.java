@@ -3,7 +3,6 @@ package com.microservice.inventario.service.productos;
 import com.microservice.inventario.clients.EmpresaClient;
 import com.microservice.inventario.controller.DTO.*;
 import com.microservice.inventario.controller.DTO.compras.ComprobantesComprasCaDTO;
-import com.microservice.inventario.controller.DTO.compras.ComprobantesComprasTiposDTO;
 import com.microservice.inventario.controller.DTO.response.ProductoAResponse;
 import com.microservice.inventario.controller.DTO.ventas.ComprobantesVentasCabDTO;
 import com.microservice.inventario.event.*;
@@ -45,7 +44,6 @@ public class ProductosServiceImpl implements IProductosService {
     private final IAlmacenRepository almacenRepository;
     private final IPuntoVentaRepository puntoVentaRepository;
     private final ModelMapper modelMapper;
-    private final EmpresaClient empresaClient;
     private final IUnidadesRepository unidadesRepository;
     private final RabbitTemplate rabbitTemplate;
     private final IStockAlmacenRepository stockAlmacenRepository;
@@ -54,6 +52,7 @@ public class ProductosServiceImpl implements IProductosService {
     private final StockAlmacenService stockAlmacenService;
     private final IMovimientosCabeceraRepository movimientosCabeceraRepository;
     private final IMovimientosMotivosRepository movimientosMotivosRepository;
+    private final IMovimientosEstadosRepository movimientosEstadosRepository;
 
     @Override
     public List<ProductoDTO> findByIdAlmacenProductoVenta(Long id) {
@@ -111,7 +110,8 @@ public class ProductosServiceImpl implements IProductosService {
                 // Iterar sobre cada StockAlmacen y crear un ProductoDTO por cada uno
                 producto.getStockAlmacenList().forEach(stockAlmacen -> {
                     ProductoDTO dtoProducto = modelMapper.map(producto, ProductoDTO.class);
-                    dtoProducto.setPrecioSugerido(producto.getPrecioSugerido());
+                    dtoProducto.setPrecioVenta(producto.getPrecioVenta());
+                    dtoProducto.setPrecioCompra(producto.getPrecioCompra());
                     dtoProducto.setStockAlmacenId(stockAlmacen.getIdStock());
                     dtoProducto.setAlmacenId(stockAlmacen.getAlmacen().getId());
                     dtoProducto.setEnvaseId(stockAlmacen.getEnvase() != null ? stockAlmacen.getEnvase().getIdEnvase() : null);
@@ -212,12 +212,13 @@ public class ProductosServiceImpl implements IProductosService {
                                 .empresaId(producto.getEmpresaId())
                                 .codigo(producto.getCodigo())
                                 .descripcionA(producto.getCodigo() + " - " + producto.getNombre() + " - " + producto.getTipo().getNombre()
-                                        + " - " + producto.getUnidad().getCodigo() + " - " + producto.getPrecioSugerido()
+                                        + " - " + producto.getUnidad().getCodigo() + " - " + producto.getPrecioVenta()
                                         + " - " + (stockAlmacen.getEnvase() != null ? stockAlmacen.getEnvase().getDescripcion() : "Sin envase"))
                                 .nombre(producto.getCodigo() + " - " + producto.getNombre() + " - " + producto.getTipo().getNombre())
                                 .unidad(producto.getUnidad().getCodigo())
                                 .cantidad(stockAlmacen.getCantidadProducto())
-                                .precio(producto.getPrecioSugerido())
+                                .precioVenta(producto.getPrecioVenta())
+                                .precioCompra(producto.getPrecioCompra())
                                 .envaseId(stockAlmacen.getEnvase() != null ? stockAlmacen.getEnvase().getIdEnvase() : null)
                                 .capacidadEnvase(stockAlmacen.getEnvase() != null ? stockAlmacen.getEnvase().getCapacidad() : null)
                                 .peso(stockAlmacen.getPesoTotal())
@@ -282,7 +283,7 @@ public class ProductosServiceImpl implements IProductosService {
                 stockAlmacen.setCantidadEnvase(productoRequest.getCantidadEnvase());
                 stockAlmacen.setCantidadProducto(productoRequest.getCantidadProducto());
                 stockAlmacen.setPesoTotal(productoRequest.getPesoTotal());
-                stockAlmacen.setFechaRegistro(LocalDate.now());
+                //stockAlmacen.setFechaRegistro(LocalDate.now());
                 stockAlmacen.setUsuarioActualizacion(productoRequest.getUsuarioActualizacion());
             }
             // Actualizar atributos del producto
@@ -293,7 +294,8 @@ public class ProductosServiceImpl implements IProductosService {
             producto.setTipo(tipo);
             producto.setGenerarStock(productoRequest.getGenerarStock());
             producto.setEstado(productoRequest.getEstado());
-            producto.setPrecioSugerido(productoRequest.getPrecioSugerido());
+            producto.setPrecioVenta(productoRequest.getPrecioVenta());
+            producto.setPrecioCompra(productoRequest.getPrecioCompra());
             // Vincular StockAlmacen al Producto
             stockAlmacen.setProducto(producto);
 
@@ -347,14 +349,24 @@ public class ProductosServiceImpl implements IProductosService {
             // Confirmar el mensaje
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         }else{
-
-            actualizarStock(comprobanteDetalle, idAlmacen, comprobantesCabecera.getIdEmpresa(), motivoCodigo, codigoProductoCompraVenta);
+            if(codigoProductoCompraVenta != null){
+                actualizarStock(comprobanteDetalle, idAlmacen, comprobantesCabecera.getIdEmpresa(), motivoCodigo, codigoProductoCompraVenta);
+            }else{
+                actualizarStockXproducto(comprobanteDetalle, idAlmacen, comprobantesCabecera.getIdEmpresa(), motivoCodigo);
+            }
             // Obtener información del almacén y motivo
             AlmacenEntity almacen = obtenerAlmacen(idAlmacen);
             MovimientosMotivosEntity motivo = obtenerMotivo(motivoCodigo);
+            MovimientosEstadosEntity estadosEntity;
+            if(motivoCodigo.equals("VEN")){
+                estadosEntity = movimientosEstadosRepository.findByCodigo("SALIDA");
+            }else{
+                estadosEntity = movimientosEstadosRepository.findByCodigo("INGRESO");
+            }
 
             // Crear movimiento
-            MovimientosCabeceraEntity movimiento = crearMovimientoCabecera(comprobantesCabecera, comprobanteDetalle, almacen, motivo, total);
+            MovimientosCabeceraEntity movimiento = crearMovimientoCabecera(comprobantesCabecera.getSerie(), comprobantesCabecera.getNumero(), comprobantesCabecera.getIdEmpresa(), comprobantesCabecera.getUsuarioCreacion(), comprobantesCabecera.getCodigoMoneda(), comprobantesCabecera.getObservacion(), comprobantesCabecera.getIdTercero(), comprobantesCabecera.getFechaEmision(),
+                    comprobanteDetalle, almacen, motivo, total, estadosEntity);
 
             // Crear movimiento en el sistema
             if (!stockAlmacenService.crearMovimiento(movimiento)) {
@@ -395,32 +407,36 @@ public class ProductosServiceImpl implements IProductosService {
     }
 
 
-    private MovimientosCabeceraEntity crearMovimientoCabecera(ComprobanteCabeceraDTO<?> comprobantesCabecera,
+    private MovimientosCabeceraEntity crearMovimientoCabecera(String serie, String numero, Long idEmpresa, String usuarioCreacion, String codigoMoneda, String observacion,
+                                                              Long idCliente, LocalDate fechaEmision,
                                                               List<ComprobanteDetalleRequest> comprobanteDetalle,
-                                                              AlmacenEntity almacen, MovimientosMotivosEntity motivo, BigDecimal montoTotal) {
+                                                              AlmacenEntity almacen, MovimientosMotivosEntity motivo, BigDecimal montoTotal,
+                                                              MovimientosEstadosEntity estadosEntity) {
         Long lastNumber = movimientosCabeceraRepository.findMaxNumber();
         AtomicReference<Integer> cantidadEnvases = new AtomicReference<>(0);
         // Obtener el código del tipo de comprobante
-        String tipoDocumentoReferencia = null;
-        if (comprobantesCabecera.getComprobantesTipos() instanceof ComprobantesComprasTiposDTO) {
-            tipoDocumentoReferencia = ((ComprobantesComprasTiposDTO) comprobantesCabecera.getComprobantesTipos()).getCodigo();
-        }
+        String documentoReferencia = "";
+
+        // Convertir el número a entero y formatearlo con 8 dígitos, rellenando con ceros a la izquierda
+        String numeroFormateado = String.format("%08d", Integer.parseInt(numero));
+        documentoReferencia = serie + "-" + numeroFormateado;
+
 
         // Aquí trabajas directamente con la entidad MovimientosCabeceraEntity
         MovimientosCabeceraEntity movimiento = new MovimientosCabeceraEntity();
-        movimiento.setIdEmpresa(comprobantesCabecera.getIdEmpresa());
+        movimiento.setIdEmpresa(idEmpresa);
         movimiento.setNumero(lastNumber + 1);
+        movimiento.setSerie("M001");
         movimiento.setFechaEmision(LocalDate.now());
         movimiento.setTotal(montoTotal);
-        movimiento.setMotivoCodigo(motivo); // Se usa la entidad directamente
-        movimiento.setIdUsuario(comprobantesCabecera.getUsuarioCreacion());
-        movimiento.setMonedaCodigo(comprobantesCabecera.getCodigoMoneda());
+        movimiento.setMotivoCodigo(motivo); // compra venta etc
+        movimiento.setEstadoCodigo(estadosEntity);//ingresao o salida
+        movimiento.setIdUsuario(usuarioCreacion);
+        movimiento.setMonedaCodigo(codigoMoneda);
         movimiento.setIdAlmacen(almacen); // Se usa la entidad directamente
-        movimiento.setTipoDocumentoReferencia(tipoDocumentoReferencia);
-        movimiento.setSerieDocumentoReferencia(comprobantesCabecera.getSerie());
-        movimiento.setNumeroDocumentoReferencia(comprobantesCabecera.getNumero());
-        movimiento.setObservaciones(comprobantesCabecera.getObservacion());
-        movimiento.setIdEntidad(comprobantesCabecera.getIdTercero());
+        movimiento.setDocumentoReferencia(documentoReferencia);
+        movimiento.setObservaciones(observacion);
+        movimiento.setIdEntidad(idCliente);
         // Agregar los detalles del movimiento
         List<MovimientosDetallesEntity> detalles = comprobanteDetalle.stream()
                 .map(cd -> {
@@ -429,21 +445,21 @@ public class ProductosServiceImpl implements IProductosService {
                     EnvaseEntity envase = envaseRepository.findById(cd.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrado con ID: " + cd.getIdEnvase()));
                     MovimientosDetallesEntity detalle = new MovimientosDetallesEntity();
                     detalle.setIdMovimiento(movimiento);
-                    detalle.setIdEmpresa(comprobantesCabecera.getIdEmpresa());
+                    detalle.setIdEmpresa(idEmpresa);
                     detalle.setIdProducto(producto);
                     detalle.setEnvase(envase);
                     detalle.setPeso(cd.getPeso());
                     detalle.setTotal(cd.getPrecioUnitario());
                     detalle.setCantidad(cd.getCantidad());
-                    detalle.setUsuarioCreacion(comprobantesCabecera.getUsuarioCreacion());
+                    detalle.setUsuarioCreacion(usuarioCreacion);
                     return detalle;
                 })
                 .collect(Collectors.toList());
 
         movimiento.setMovimientosDetallesEntity(detalles);
         movimiento.setCantidadEnvaces(cantidadEnvases.get());
-        movimiento.setFechaIngresoSalida(comprobantesCabecera.getFechaEmision());
-        movimiento.setUsuarioCreacion(comprobantesCabecera.getUsuarioCreacion());
+        movimiento.setFechaIngresoSalida(fechaEmision);
+        movimiento.setUsuarioCreacion(usuarioCreacion);
         return movimiento;
     }
 
@@ -490,6 +506,7 @@ public class ProductosServiceImpl implements IProductosService {
     }
 
     @RabbitListener(queues = "VentaCompensarQueue")
+    @Transactional//se agreo esta anotacion
     public void handleVentaCompensacion(CompensacionCompraEvent event, Channel channel, Message message) throws IOException {
         try {
             if(!event.getSource().equals("inventario")){
@@ -498,7 +515,18 @@ public class ProductosServiceImpl implements IProductosService {
                 if (almacen.isEmpty()) {
                     throw new RuntimeException("No se encontro el almacen con ID: " + event.getIdPuntoVenta());
                 }
-                revertirStock(event.getComprobanteDetalleRequest(), almacen.get().getId(), event.getIdEmpresa(), "VEN");
+                if(event.getCodigoProductoCompra() != null){
+                    revertirStock(event.getComprobanteDetalleRequest(), almacen.get().getId(), event.getIdEmpresa(), "VEN", event.getCodigoProductoCompra());
+                }else{
+                    revertirStockXproducto(event.getComprobanteDetalleRequest(), almacen.get().getId(), event.getIdEmpresa(), "VEN");
+                }
+
+                MovimientosMotivosEntity motivo = obtenerMotivo("ANU");
+                MovimientosEstadosEntity estadosEntity = movimientosEstadosRepository.findByCodigo("INGRESO");
+                BigDecimal total = calcularMontoTotal(event.getComprobanteDetalleRequest());
+                MovimientosCabeceraEntity movimiento = crearMovimientoCabecera(event.getSerie(), event.getNumero(), event.getIdEmpresa(), event.getUsuarioCreacion(), event.getCodigoMoneda(), event.getObservacion(), event.getIdCliente(), event.getFechaEmision(),
+                        event.getComprobanteDetalleRequest(), almacen.get(), motivo, total, estadosEntity);
+                movimientosCabeceraRepository.save(movimiento);
                 log.info("Inventario revertido para la venta compensada: " + event.getId());
             } else {
                 log.info("Ignorando compensación en Inventario porque la fuente de error es: " + event.getSource());
@@ -512,6 +540,7 @@ public class ProductosServiceImpl implements IProductosService {
         }
     }
     @RabbitListener(queues = "CompraCompensarQueue")
+    @Transactional//se agreo esta anotacion
     public void handleCompensacionCompra(CompensacionCompraEvent event, Channel channel, Message message) throws IOException {
         try {
             if (!event.getSource().equals("inventario")) {
@@ -521,7 +550,17 @@ public class ProductosServiceImpl implements IProductosService {
                     if (almacen.isEmpty()) {
                         throw new RuntimeException("No se encontro el almacen con ID: " + event.getIdPuntoVenta());
                     }
-                    revertirStock(event.getComprobanteDetalleRequest(), almacen.get().getId(), event.getIdEmpresa(), "COM");
+                    if(event.getCodigoProductoCompra() != null){
+                        revertirStock(event.getComprobanteDetalleRequest(), almacen.get().getId(), event.getIdEmpresa(), "COM", event.getCodigoProductoCompra());
+                    }else{
+                        revertirStockXproducto(event.getComprobanteDetalleRequest(), almacen.get().getId(), event.getIdEmpresa(), "COM");
+                    }
+                    MovimientosMotivosEntity motivo = obtenerMotivo("ANU");
+                    MovimientosEstadosEntity estadosEntity = movimientosEstadosRepository.findByCodigo("SALIDA");
+                    BigDecimal total = calcularMontoTotal(event.getComprobanteDetalleRequest());
+                    MovimientosCabeceraEntity movimiento = crearMovimientoCabecera(event.getSerie(), event.getNumero(), event.getIdEmpresa(), event.getUsuarioCreacion(), event.getCodigoMoneda(), event.getObservacion(), event.getIdCliente(), event.getFechaEmision(),
+                            event.getComprobanteDetalleRequest(), almacen.get(), motivo, total, estadosEntity);
+                    movimientosCabeceraRepository.save(movimiento);
                     log.info("Inventario revertido para la venta compensada: " + event.getId());
                 } catch (Exception e) {
                     log.error("Error al revertir el inventario: " + e.getMessage());
@@ -546,10 +585,39 @@ public class ProductosServiceImpl implements IProductosService {
         }
         return montoTotal;
     }
-
+    @Transactional
+    public void actualizarStockXproducto(List<ComprobanteDetalleRequest> comprobanteDetalleRequest, Long idAlmacen, Long idEmpresa, String tipo) {
+        //ACTULIZA EL STOCK POR PRODCUTO DEL DETALLE
+        for (ComprobanteDetalleRequest detalle : comprobanteDetalleRequest) {
+            ProductosEntity productoSa = productosRepository.findById(detalle.getIdProducto()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con id: " + detalle.getIdProducto()));
+            StockAlmacen stockAlmacen = productoSa.getStockAlmacenList().stream().filter(stock -> Objects.equals(stock.getEnvase().getIdEnvase(), detalle.getIdEnvase())).findFirst().orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con codigo: " + productoSa.getCodigo()));
+            if (stockAlmacen != null) {
+                EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
+                if(tipo.equals("VEN")) {
+                    log.info("venta");
+                    if(envase.getCapacidad() == null){
+                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad()));
+                    }else{
+                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad() * envase.getCapacidad()));
+                    }
+                } else if (tipo.equals("COM")) {
+                    log.info("compra");
+                    if(envase.getCapacidad() == null){
+                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad()));
+                    }else{
+                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
+                    }
+                }
+                stockAlmacenRepository.save(stockAlmacen);
+                log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
+            } else {
+                throw new ProductoNotFoundException("El producto no existe en el almacén especificado");
+            }
+        }
+    }
     @Transactional
     public void actualizarStock(List<ComprobanteDetalleRequest> comprobanteDetalleRequest, Long idAlmacen, Long idEmpresa, String tipo, String codigoProductoCompraVenta) {
-        //ALERTA: se modificara para aactualizar el stock del idProducto de pollo sacrificado que vendra por defecto al genrar la venta, ya no sera asi
+        //ALERTA: se actualiza el stock del producto de pollo sacrificado por el CODGOPRODUCTO tanto para compra y venta
         ProductosEntity productoSa = productosRepository.findByCodigo(codigoProductoCompraVenta).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con Codigo: " + codigoProductoCompraVenta));
         for (ComprobanteDetalleRequest detalle : comprobanteDetalleRequest) {
             StockAlmacen stockAlmacen = productoSa.getStockAlmacenList().stream().filter(stock -> stock.getEnvase() == null).findFirst().orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo()));
@@ -569,35 +637,54 @@ public class ProductosServiceImpl implements IProductosService {
             }
         }
     }
-
     @Transactional
-    public void revertirStock(List<ComprobanteDetalleRequest> comprobanteDetalleRequest, Long idAlmacen, Long idEmpresa, String tipo) {
-        if(tipo.equals("VEN")) {//ALERTA: se modificara para aactualizar el stock del idProducto de pollo sacrificado que vendra por defecto al genrar la venta
-            ProductosEntity productoSa = productosRepository.findById(comprobanteDetalleRequest.get(0).getIdProducto()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + comprobanteDetalleRequest.get(0).getIdProducto()));
-            for (ComprobanteDetalleRequest detalle : comprobanteDetalleRequest) {
-                StockAlmacen stockAlmacen = stockAlmacenRepository.findByProductoCodigoAndEnvaseIsNull(productoSa.getCodigo()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo()));
-                if (stockAlmacen != null) {
-                    EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
-                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
-                    stockAlmacenRepository.save(stockAlmacen);
-                    log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
-                } else {
-                    throw new ProductoNotFoundException("El producto no existe en el almacén especificado");
+    public void revertirStockXproducto(List<ComprobanteDetalleRequest> comprobanteDetalleRequest, Long idAlmacen, Long idEmpresa, String tipo) {
+        for (ComprobanteDetalleRequest detalle : comprobanteDetalleRequest) {
+            ProductosEntity productoSa = productosRepository.findById(detalle.getIdProducto()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + detalle.getIdProducto()));
+            StockAlmacen stockAlmacen = stockAlmacenRepository.findByProductoCodigoAndEnvaseIsNull(productoSa.getCodigo()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo()));
+            if (stockAlmacen != null) {
+                EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
+                if(tipo.equals("VEN")) {
+                    log.info("venta");
+                    if(envase.getCapacidad() == null){
+                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad()));
+                    }else{
+                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
+                    }
+                } else if (tipo.equals("COM")) {
+                    log.info("compra");
+                    if(envase.getCapacidad() == null){
+                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad()));
+                    }else{
+                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad() * envase.getCapacidad()));
+                    }
                 }
+                stockAlmacenRepository.save(stockAlmacen);
+                log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
+            } else {
+                throw new ProductoNotFoundException("El producto no existe en el almacén especificado");
             }
         }
-        if(tipo.equals("COM")) {
-            ProductosEntity productoSa = productosRepository.findById(comprobanteDetalleRequest.get(0).getIdProducto()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + comprobanteDetalleRequest.get(0).getIdProducto()));
-            for (ComprobanteDetalleRequest detalle : comprobanteDetalleRequest) {
-                StockAlmacen stockAlmacen = stockAlmacenRepository.findByProductoCodigoAndEnvaseIsNull(productoSa.getCodigo()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo()));
-                if (stockAlmacen != null) {
-                    EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
+    }
+    @Transactional
+    public void revertirStock(List<ComprobanteDetalleRequest> comprobanteDetalleRequest, Long idAlmacen, Long idEmpresa, String tipo, String codigoProducto) {
+        //ALERTA: se modificara para aactualizar el stock del idProducto de pollo sacrificado que vendra por defecto al genrar la venta
+        ProductosEntity productoSa = productosRepository.findByCodigo(codigoProducto).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con el codigo: " + codigoProducto));
+        for (ComprobanteDetalleRequest detalle : comprobanteDetalleRequest) {
+            StockAlmacen stockAlmacen = stockAlmacenRepository.findByProductoCodigoAndEnvaseIsNull(productoSa.getCodigo()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo()));
+            if (stockAlmacen != null) {
+                EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
+                if(tipo.equals("VEN")) {
+                    log.info("venta");
+                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
+                } else if (tipo.equals("COM")) {
+                    log.info("compra");
                     stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad() * envase.getCapacidad()));
-                    stockAlmacenRepository.save(stockAlmacen);
-                    log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
-                } else {
-                    throw new ProductoNotFoundException("El producto no existe en el almacén especificado");
                 }
+                stockAlmacenRepository.save(stockAlmacen);
+                log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
+            } else {
+                throw new ProductoNotFoundException("El producto no existe en el almacén especificado");
             }
         }
     }

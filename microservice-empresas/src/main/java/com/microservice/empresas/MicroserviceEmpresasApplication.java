@@ -1,10 +1,9 @@
 package com.microservice.empresas;
 
-import com.microservice.empresas.persistence.entity.DocumentoTiposEntity;
-import com.microservice.empresas.persistence.entity.EmpresaEntity;
-import com.microservice.empresas.persistence.entity.EntidadesTiposEntity;
+import com.microservice.empresas.persistence.entity.*;
 import com.microservice.empresas.persistence.repository.IDocumentosTiposRepository;
 import com.microservice.empresas.persistence.repository.IEmpresaRepository;
+import com.microservice.empresas.persistence.repository.IEntidadRepository;
 import com.microservice.empresas.persistence.repository.IEntidadesTiposRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -14,6 +13,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -27,7 +28,7 @@ public class MicroserviceEmpresasApplication {
 		SpringApplication.run(MicroserviceEmpresasApplication.class, args);
 	}
 	@Bean
-	CommandLineRunner init(IDocumentosTiposRepository documentosTiposRepository, IEntidadesTiposRepository entidadesTiposRepository, IEmpresaRepository empresaRepository) {
+	CommandLineRunner init(IDocumentosTiposRepository documentosTiposRepository, IEntidadesTiposRepository entidadesTiposRepository, IEmpresaRepository empresaRepository, IEntidadRepository entidadRepository) {
 		return args -> {
 			EmpresaEntity empresa = EmpresaEntity.builder()
 					.empresaCodigo("AVI DON JOSE")
@@ -38,7 +39,7 @@ public class MicroserviceEmpresasApplication {
 					.provincia("Arequipa")
 					.razonSocial("AVICOLA DON JOSE S.A.C")
 					.ruc("10101010101")
-					.correo("bOjz1@example.com")
+					.correo("avicolaDonJose@gmail.com")
 					.web("https://www.avicoladonjose.com.pe")
 					.usuarioCreacion("ADMIN")
 					.ubigeo("150101")
@@ -85,6 +86,35 @@ public class MicroserviceEmpresasApplication {
 					.usuarioCreacion("ADMIN")
 					.build();
 			entidadesTiposRepository.saveAll(List.of(cliente, proveedor, trabajador, vendedor));
+
+			EntidadEntity trabjadorAlex = EntidadEntity.builder()
+					.empresa(empresa)
+					.nombre("Alex")
+					.apellidoPaterno("Alejandro")
+					.apellidoMaterno("Perez")
+					.documentoTipo(dni)
+					.nroDocumento("12345678")
+					.email("alex@gmail.com")
+					.celular("123456789")
+					.direccion("calle 1")
+					.sexo("M")
+					.condicion("Activo")
+					.entidadesTiposList(List.of(trabajador))
+					.build();
+			AsistenciasEntity asistencia = AsistenciasEntity.builder()
+					.entidad(trabjadorAlex)
+					.fechaAsistencia(LocalDate.now())
+					.asistio(true)
+					.usuarioCreacion("ADMIN")
+					.build();
+			AsistenciasEntity asistencia2 = AsistenciasEntity.builder()
+					.entidad(trabjadorAlex)
+					.fechaAsistencia( LocalDate.parse("2024-11-06"))
+					.asistio(true)
+					.usuarioCreacion("ADMIN")
+					.build();
+			trabjadorAlex.setAsistencias(List.of(asistencia, asistencia2));
+			entidadRepository.save(trabjadorAlex);
 		};
 	}
 

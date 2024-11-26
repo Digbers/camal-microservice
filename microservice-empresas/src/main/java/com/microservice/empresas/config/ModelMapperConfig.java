@@ -1,13 +1,10 @@
 package com.microservice.empresas.config;
 
-import com.microservice.empresas.controller.dto.DocumentosTiposDTO;
-import com.microservice.empresas.controller.dto.EmpresaDTO;
-import com.microservice.empresas.controller.dto.EntidadDTO;
-import com.microservice.empresas.controller.dto.EntidadesTiposDTO;
-import com.microservice.empresas.persistence.entity.DocumentoTiposEntity;
-import com.microservice.empresas.persistence.entity.EmpresaEntity;
-import com.microservice.empresas.persistence.entity.EntidadEntity;
-import com.microservice.empresas.persistence.entity.EntidadesTiposEntity;
+import com.microservice.empresas.controller.dto.*;
+import com.microservice.empresas.persistence.entity.*;
+import com.microservice.empresas.response.AsistenciaResponseDTO;
+import com.microservice.empresas.response.EntidadResponseAsistencias;
+import com.microservice.empresas.response.TrabajadoresResponse;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +18,15 @@ public class ModelMapperConfig {
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
+
+        modelMapper.createTypeMap(AsistenciasEntity.class, AsistenciaResponseDTO.class)
+                .addMappings(mapper -> {
+                    mapper.map(src -> src.getEntidad().getId(), AsistenciaResponseDTO::setIdEntidad);
+                });
+        modelMapper.createTypeMap(AsistenciasEntity.class, AsistenciasDTO.class)
+                .addMappings(mapper -> {
+                    mapper.map(src -> src.getEntidad().getId(), AsistenciasDTO::setIdEntidad);
+                });
         // Configuración general
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         // Mapeo de DocumentoTiposEntity a DocumentosTiposDTO
@@ -34,6 +40,11 @@ public class ModelMapperConfig {
                     mapper.map(DocumentoTiposEntity::getFechaCreacion, DocumentosTiposDTO::setFechaCreacion);
                     mapper.map(DocumentoTiposEntity::getUsuarioActualizacion, DocumentosTiposDTO::setUsuarioActualizacion);
                     mapper.map(DocumentoTiposEntity::getFechaActualizacion, DocumentosTiposDTO::setFechaActualizacion);
+                });
+        modelMapper.createTypeMap(EntidadEntity.class, TrabajadoresResponse.class)
+                .addMappings(mapper -> {
+                    mapper.map(src -> src.getZona().getId(), TrabajadoresResponse::setZona);
+                    mapper.map(src -> src.getDocumentoTipo().getDocCodigo(), TrabajadoresResponse::setDocumentoTipo);
                 });
         // Mapeo de EntidadesTiposEntity a EntidadesTiposDTO
         modelMapper.createTypeMap(EntidadesTiposEntity.class, EntidadesTiposDTO.class)

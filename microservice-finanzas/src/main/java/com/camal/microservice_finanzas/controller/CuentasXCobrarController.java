@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("api/finanzas")
+@RequestMapping("api/finanzas/cuentas-cobrar")
 @RequiredArgsConstructor
 public class CuentasXCobrarController {
     private final CuentasXCobrarService cuentasXCobrarService;
 
-    @GetMapping("/cuentas-cobrar")
+    @GetMapping("/findAll")
     public ResponseEntity<Page<CuentasXCobrarDTO>> findAll(
             @RequestParam(required = false) String comprobanteTipo,
             @RequestParam(required = false) String serie,

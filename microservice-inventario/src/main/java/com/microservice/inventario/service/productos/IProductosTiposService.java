@@ -9,5 +9,7 @@ import java.util.List;
 public interface IProductosTiposService {
     Page<ProductosTiposDTO> findAllByEmpresa(String codigo,  String nombre, Pageable pageable, Long idEmpresa);
     ProductosTiposDTO save(ProductosTiposDTO productosTiposDTO);
+    ProductosTiposDTO update(Long id, ProductosTiposDTO productosTiposDTO);
+    void deleteById(Long id);
     List<ProductosTiposDTO> findByIdEmpresa(Long idEmpresa);
 }

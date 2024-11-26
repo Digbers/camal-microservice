@@ -14,6 +14,7 @@ public interface IPuntoVentaService {
 
     Optional<PuntoVentaDTO> findById(Long id);
     PuntoVentaDTO save(PuntoVentaDTO puntoVentaDTO);
+    PuntoVentaDTO update(Long id, PuntoVentaDTO puntoVentaDTO);
     boolean deleteById(Long id);
     List<PuntoVentaDTO> findAllByIdAlmacen(Long id);
     DatosGeneralesResponse findDatosGenerales(Long idEmpresa, Long idAlmacen, Long idPuntoVenta);

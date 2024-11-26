@@ -5,6 +5,7 @@ import com.microservice.ventas.controller.DTO.ClienteDTO;
 import com.microservice.ventas.controller.DTO.ventas.ComprobantesVentasCabDTO;
 import com.microservice.ventas.controller.response.EntidadResponse;
 import com.microservice.ventas.entity.ComprobantesVentasCabEntity;
+import com.microservice.ventas.entity.ComprobantesVentasDetEntity;
 import com.microservice.ventas.entity.especification.ComprobantesVentasEspecification;
 import com.microservice.ventas.repository.IcomprobantesVentasCabRepository;
 import jakarta.annotation.PostConstruct;
@@ -19,6 +20,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,7 +72,19 @@ public class ComprobantesVentasService implements IComprobantesVentasService {
                 dto.setNombreCliente(cliente.getNombre());
                 dto.setNumeroDocumentoCliente(cliente.getNumeroDocumento());
             }
+            BigDecimal totalSinInpuesto = entity.getComprobantesVentasDetEntity().stream()
+                    .map(comprobantesVentasDetEntity -> (comprobantesVentasDetEntity.getPrecioUnitario().multiply(comprobantesVentasDetEntity.getPeso())).subtract(comprobantesVentasDetEntity.getDescuento()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal impuestoDelTotal = totalSinInpuesto
+                    .multiply(new BigDecimal("0.18")) // Calcula el 18%
+                    .setScale(2, RoundingMode.HALF_UP); // Redondea a 2 decimales
 
+            BigDecimal subtotalFinal = totalSinInpuesto
+                    .subtract(impuestoDelTotal) // Resta el impuesto
+                    .setScale(2, RoundingMode.HALF_UP); // Redondea a 2 decimales
+            dto.setSubtotal(subtotalFinal);
+            dto.setImpuesto(impuestoDelTotal);
+            dto.setTotal(totalSinInpuesto);
             return dto;
         });
 

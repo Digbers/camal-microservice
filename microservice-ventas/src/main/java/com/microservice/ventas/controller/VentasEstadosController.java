@@ -16,6 +16,20 @@ import java.util.List;
 public class VentasEstadosController {
     private final VentasEstadosServiceImpl ventasEstadosService;
 
+    @PostMapping("/save")
+    public ResponseEntity<ComprobantesVentasEstadoDTO> save(@RequestBody ComprobantesVentasEstadoDTO comprobantesVentasEstadoDTO) {
+        return ResponseEntity.ok(ventasEstadosService.save(comprobantesVentasEstadoDTO));
+    }
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<ComprobantesVentasEstadoDTO> update(@PathVariable Long id, @RequestBody ComprobantesVentasEstadoDTO comprobantesVentasEstadoDTO) {
+        return ResponseEntity.ok(ventasEstadosService.update(id, comprobantesVentasEstadoDTO));
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        ventasEstadosService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/find-by-empresa/{idEmpresa}")
     public ResponseEntity<List<ComprobantesVentasEstadoDTO>> findByIdEmpresa(@PathVariable Long idEmpresa) {
         return ResponseEntity.ok(ventasEstadosService.findByIdEmpresa(idEmpresa));

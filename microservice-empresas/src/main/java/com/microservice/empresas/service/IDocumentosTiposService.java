@@ -15,6 +15,8 @@ public interface IDocumentosTiposService {
     Optional<DocumentosTiposDTO> findById(String docCodigo, Long empresa);
 
     DocumentosTiposDTO save(DocumentosTiposDTO documentosTiposDTO);
+    DocumentosTiposDTO update(Long id, DocumentosTiposDTO documentosTiposDTO);
+    void deleteByIdOriginal(Long id);
 
     void deleteById(String docCodigo, Long empresa);
 

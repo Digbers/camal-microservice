@@ -8,6 +8,7 @@ import com.microservice.inventario.controller.DTO.response.DatosGeneralesRespons
 import com.microservice.inventario.persistence.entity.AlmacenEntity;
 import com.microservice.inventario.persistence.entity.PuntoVentaEntity;
 import com.microservice.inventario.persistence.especification.PuntoVentaSpecifications;
+import com.microservice.inventario.persistence.repository.IAlmacenRepository;
 import com.microservice.inventario.persistence.repository.IPuntoVentaRepository;
 import com.microservice.inventario.service.almacenI.IAlmacenService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import java.util.Optional;
 public class PuntoVentaService implements IPuntoVentaService {
     private final IPuntoVentaRepository iPuntoVentaRepository;
     private final IAlmacenService iAlmacenService;
+    private final IAlmacenRepository iAlmacenRepository;
     private final ModelMapper modelMapper;
     private final EmpresaClient empresaClient;
     @Override
@@ -51,9 +53,34 @@ public class PuntoVentaService implements IPuntoVentaService {
 
     @Override
     public PuntoVentaDTO save(PuntoVentaDTO puntoVentaDTO) {
-        PuntoVentaEntity puntoVentaEntity = modelMapper.map(puntoVentaDTO, PuntoVentaEntity.class);
-        PuntoVentaEntity savedPuntoVentaEntity = iPuntoVentaRepository.save(puntoVentaEntity);
-        return modelMapper.map(savedPuntoVentaEntity, PuntoVentaDTO.class);
+        try {
+            PuntoVentaEntity puntoVentaEntity = modelMapper.map(puntoVentaDTO, PuntoVentaEntity.class);
+            AlmacenEntity almacen = iAlmacenRepository.findById(puntoVentaDTO.getAlmacen()).orElseThrow(() -> new IllegalArgumentException("No se encontro el almacen con id: " + puntoVentaDTO.getAlmacen()));
+            puntoVentaEntity.setAlmacen(almacen);
+            iPuntoVentaRepository.save(puntoVentaEntity);
+            return modelMapper.map(puntoVentaEntity, PuntoVentaDTO.class);
+        } catch (Exception e) {
+            log.error("Error al guardar puntoVenta: " + e.getMessage());
+            throw new RuntimeException("Error al guardar puntoVenta: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public PuntoVentaDTO update(Long id, PuntoVentaDTO puntoVentaDTO) {
+        try {
+            PuntoVentaEntity puntoVentaEntity = iPuntoVentaRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No se encontro el puntoVenta con id: " + id));
+            AlmacenEntity almacen = iAlmacenRepository.findById(puntoVentaDTO.getAlmacen()).orElseThrow(() -> new IllegalArgumentException("No se encontro el almacen con id: " + puntoVentaDTO.getAlmacen()));
+            puntoVentaEntity.setAlmacen(almacen);
+            puntoVentaEntity.setIdEmpresa(puntoVentaDTO.getIdEmpresa());
+            puntoVentaEntity.setDireccion(puntoVentaDTO.getDireccion());
+            puntoVentaEntity.setNombre(puntoVentaDTO.getNombre());
+            puntoVentaEntity.setUsuarioActualizacion(puntoVentaDTO.getUsuarioActualizacion());
+            iPuntoVentaRepository.save(puntoVentaEntity);
+            return modelMapper.map(puntoVentaEntity, PuntoVentaDTO.class);
+        } catch (Exception e) {
+            log.error("Error al actualizar puntoVenta: " + e.getMessage());
+            throw new RuntimeException("Error al actualizar puntoVenta: " + e.getMessage());
+        }
     }
 
     @Override

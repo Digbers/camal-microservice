@@ -1,5 +1,6 @@
 package com.microservice.inventario.controller.DTO;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.microservice.inventario.persistence.entity.AlmacenEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,16 +21,15 @@ public class MovimientosCabeceraDTO {
     private Long id;
     private Long idEmpresa;
     private Long numero;
+    private String serie;
     private LocalDate fechaEmision;
     private BigDecimal total;
-    private MovimientosMotivosDTO motivoCodigo;
+    private String motivoCodigo;// es el estadopar aqui de la venta o compra
+    private String estadoCodigo;
     private String idUsuario;
     private String monedaCodigo;
-    private List<MovimientosDetalleDTO> movimientosDetalles;
-    private AlmacenDTO idAlmacen;
-    private String tipoDocumentoReferencia;
-    private String serieDocumentoReferencia;
-    private String numeroDocumentoReferencia;
+    private Long idAlmacen;
+    private String documentoReferencia;
     private String observaciones;
     private Long idEntidad;
     private Integer cantidadEnvaces;

@@ -19,6 +19,20 @@ import java.util.Optional;
 public class PuntoVentaController {
     private final PuntoVentaService puntoVentaService;
 
+    @PostMapping("/save")
+    public ResponseEntity<PuntoVentaDTO> save(@RequestBody PuntoVentaDTO puntoVentaDTO) {
+        return ResponseEntity.ok(puntoVentaService.save(puntoVentaDTO));
+    }
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<PuntoVentaDTO> update(@PathVariable Long id, @RequestBody PuntoVentaDTO puntoVentaDTO) {
+        return ResponseEntity.ok(puntoVentaService.update(id, puntoVentaDTO));
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        puntoVentaService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/findAll/{idEmpresa}")
     public ResponseEntity<Page<PuntoVentaDTO>> findAll(@PathVariable Long idEmpresa,
                                                      @RequestParam(name = "direccion", required = false) String direccion,

@@ -23,6 +23,45 @@ public class VentasEstadosServiceImpl implements IVentasEstadosService {
     private final ModelMapper modelMapper;
 
     @Override
+    public ComprobantesVentasEstadoDTO save(ComprobantesVentasEstadoDTO comprobantesVentasEstadoDTO) {
+        try {
+            ComprobantesVentasEstadoEntity comprobantesVentasEstadoEntity = modelMapper.map(comprobantesVentasEstadoDTO, ComprobantesVentasEstadoEntity.class);
+            iComprobantesVentasEstadosRepository.save(comprobantesVentasEstadoEntity);
+            return modelMapper.map(comprobantesVentasEstadoEntity, ComprobantesVentasEstadoDTO.class);
+        } catch (Exception e) {
+            log.error("Error al guardar el estado de venta: " + e.getMessage());
+            throw new RuntimeException("Error al guardar el estado de venta: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ComprobantesVentasEstadoDTO update(Long id, ComprobantesVentasEstadoDTO comprobantesVentasEstadoDTO) {
+        try{
+            ComprobantesVentasEstadoEntity comprobantesVentasEstadoEntity = iComprobantesVentasEstadosRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No se encontro el estado de venta con id: " + id));
+            comprobantesVentasEstadoEntity.setIdEmpresa(comprobantesVentasEstadoDTO.getIdEmpresa());
+            comprobantesVentasEstadoEntity.setCodigo(comprobantesVentasEstadoDTO.getCodigo());
+            comprobantesVentasEstadoEntity.setDescripcion(comprobantesVentasEstadoDTO.getDescripcion());
+            comprobantesVentasEstadoEntity.setUsuarioActualizacion(comprobantesVentasEstadoDTO.getUsuarioActualizacion());
+            iComprobantesVentasEstadosRepository.save(comprobantesVentasEstadoEntity);
+            return modelMapper.map(comprobantesVentasEstadoEntity, ComprobantesVentasEstadoDTO.class);
+        } catch (Exception e) {
+            log.error("Error al actualizar el estado de venta: " + e.getMessage());
+            throw new RuntimeException("Error al actualizar el estado de venta: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        try{
+            ComprobantesVentasEstadoEntity comprobantesVentasEstadoEntity = iComprobantesVentasEstadosRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No se encontro el estado de venta con id: " + id));
+            iComprobantesVentasEstadosRepository.delete(comprobantesVentasEstadoEntity);
+        } catch (Exception e) {
+            log.error("Error al eliminar el estado de venta: " + e.getMessage());
+            throw new RuntimeException("Error al eliminar el estado de venta: " + e.getMessage());
+        }
+    }
+
+    @Override
     public List<ComprobantesVentasEstadoDTO> findByIdEmpresa(Long idEmpresa) {
         try{
             List<ComprobantesVentasEstadoEntity> comprobatesEstados = iComprobantesVentasEstadosRepository.findByIdEmpresa(idEmpresa);

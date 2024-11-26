@@ -45,6 +45,32 @@ public class ProductosTiposServiceImpl implements IProductosTiposService{
     }
 
     @Override
+    public ProductosTiposDTO update(Long id, ProductosTiposDTO productosTiposDTO) {
+        try{
+            ProductosTiposEntity productosTipos = productosTiposRepository.findById(id).orElseThrow(() -> new RuntimeException("ProductosTipos no encontrada con id: " + id));
+            productosTipos.setCodigo(productosTiposDTO.getCodigo());
+            productosTipos.setNombre(productosTiposDTO.getNombre());
+            productosTipos.setIdEmpresa(productosTiposDTO.getIdEmpresa());
+            productosTipos.setUsuarioActualizacion(productosTiposDTO.getUsuarioActualizacion());
+            return modelMapper.map(productosTiposRepository.save(productosTipos), ProductosTiposDTO.class);
+        }catch (Exception e) {
+            log.error("Error al actualizar ProductosTipos", e);
+            throw new RuntimeException("Error al actualizar ProductosTipos");
+        }
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        try{
+            ProductosTiposEntity productosTipos = productosTiposRepository.findById(id).orElseThrow(() -> new RuntimeException("ProductosTipos no encontrada con id: " + id));
+            productosTiposRepository.delete(productosTipos);
+        }catch (Exception e) {
+            log.error("Error al eliminar ProductosTipos", e);
+            throw new RuntimeException("Error al eliminar ProductosTipos");
+        }
+    }
+
+    @Override
     public List<ProductosTiposDTO> findByIdEmpresa(Long idEmpresa) {
         try {
             List<ProductosTiposEntity> productosTipos = productosTiposRepository.findByIdEmpresa(idEmpresa);

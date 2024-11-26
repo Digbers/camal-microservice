@@ -43,6 +43,10 @@ public class AlmacenController {
         }
         return ResponseEntity.notFound().build();
     }
+    @GetMapping("/findByEmpresa/{idEmpresa}")
+    public ResponseEntity<List<AlmacenDTO>> findByEmpresa(@PathVariable Long idEmpresa) {
+        return ResponseEntity.ok(almacenService.findByIdEmpresa(idEmpresa));
+    }
 
     @GetMapping("/findAll/{idEmpresa}")
     public ResponseEntity<Page<AlmacenDTO>> findAll(@PathVariable Long idEmpresa,
@@ -81,6 +85,14 @@ public class AlmacenController {
     public ResponseEntity<List<AlmacenDTO>> findByIdEmpresa(@PathVariable Long id) {
         List<AlmacenDTO> almacenes = almacenService.findByIdEmpresa(id);
         return ResponseEntity.ok(almacenes);
+    }
+    @PostMapping("/save")
+    public ResponseEntity<AlmacenDTO> save(@RequestBody AlmacenDTO almacenDTO) {
+        return ResponseEntity.ok(almacenService.save(almacenDTO));
+    }
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<AlmacenDTO> update(@PathVariable Long id, @RequestBody AlmacenDTO almacenDTO) {
+        return ResponseEntity.ok(almacenService.update(id, almacenDTO));
     }
 }
 

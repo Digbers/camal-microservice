@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -20,4 +21,5 @@ public class ComprobanteVentaResponseDTO {
     private String nombreCliente;
     private String codigoMoneda;
     private BigDecimal total; // Suma de precioUnitario de los detalles
+    private LocalDate fechaEmision;
 }

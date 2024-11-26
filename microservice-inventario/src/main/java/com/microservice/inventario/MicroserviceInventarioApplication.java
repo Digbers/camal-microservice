@@ -30,9 +30,13 @@ public class MicroserviceInventarioApplication {
 						   ProductosRepository productosRepository,
 						   ProductosTiposRepository productosTiposRepository,
 						   EnvaseRepository envaseRepository,
-						   IUnidadesRepository unidadesRepository
+						   IUnidadesRepository unidadesRepository,
+						   IMovimientosEstadosRepository movimientosEstadosRepository
 	) {
 		return args -> {
+			MovimientosEstadosEntity salida = MovimientosEstadosEntity.builder().codigo("SALIDA").nombre("Salida").build();
+			MovimientosEstadosEntity ingreso = MovimientosEstadosEntity.builder().codigo("INGRESO").nombre("Ingreso").build();
+			movimientosEstadosRepository.saveAll(List.of(salida, ingreso));
 			UnidadesEntity unidad = UnidadesEntity.builder().idEmpresa(1L).codigo("UNI").nombre("UNIDAD").usuarioCreacion("ADMIN").build();
 			unidadesRepository.save(unidad);
 
@@ -51,18 +55,21 @@ public class MicroserviceInventarioApplication {
 
 			MovimientosMotivosEntity motivo = MovimientosMotivosEntity.builder().codigo("COM").descripcion("COMPRA").usuarioCreacion("ADMIN").build();
 			MovimientosMotivosEntity motivo2 = MovimientosMotivosEntity.builder().codigo("VEN").descripcion("VENTA").usuarioCreacion("ADMIN").build();
-			movimientosMotivosRepository.saveAll(List.of(motivo2, motivo));
+			MovimientosMotivosEntity motiv3 = MovimientosMotivosEntity.builder().codigo("ANU").descripcion("ANULACION").usuarioCreacion("ADMIN").build();
+			movimientosMotivosRepository.saveAll(List.of(motivo2, motivo, motiv3));
 
 			ProductosTiposEntity tipoP = ProductosTiposEntity.builder().idEmpresa(1L).codigo("VIV").nombre("pollo vivo").usuarioCreacion("ADMIN").build();
 			ProductosTiposEntity pollosSacrificado = ProductosTiposEntity.builder().idEmpresa(1L).codigo("SAC").nombre("pollo sacrificado").usuarioCreacion("ADMIN").build();
 			ProductosTiposEntity tipoP3 = ProductosTiposEntity.builder().idEmpresa(1L).codigo("POL").nombre("pollo pollada").usuarioCreacion("ADMIN").build();
-			productosTiposRepository.saveAll(List.of(tipoP, pollosSacrificado, tipoP3));
+			ProductosTiposEntity tipoConsumo = ProductosTiposEntity.builder().idEmpresa(1L).codigo("CON").nombre("consumo").usuarioCreacion("ADMIN").build();
+			productosTiposRepository.saveAll(List.of(tipoP, pollosSacrificado, tipoP3, tipoConsumo));
 
 			EnvaseEntity eJava8 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("JAVA").descripcion("Java 8 hembras").capacidad(8).estado("VACIO").pesoReferencia(new BigDecimal(1)).usuarioCreacion("ADMIN").build();
 			EnvaseEntity eJava6 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("JAVA").descripcion("Java 6 machos").capacidad(6).estado("OCUPADO").pesoReferencia(new BigDecimal(1)).usuarioCreacion("ADMIN").build();
 			EnvaseEntity eTina9 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("TINA").descripcion("Tina 9 pollos").capacidad(9).estado("VACIO").pesoReferencia(new BigDecimal(1)).usuarioCreacion("ADMIN").build();
 			EnvaseEntity eTina10 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("TINA").descripcion("Tina 10 pollos").capacidad(10).estado("VACIO").pesoReferencia(new BigDecimal(1)).usuarioCreacion("ADMIN").build();
-			envaseRepository.saveAll(List.of(eTina10, eTina9, eJava6, eJava8));
+			EnvaseEntity eNA = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("NA").descripcion("Sin Envase").capacidad(0).estado("NA").pesoReferencia(new BigDecimal(1)).usuarioCreacion("ADMIN").build();
+			envaseRepository.saveAll(List.of(eTina10, eTina9, eJava6, eJava8, eNA));
 			// Construir el objeto StockAlmacen
 			StockAlmacen stock = StockAlmacen.builder()
 					.idEmpresa(1L)
@@ -110,7 +117,8 @@ public class MicroserviceInventarioApplication {
 					.stockAlmacenList(List.of(stock, stock2))  // Añadir la lista con el stock
 					.generarStock(true)
 					.estado(true)
-					.precioSugerido(new BigDecimal(23))
+					.precioVenta(new BigDecimal(10))
+					.precioCompra(new BigDecimal(8.6))
 					.usuarioCreacion("ADMIN")
 					.build();
 			ProductosEntity polloSacrificado = ProductosEntity.builder()
@@ -122,7 +130,8 @@ public class MicroserviceInventarioApplication {
 					.stockAlmacenList(List.of(stockPolloSacrificado))  // Añadir la lista con el stock
 					.generarStock(true)
 					.estado(true)
-					.precioSugerido(new BigDecimal(10))
+					.precioVenta(new BigDecimal(10))
+					.precioCompra(new BigDecimal(8.6))
 					.usuarioCreacion("ADMIN")
 					.build();
 			ProductosEntity polloCarcasa = ProductosEntity.builder()
@@ -134,7 +143,8 @@ public class MicroserviceInventarioApplication {
 					.stockAlmacenList(List.of(stockCarcasa))  // Añadir la lista con el stock
 					.generarStock(true)
 					.estado(true)
-					.precioSugerido(new BigDecimal(10))
+					.precioVenta(new BigDecimal(10))
+					.precioCompra(new BigDecimal(8.6))
 					.usuarioCreacion("ADMIN")
 					.build();
 			stock.setProducto(productosEntity);

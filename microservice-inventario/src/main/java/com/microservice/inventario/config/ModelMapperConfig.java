@@ -1,13 +1,7 @@
 package com.microservice.inventario.config;
 
-import com.microservice.inventario.controller.DTO.AlmacenDTO;
-import com.microservice.inventario.controller.DTO.ProductoDTO;
-import com.microservice.inventario.controller.DTO.PuntoVentaDTO;
-import com.microservice.inventario.controller.DTO.StockAlmacenDTO;
-import com.microservice.inventario.persistence.entity.AlmacenEntity;
-import com.microservice.inventario.persistence.entity.ProductosEntity;
-import com.microservice.inventario.persistence.entity.PuntoVentaEntity;
-import com.microservice.inventario.persistence.entity.StockAlmacen;
+import com.microservice.inventario.controller.DTO.*;
+import com.microservice.inventario.persistence.entity.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +12,11 @@ public class ModelMapperConfig {
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
+        modelMapper.typeMap(MovimientosCabeceraEntity.class, MovimientosCabeceraDTO.class).addMappings(mapper -> {
+            mapper.map(src -> src.getMotivoCodigo().getCodigo(), MovimientosCabeceraDTO::setMotivoCodigo);
+            mapper.map(src -> src.getIdAlmacen().getId(), MovimientosCabeceraDTO::setIdAlmacen);
+            mapper.map(src -> src.getEstadoCodigo().getCodigo(), MovimientosCabeceraDTO::setEstadoCodigo);
+        });
         // Mapeo personalizado para PuntoVentaEntity a PuntoVentaDTO
         modelMapper.typeMap(PuntoVentaEntity.class, PuntoVentaDTO.class).addMappings(mapper -> {
             mapper.map(PuntoVentaEntity::getAlmacen, PuntoVentaDTO::setAlmacen);

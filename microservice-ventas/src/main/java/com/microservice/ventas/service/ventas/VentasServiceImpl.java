@@ -190,6 +190,13 @@ public class VentasServiceImpl implements IVentasService {
                     .idEmpresa(comprobanteVentaCa.getIdEmpresa())
                     .source(source)
                     .codigoProductoVenta(codigoProductoVenta)
+                    .serie(comprobanteVentaCa.getSerie())
+                    .numero(comprobanteVentaCa.getNumero())
+                    .usuarioCreacion(comprobanteVentaCa.getUsuarioCreacion())
+                    .codigoMoneda(comprobanteVentaCa.getCodigoMoneda())
+                    .observacion(comprobanteVentaCa.getObservacion())
+                    .idCliente(comprobanteVentaCa.getIdCliente())
+                    .fechaEmision(comprobanteVentaCa.getFechaEmision())
                     .build();
             log.info("Compensación iniciada para la venta: " + ventaId + " debido a fallo en " + source);
             log.info("Recibido evento de compensacion de venta");

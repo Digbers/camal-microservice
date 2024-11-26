@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,4 +59,7 @@ public class ComprobantesComprasCaDTO {
     @NotNull(message = "El usuario de creacion es obligatorio")
     private String usuarioCreacion;
     private String usuarioActualizacion;
+    private BigDecimal subtotal;
+    private BigDecimal impuesto;
+    private BigDecimal total;
 }

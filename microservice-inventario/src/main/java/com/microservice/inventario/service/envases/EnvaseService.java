@@ -35,6 +35,25 @@ public class EnvaseService implements IEnvaseService{
     }
 
     @Override
+    public EnvaseDTO update(Long id, EnvaseDTO envaseDTO) {
+        try {
+            EnvaseEntity envase = envaseRepository.findById(id).orElseThrow(() -> new EnvaseNotFoundException("No se encontro el envase con id: " + id));
+            EnvaseEntity envaseUpdated = modelMapper.map(envaseDTO, EnvaseEntity.class);
+            envase.setIdEmpresa(envaseDTO.getIdEmpresa());
+            envase.setTipoEnvase(envaseDTO.getTipoEnvase());
+            envase.setDescripcion(envaseDTO.getDescripcion());
+            envase.setCapacidad(envaseDTO.getCapacidad());
+            envase.setPesoReferencia(envaseDTO.getPesoReferencia());
+            envase.setEstado(envaseDTO.getEstado());
+            envase.setUsuarioActualizacion(envaseDTO.getUsuarioActualizacion());
+            envaseRepository.save(envase);
+            return modelMapper.map(envase, EnvaseDTO.class);
+        } catch (Exception e) {
+            throw new EnvaseNotFoundException("No se pudo actualizar el envase");
+        }
+    }
+
+    @Override
     public Page<EnvaseDTO> findAll(Long idEnvase, String tipoEnvase,String descripcion, Integer capacidad, Double pesoReferencia, String estado,Pageable pageable, Long idEmpresa) {
         log.info("Buscando envase con parametros: idEnvase: {}, idEmpresa: {}, tipoEnvase: {}, descripcion: {}, capacidad: {}, pesoReferencia: {}, estado: {}", idEnvase, idEmpresa, tipoEnvase, descripcion, capacidad, pesoReferencia, estado);
         try {

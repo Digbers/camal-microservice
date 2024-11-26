@@ -2,8 +2,10 @@ package com.microservice.empresas.service.impl;
 
 import com.microservice.empresas.controller.dto.DocumentosTiposDTO;
 import com.microservice.empresas.persistence.entity.DocumentoTiposEntity;
+import com.microservice.empresas.persistence.entity.EmpresaEntity;
 import com.microservice.empresas.persistence.especification.DocumentosTiposEspecification;
 import com.microservice.empresas.persistence.repository.IDocumentosTiposRepository;
+import com.microservice.empresas.persistence.repository.IEmpresaRepository;
 import com.microservice.empresas.service.IDocumentosTiposService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.Optional;
 public class DocumentosTiposServiceImpl implements IDocumentosTiposService {
 
     private final IDocumentosTiposRepository documentosTiposRepository;
+    private final IEmpresaRepository empresaRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -60,10 +63,40 @@ public class DocumentosTiposServiceImpl implements IDocumentosTiposService {
     public DocumentosTiposDTO save(DocumentosTiposDTO documentosTiposDTO) {
         try {
             DocumentoTiposEntity documentoTiposEntity = modelMapper.map(documentosTiposDTO, DocumentoTiposEntity.class);
+            EmpresaEntity empresa = empresaRepository.findById(documentosTiposDTO.getEmpresa()).orElseThrow(() -> new EntityNotFoundException("Empresa no encontrada con id: " + documentosTiposDTO.getEmpresa()));
+            documentoTiposEntity.setEmpresa(empresa);
             return modelMapper.map(documentosTiposRepository.save(documentoTiposEntity), DocumentosTiposDTO.class);
         } catch (Exception e) {
             log.error("Error al guardar DocumentosTipos", e);
             throw new RuntimeException("Error al guardar DocumentosTipos");
+        }
+    }
+
+    @Override
+    public DocumentosTiposDTO update(Long id, DocumentosTiposDTO documentosTiposDTO) {
+        try {
+            DocumentoTiposEntity documentoExistente = documentosTiposRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("DocumentoTipos no encontrada con id: " + id));
+            EmpresaEntity empresa = empresaRepository.findById(documentosTiposDTO.getEmpresa()).orElseThrow(() -> new EntityNotFoundException("Empresa no encontrada con id: " + documentosTiposDTO.getEmpresa()));
+            documentoExistente.setDocCodigo(documentosTiposDTO.getDocCodigo());
+            documentoExistente.setEmpresa(empresa);
+            documentoExistente.setCodigoSunat(documentosTiposDTO.getCodigoSunat());
+            documentoExistente.setDescripcion(documentosTiposDTO.getDescripcion());
+            documentoExistente.setUsuarioActualizacion(documentosTiposDTO.getUsuarioActualizacion());
+            return modelMapper.map(documentosTiposRepository.save(documentoExistente), DocumentosTiposDTO.class);
+        } catch (Exception e) {
+            log.error("Error al actualizar DocumentosTipos", e);
+            throw new RuntimeException("Error al actualizar DocumentosTipos");
+        }
+    }
+
+    @Override
+    public void deleteByIdOriginal(Long id) {
+        try {
+            DocumentoTiposEntity documentoTipos = documentosTiposRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("DocumentoTipos no encontrada con id: " + id));
+            documentosTiposRepository.delete(documentoTipos);
+        } catch (Exception e) {
+            log.error("Error al eliminar DocumentosTipos", e);
+            throw new RuntimeException("Error al eliminar DocumentosTipos");
         }
     }
 

@@ -16,6 +16,19 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ComprobantesComprasTiposController {
     private final ComprobantesComprasTiposService comprobantesComprasTiposService;
+    @PostMapping("/save")
+    public ResponseEntity<ComprobantesComprasTiposDTO> save(@RequestBody ComprobantesComprasTiposDTO comprobantesComprasTiposDTO) {
+        return ResponseEntity.ok(comprobantesComprasTiposService.save(comprobantesComprasTiposDTO));
+    }
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<ComprobantesComprasTiposDTO> update(@PathVariable Long id, @RequestBody ComprobantesComprasTiposDTO comprobantesComprasTiposDTO) {
+        return ResponseEntity.ok(comprobantesComprasTiposService.update(id, comprobantesComprasTiposDTO));
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        comprobantesComprasTiposService.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/findAll/{idEmpresa}")
     public ResponseEntity<Page<ComprobantesComprasTiposDTO>> findAll(@PathVariable Long idEmpresa,

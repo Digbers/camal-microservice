@@ -69,6 +69,7 @@ public class CuentasXCobrarService implements ICuentasXCobrarService{
                 .idComprobanteVenta(comprobante.getId())
                 .comprobanteTipo(comprobante.getTipoComprobante())
                 .serie(comprobante.getSerie())
+                .fechaEmision(comprobante.getFechaEmision())
                 .numero(comprobante.getNumero())
                 .numeroDoc(comprobante.getNumeroDocumentoCliente())
                 .nombre(comprobante.getNombreCliente())

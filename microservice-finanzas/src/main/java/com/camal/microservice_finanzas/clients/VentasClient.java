@@ -23,7 +23,7 @@ public class VentasClient {
         return webClientBuilder.build()
                 .get()
                 .uri(uriBuilder -> {
-                    uriBuilder.path("/api/ventas/comprobantes")
+                    uriBuilder.path("/api/ventas/comprobantes/reduced")
                             .queryParam("page", pageable.getPageNumber())
                             .queryParam("size", pageable.getPageSize())
                             .queryParam("sort", getSortParams(pageable));

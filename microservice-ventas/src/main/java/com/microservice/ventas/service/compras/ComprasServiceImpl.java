@@ -163,6 +163,13 @@ public class ComprasServiceImpl implements IComprasService {
                     .idEmpresa(comprobantesComprasCa.getIdEmpresa())
                     .source(source)
                     .codigoProductoCompra(codigoProductoCompra)
+                    .serie(comprobantesComprasCa.getSerie())
+                    .numero(comprobantesComprasCa.getNumero())
+                    .usuarioCreacion(comprobantesComprasCa.getUsuarioCreacion())
+                    .codigoMoneda(comprobantesComprasCa.getCodigoMoneda())
+                    .observacion(comprobantesComprasCa.getObservacion())
+                    .idCliente(comprobantesComprasCa.getIdProveedor())
+                    .fechaEmision(comprobantesComprasCa.getFechaEmision())
                     .build();
             log.info("Compensación iniciada para la compra: " + compraId + " debido a fallo en " + source);
             log.info("Recibido evento de compensacion de compra");

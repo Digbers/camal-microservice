@@ -18,6 +18,45 @@ import org.springframework.stereotype.Service;
 public class ComprobantesComprasTiposService implements IComprobantesComprasTiposService {
     private final IComprobantesTiposComprasRepository iComprobantesTiposComprasRepository;
     private final ModelMapper modelMapper;
+
+    @Override
+    public ComprobantesComprasTiposDTO save(ComprobantesComprasTiposDTO comprobantesComprasTiposDTO) {
+        try{
+            ComprobantesTiposComprasEntity comprobantesTiposComprasEntity = modelMapper.map(comprobantesComprasTiposDTO, ComprobantesTiposComprasEntity.class);
+            iComprobantesTiposComprasRepository.save(comprobantesTiposComprasEntity);
+            return modelMapper.map(comprobantesTiposComprasEntity, ComprobantesComprasTiposDTO.class);
+        } catch (Exception e) {
+            log.error("Error al guardar el tipo comprobante de compra: " + e.getMessage());
+            throw new RuntimeException("Error al guardar el tipo comprobante de compra: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ComprobantesComprasTiposDTO update(Long id, ComprobantesComprasTiposDTO comprobantesComprasTiposDTO) {
+        try{
+            ComprobantesTiposComprasEntity comprobantesTiposComprasEntity = iComprobantesTiposComprasRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No se encontro el tipo comprobante de compra con id: " + id));
+            comprobantesTiposComprasEntity.setCodigo(comprobantesComprasTiposDTO.getCodigo());
+            comprobantesTiposComprasEntity.setDescripcion(comprobantesComprasTiposDTO.getDescripcion());
+            comprobantesTiposComprasEntity.setUsuarioActualizacion(comprobantesComprasTiposDTO.getUsuarioActualizacion());
+            iComprobantesTiposComprasRepository.save(comprobantesTiposComprasEntity);
+            return modelMapper.map(comprobantesTiposComprasEntity, ComprobantesComprasTiposDTO.class);
+        } catch (Exception e) {
+            log.error("Error al actualizar el tipo comprobante de compra: " + e.getMessage());
+            throw new RuntimeException("Error al actualizar el tipo comprobante de compra: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        try{
+            ComprobantesTiposComprasEntity comprobantesTiposComprasEntity = iComprobantesTiposComprasRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No se encontro el estado de venta con id: " + id));
+            iComprobantesTiposComprasRepository.delete(comprobantesTiposComprasEntity);
+        } catch (Exception e) {
+            log.error("Error al eliminar el tipo comprobante de venta: " + e.getMessage());
+            throw new RuntimeException("Error al eliminar el tipo comprobante de venta: " + e.getMessage());
+        }
+    }
+
     @Override
     public Page<ComprobantesComprasTiposDTO> findAllByEmpresa(String codigo, String descripcion, Pageable pageable, Long idEmpresa) {
         try{

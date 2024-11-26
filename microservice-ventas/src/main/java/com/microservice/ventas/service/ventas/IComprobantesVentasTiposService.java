@@ -6,5 +6,8 @@ import org.springframework.data.domain.Pageable;
 
 
 public interface IComprobantesVentasTiposService {
+    ComprobantesTiposVentasDTO save(ComprobantesTiposVentasDTO comprobantesTiposVentasDTO);
+    ComprobantesTiposVentasDTO update(Long id, ComprobantesTiposVentasDTO comprobantesTiposVentasDTO);
+    void deleteById(Long id);
     Page<ComprobantesTiposVentasDTO> findAllByEmpresa(String codigo, String descripcion, Pageable pageable, Long idEmpresa);
 }

@@ -33,6 +33,43 @@ public class UnidadesService implements IUnidadesService {
     }
 
     @Override
+    public UnidadesDTO save(UnidadesDTO unidadesDTO) {
+        try{
+            UnidadesEntity unidadesEntity = mapper.map(unidadesDTO, UnidadesEntity.class);
+            return mapper.map(unidadesRepository.save(unidadesEntity), UnidadesDTO.class);
+        }catch (Exception e){
+            log.error("Error al guardar unidades");
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public UnidadesDTO update(Long id, UnidadesDTO unidadesDTO) {
+        try{
+            UnidadesEntity unidadesEntity = unidadesRepository.findById(id).orElseThrow(() -> new RuntimeException("Unidades no encontrada con id: " + id));
+            unidadesEntity.setCodigo(unidadesDTO.getCodigo());
+            unidadesEntity.setNombre(unidadesDTO.getNombre());
+            unidadesEntity.setIdEmpresa(unidadesDTO.getIdEmpresa());
+            unidadesEntity.setUsuarioActualizacion(unidadesDTO.getUsuarioActualizacion());
+            return mapper.map(unidadesRepository.save(unidadesEntity), UnidadesDTO.class);
+        }catch (Exception e){
+            log.error("Error al actualizar unidades");
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        try{
+            UnidadesEntity unidadesEntity = unidadesRepository.findById(id).orElseThrow(() -> new RuntimeException("Unidades no encontrada con id: " + id));
+            unidadesRepository.delete(unidadesEntity);
+        }catch (Exception e){
+            log.error("Error al eliminar unidades");
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public Page<UnidadesDTO> findAllByEmpresa(String codigo, String nombre, Pageable pageable, Long idEmpresa) {
         try{
             Specification<UnidadesEntity> specification = UnidadesEspecification.getUnidades(codigo, nombre, idEmpresa);

@@ -19,7 +19,8 @@ public class ProductoAResponse {
     private String nombre;
     private String unidad;
     private Integer cantidad;
-    private BigDecimal precio;
+    private BigDecimal precioCompra;
+    private BigDecimal precioVenta;
     private Long envaseId;
     private BigDecimal peso;
     private Integer capacidadEnvase;

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -16,6 +17,7 @@ public class CuentasXCobrarDTO {
     private String comprobanteTipo;
     private String serie;
     private String numero;
+    private LocalDate fechaEmision; //agrege esto al DTO
     private String numeroDoc;
     private String nombre;
     private String monedaCodigo;

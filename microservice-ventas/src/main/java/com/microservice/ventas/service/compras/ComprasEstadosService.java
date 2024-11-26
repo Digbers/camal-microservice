@@ -23,6 +23,45 @@ public class ComprasEstadosService implements IComprasEstadosService {
     private final IComprobantesCompraEstadoRepository comprobantesCompraEstadoRepository;
 
     @Override
+    public ComprobantesComprasEstadosDTO save(ComprobantesComprasEstadosDTO comprobantesComprasEstadosDTO) {
+        try{
+            ComprobantesComprasEstadosEntity comprobantesComprasEstadosEntity = modelMapper.map(comprobantesComprasEstadosDTO, ComprobantesComprasEstadosEntity.class);
+            comprobantesCompraEstadoRepository.save(comprobantesComprasEstadosEntity);
+            return modelMapper.map(comprobantesComprasEstadosEntity, ComprobantesComprasEstadosDTO.class);
+        } catch (Exception e) {
+            log.error("Error al guardar el estado de compra: " + e.getMessage());
+            throw new RuntimeException("Error al guardar el estado de compra: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ComprobantesComprasEstadosDTO update(Long id, ComprobantesComprasEstadosDTO comprobantesComprasEstadosDTO) {
+        try{
+            ComprobantesComprasEstadosEntity comprobantesComprasEstadosEntity = comprobantesCompraEstadoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No se encontro el estado de compra con id: " + id));
+            comprobantesComprasEstadosEntity.setIdEmpresa(comprobantesComprasEstadosDTO.getIdEmpresa());
+            comprobantesComprasEstadosEntity.setCodigo(comprobantesComprasEstadosDTO.getCodigo());
+            comprobantesComprasEstadosEntity.setDescripcion(comprobantesComprasEstadosDTO.getDescripcion());
+            comprobantesComprasEstadosEntity.setUsuarioActualizacion(comprobantesComprasEstadosDTO.getUsuarioActualizacion());
+            comprobantesCompraEstadoRepository.save(comprobantesComprasEstadosEntity);
+            return modelMapper.map(comprobantesComprasEstadosEntity, ComprobantesComprasEstadosDTO.class);
+        } catch (Exception e) {
+            log.error("Error al actualizar el estado de compra: " + e.getMessage());
+            throw new RuntimeException("Error al actualizar el estado de compra: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        try{
+            ComprobantesComprasEstadosEntity comprobantesComprasEstadosEntity = comprobantesCompraEstadoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No se encontro el estado de compra con id: " + id));
+            comprobantesCompraEstadoRepository.delete(comprobantesComprasEstadosEntity);
+        } catch (Exception e) {
+            log.error("Error al eliminar el estado de compra: " + e.getMessage());
+            throw new RuntimeException("Error al eliminar el estado de compra: " + e.getMessage());
+        }
+    }
+
+    @Override
     public Page<ComprobantesComprasEstadosDTO> findAllByEmpresa(String codigo, String descripcion, Pageable pageable, Long idEmpresa) {
         try{
             Specification<ComprobantesComprasEstadosEntity> specification = ComprobantesComprasEstadosEspecification.getComprobantesComprasEstados(codigo, descripcion, idEmpresa);

@@ -31,6 +31,7 @@ public class ProductoDTO {
     private String nombre;
     @NotNull(message = "El tipo de producto es obligatorio")
     private String tipo;
+    @NotNull(message = "La unidad es obligatoria")
     private String unidad;
     // Campos que se agregarían desde StockAlmacen
     private Long stockAlmacenId; // ID del StockAlmacen
@@ -46,8 +47,10 @@ public class ProductoDTO {
     @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
     @NotNull(message = "El precio sugerido es obligatorio")
-    @DecimalMin(value = "0.0", inclusive = true, message = "El precio debe ser mayor que 0")
-    private BigDecimal precioSugerido;
+    @DecimalMin(value = "0.0", inclusive = true, message = "El precio de venta debe ser mayor que 0")
+    private BigDecimal precioVenta;
+    @DecimalMin(value = "0.0", inclusive = true, message = "El precio de compra debe ser mayor que 0")
+    private BigDecimal precioCompra;
     @NotBlank(message = "El codigo del usuario creador es obligatorio")
     private String usuarioCreacion;
     private String usuarioActualizacion;
