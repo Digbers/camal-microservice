@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface IMonedasService {
     MonedasDTO save(MonedasDTO monedasDTO);
+    MonedasDTO findByEmpresaAndCodigo(Long idEmpresa, String codigo);
     boolean deleteById(Long id);
     MonedasDTO update(Long id, MonedasDTO monedasDTO);
     MonedasDTO findById(Long id);

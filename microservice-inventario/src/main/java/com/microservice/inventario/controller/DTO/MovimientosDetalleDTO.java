@@ -24,11 +24,14 @@ public class MovimientosDetalleDTO {
     private Long idEmpresa;
     private Long idMovimiento;
     private Long idProducto;
+    private String nombreProducto;// agregado
     private Long envase;
     private BigDecimal peso;
     private BigDecimal total;
     private Integer cantidad;
+    private BigDecimal tara;
     private String usuarioCreacion;
+    private Timestamp fechaCreacion;
     private String usuarioActualizacion;
 
 }

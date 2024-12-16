@@ -1,7 +1,7 @@
 @startuml
 
-package "org-camal" {
-    class ComprobanteCabecera{
+package "org-camal-compras" {
+    class Comprobante{
         -idEmpresa
         -idComprovanteC
         -idComprobanteCTipo
@@ -15,19 +15,17 @@ package "org-camal" {
         -observaciones
         -idMonedas
     }
-    class ComprobanteDetalle{
-        -idEmpresa
-        -idComprovanteD
-        -idComprovanteC
-        -numero
-        -IdProducto
-        - cantidadEnvases // cantidad de javas
-        - peso
-        -precioUnitario
-        -descuento
-        -descripcion
-        -idusuario
-        }
+    class Compras{
+        - comprobante
+        - comprobanteEstado
+        - comprobanteTipo
+    }
+    interface IComprasService {
+        - guardarCompra(compraRequest)
+        - anularCompra(id)
+        - getComprobantesTiposCompras(IdEmpresa)
+        - compensarCompra(compra)
+    }
     class ComprobantesEstados {
         -idComprobanteEstado
         -codigo
@@ -38,9 +36,13 @@ package "org-camal" {
             -codigo
             -descripcion
         }
-    ComprobanteCabecera "n*" *-- "1" ComprobantesEstados : composicion
-    ComprobanteCabecera "1" *-- "n*" ComprobanteDetalle : composicion
-    ComprobanteCabecera "n*" *-- "1" ComprobantesTipos : composicion
+
+    Compras "1" *-- "1" Comprobante : composicion
+    Compras "1" *-- "1" ComprobantesEstados : composicion
+    Compras "1" *-- "1" ComprobantesTipos : composicion
+    Compras --> IComprasService : implementa
+    Comprobante "1" *-- "1" ComprobantesEstados : composicion
+    Comprobante "1" *-- "1" ComprobantesTipos : composicion
 }
 
 @enduml

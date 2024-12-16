@@ -24,4 +24,5 @@ public class ProductoAResponse {
     private Long envaseId;
     private BigDecimal peso;
     private Integer capacidadEnvase;
+    private BigDecimal tara;
 }

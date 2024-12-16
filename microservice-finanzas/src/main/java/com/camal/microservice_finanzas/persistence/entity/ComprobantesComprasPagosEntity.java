@@ -28,9 +28,9 @@ public class ComprobantesComprasPagosEntity {
     @JoinColumn(name = "id_forma_cobro")
     private FormasPagosEntity formaPagosEntity;
     @Column(precision = 10, scale = 2, nullable = false)
-    private BigDecimal montoCobrado;
+    private BigDecimal montoPagado;
     @Column(name = "fecha_cobro", nullable = false)
-    private LocalDate fechaCobro;
+    private LocalDate fechaPago;
     private String descripcion;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "id_moneda")

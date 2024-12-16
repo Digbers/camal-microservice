@@ -27,4 +27,5 @@ public class ComprobanteDetalleRequest {
     private BigDecimal precioUnitario;
     @NotNull(message = "El descuento es obligatorio")
     private BigDecimal descuento;
+    private BigDecimal tara;
 }

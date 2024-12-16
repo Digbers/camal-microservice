@@ -1,0 +1,54 @@
+@startuml
+!define primary_key(x) <b><color:#b8861b><&key></color> x</b>
+!define foreign_key(x) <color:#aaaaaa><&foreign></color> x
+
+entity "ComprobantesVentasCobros" {
+    primary_key(idComprobantesVentasCobros) : INT
+    foreign_key(empId) : INT
+    foreign_key(idComprovanteV) : INT
+    foreign_key(idFormaCobro) : INT
+    montoCobrado : DECIMAL
+    fechaCancelacion : DATE
+    descripcion : VARCHAR
+    foreign_key(idMoneda) : INT
+}
+
+entity "ComprobantesComprasPagos" {
+    primary_key(idComprobantesComprasCobros) : INT
+    foreign_key(empId) : INT
+    foreign_key(idComprovanteC) : INT
+    foreign_key(idFormaPago) : INT
+    montoCobrado : DECIMAL
+    fechaCancelacion : DATE
+    descripcion : VARCHAR
+    foreign_key(idMoneda) : INT
+}
+
+entity "Monedas" {
+    primary_key(idMonedas) : INT
+    codigo : VARCHAR
+    nombre : VARCHAR
+    simbolo : VARCHAR
+}
+
+entity "FormasCobro" {
+    primary_key(idFormaCobro) : INT
+    codigo : VARCHAR
+    descripcion : VARCHAR
+}
+
+entity "FormasPagos" {
+    primary_key(idFormaPago) : INT
+    codigo : VARCHAR
+    descripcion : VARCHAR
+}
+
+
+ComprobantesVentasCobros }|--|| FormasCobro : "usa forma de cobro"
+ComprobantesVentasCobros }|--|| Monedas : "en moneda"
+
+ComprobantesComprasPagos }|--|| FormasPagos : "usa forma de pago"
+ComprobantesComprasPagos }|--|| Monedas : "en moneda"
+
+
+@enduml

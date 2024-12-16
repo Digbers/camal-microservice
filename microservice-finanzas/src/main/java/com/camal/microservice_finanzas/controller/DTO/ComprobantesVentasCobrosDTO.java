@@ -16,11 +16,11 @@ public class ComprobantesVentasCobrosDTO {
     private Long id;
     private Long idEmpresa;
     private Long idComprobanteVenta;
-    private FormasDeCobrosDTO formasDeCobros;
+    private String formasDeCobros;
     private BigDecimal montoCobrado;
     private LocalDate fechaCobro;
     private String descripcion;
-    private MonedasDTO monedas;
+    private String monedas;
     private String usuarioCreacion;
     private Timestamp fechaCreacion;
     private String usuarioActualizacion;

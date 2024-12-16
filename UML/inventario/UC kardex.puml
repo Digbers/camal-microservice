@@ -10,8 +10,8 @@ note "Gestionar el stock y kardex valorizado de productos." as N2
 
     movStock ..N2
 }
-cli --> stock : [101]
-cli --> kardex : [102]
-cli --> movStock : [103]
-cli --> repKardex : [104]
+cli --> stock : [101] actualizar
+cli --> kardex : [102] consultar
+cli --> movStock : [103] registrar
+cli --> repKardex : [104] imprimir reporte
 @enduml

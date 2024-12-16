@@ -206,14 +206,14 @@ public class ProductosServiceImpl implements IProductosService {
             productosRepository.searchByFields(descripcion).forEach(producto -> {
                 // Iterar sobre cada StockAlmacen y crear un ProductoDTO por cada uno
                 producto.getStockAlmacenList().forEach(stockAlmacen -> {
-                    if (stockAlmacen.getEnvase() != null) {
+                    if (stockAlmacen.getEnvase() != null && stockAlmacen.getEnvase().getEstado()) {
                         ProductoAResponse productoAResponse = ProductoAResponse.builder()
                                 .id(producto.getIdProducto())
                                 .empresaId(producto.getEmpresaId())
                                 .codigo(producto.getCodigo())
                                 .descripcionA(producto.getCodigo() + " - " + producto.getNombre() + " - " + producto.getTipo().getNombre()
                                         + " - " + producto.getUnidad().getCodigo() + " - " + producto.getPrecioVenta()
-                                        + " - " + (stockAlmacen.getEnvase() != null ? stockAlmacen.getEnvase().getDescripcion() : "Sin envase"))
+                                        + " - " + (stockAlmacen.getEnvase() != null ? stockAlmacen.getEnvase().getDescripcion() + "-TARA: " + stockAlmacen.getEnvase().getPesoReferencia() : "Sin envase"))
                                 .nombre(producto.getCodigo() + " - " + producto.getNombre() + " - " + producto.getTipo().getNombre())
                                 .unidad(producto.getUnidad().getCodigo())
                                 .cantidad(stockAlmacen.getCantidadProducto())
@@ -222,6 +222,7 @@ public class ProductosServiceImpl implements IProductosService {
                                 .envaseId(stockAlmacen.getEnvase() != null ? stockAlmacen.getEnvase().getIdEnvase() : null)
                                 .capacidadEnvase(stockAlmacen.getEnvase() != null ? stockAlmacen.getEnvase().getCapacidad() : null)
                                 .peso(stockAlmacen.getPesoTotal())
+                                .tara(stockAlmacen.getEnvase() != null ? stockAlmacen.getEnvase().getPesoReferencia() : null)
                                 .build();
                         productos.add(productoAResponse);
                     }
@@ -341,7 +342,7 @@ public class ProductosServiceImpl implements IProductosService {
                                                String codigoFormaPago, List<T> cobrosDTO, Channel channel, Message message, Boolean generarMovimiento, String codigoProductoCompraVenta) throws IOException {
         // Obtener detalles del comprobante
         List<ComprobanteDetalleRequest> comprobanteDetalle = obtenerDetalleComprobante(comprobantesCabecera);
-        BigDecimal total = calcularMontoTotal(comprobanteDetalle);
+        BigDecimal total = calcularMontoTotal(comprobanteDetalle, codigoProductoCompraVenta);
         if(motivoCodigo.equals("COM") && !generarMovimiento) {
             log.info("No se generara movimiento");
             // Enviar evento de éxito (aquí podrías tener lógica diferente para ventas y compras si es necesario)
@@ -421,7 +422,6 @@ public class ProductosServiceImpl implements IProductosService {
         String numeroFormateado = String.format("%08d", Integer.parseInt(numero));
         documentoReferencia = serie + "-" + numeroFormateado;
 
-
         // Aquí trabajas directamente con la entidad MovimientosCabeceraEntity
         MovimientosCabeceraEntity movimiento = new MovimientosCabeceraEntity();
         movimiento.setIdEmpresa(idEmpresa);
@@ -452,6 +452,7 @@ public class ProductosServiceImpl implements IProductosService {
                     detalle.setTotal(cd.getPrecioUnitario());
                     detalle.setCantidad(cd.getCantidad());
                     detalle.setUsuarioCreacion(usuarioCreacion);
+                    detalle.setTara(cd.getTara());
                     return detalle;
                 })
                 .collect(Collectors.toList());
@@ -492,7 +493,8 @@ public class ProductosServiceImpl implements IProductosService {
                         cd.getIdEnvase(),
                         cd.getPeso(),
                         cd.getPrecioUnitario(),
-                        cd.getDescuento()))
+                        cd.getDescuento(),
+                        cd.getTara()))
                 .collect(Collectors.toList());
     }
     private AlmacenEntity obtenerAlmacen(Long idAlmacen) {
@@ -523,7 +525,7 @@ public class ProductosServiceImpl implements IProductosService {
 
                 MovimientosMotivosEntity motivo = obtenerMotivo("ANU");
                 MovimientosEstadosEntity estadosEntity = movimientosEstadosRepository.findByCodigo("INGRESO");
-                BigDecimal total = calcularMontoTotal(event.getComprobanteDetalleRequest());
+                BigDecimal total = calcularMontoTotal(event.getComprobanteDetalleRequest(), event.getCodigoProductoCompra());
                 MovimientosCabeceraEntity movimiento = crearMovimientoCabecera(event.getSerie(), event.getNumero(), event.getIdEmpresa(), event.getUsuarioCreacion(), event.getCodigoMoneda(), event.getObservacion(), event.getIdCliente(), event.getFechaEmision(),
                         event.getComprobanteDetalleRequest(), almacen.get(), motivo, total, estadosEntity);
                 movimientosCabeceraRepository.save(movimiento);
@@ -557,7 +559,7 @@ public class ProductosServiceImpl implements IProductosService {
                     }
                     MovimientosMotivosEntity motivo = obtenerMotivo("ANU");
                     MovimientosEstadosEntity estadosEntity = movimientosEstadosRepository.findByCodigo("SALIDA");
-                    BigDecimal total = calcularMontoTotal(event.getComprobanteDetalleRequest());
+                    BigDecimal total = calcularMontoTotal(event.getComprobanteDetalleRequest(), event.getCodigoProductoCompra());
                     MovimientosCabeceraEntity movimiento = crearMovimientoCabecera(event.getSerie(), event.getNumero(), event.getIdEmpresa(), event.getUsuarioCreacion(), event.getCodigoMoneda(), event.getObservacion(), event.getIdCliente(), event.getFechaEmision(),
                             event.getComprobanteDetalleRequest(), almacen.get(), motivo, total, estadosEntity);
                     movimientosCabeceraRepository.save(movimiento);
@@ -577,42 +579,56 @@ public class ProductosServiceImpl implements IProductosService {
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         }
     }
-    private BigDecimal calcularMontoTotal(List<ComprobanteDetalleRequest> detalleComprobantes) {
-        BigDecimal montoTotal = BigDecimal.ZERO;
-        for (ComprobanteDetalleRequest comprobanteDetalle : detalleComprobantes) {
-            //monto total x detalle es peso x precio unitario menos descuento
-            montoTotal = montoTotal.add(comprobanteDetalle.getPeso().multiply(comprobanteDetalle.getPrecioUnitario()).subtract(comprobanteDetalle.getDescuento()));
-        }
-        return montoTotal;
+    private BigDecimal calcularMontoTotal(List<ComprobanteDetalleRequest> detalleComprobantes, String codigoProductoCompraVenta) {
+        AtomicReference<BigDecimal> montoTotal = new AtomicReference<>(BigDecimal.ZERO);
+        //AtomicReference<BigDecimal> descuentoTotal = new AtomicReference<>(BigDecimal.ZERO);
+        BigDecimal totalSinInpuesto = BigDecimal.ZERO;
+        detalleComprobantes.forEach(comprobantesV -> {
+            BigDecimal pesoNeto = BigDecimal.ZERO;
+            if(comprobantesV.getTara() != null) {
+                log.info("comprobantesV.getTara() = " + comprobantesV.getTara());
+                pesoNeto = comprobantesV.getPeso().subtract(comprobantesV.getTara());
+            }else{
+                log.info("comprobantesV.getTara() = null");
+                pesoNeto = comprobantesV.getPeso();
+            }
+            BigDecimal subtotal = pesoNeto.multiply(comprobantesV.getPrecioUnitario());
+            BigDecimal descuento = comprobantesV.getDescuento();
+            montoTotal.updateAndGet(valorActual -> valorActual.add(subtotal.subtract(descuento)));
+            //descuentoTotal.updateAndGet(valorActual -> valorActual.add(descuento));
+        });
+        return montoTotal.get();
     }
     @Transactional
     public void actualizarStockXproducto(List<ComprobanteDetalleRequest> comprobanteDetalleRequest, Long idAlmacen, Long idEmpresa, String tipo) {
         //ACTULIZA EL STOCK POR PRODCUTO DEL DETALLE
         for (ComprobanteDetalleRequest detalle : comprobanteDetalleRequest) {
-            ProductosEntity productoSa = productosRepository.findById(detalle.getIdProducto()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con id: " + detalle.getIdProducto()));
+            ProductosEntity productoSa = productosRepository.findByIdWithStockAlmacen(detalle.getIdProducto()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con id: " + detalle.getIdProducto()));
             StockAlmacen stockAlmacen = productoSa.getStockAlmacenList().stream().filter(stock -> Objects.equals(stock.getEnvase().getIdEnvase(), detalle.getIdEnvase())).findFirst().orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con codigo: " + productoSa.getCodigo()));
-            if (stockAlmacen != null) {
-                EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
-                if(tipo.equals("VEN")) {
-                    log.info("venta");
-                    if(envase.getCapacidad() == null){
-                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad()));
-                    }else{
-                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad() * envase.getCapacidad()));
-                    }
-                } else if (tipo.equals("COM")) {
-                    log.info("compra");
-                    if(envase.getCapacidad() == null){
-                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad()));
-                    }else{
-                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
-                    }
-                }
-                stockAlmacenRepository.save(stockAlmacen);
-                log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
-            } else {
-                throw new ProductoNotFoundException("El producto no existe en el almacén especificado");
+            if (stockAlmacen == null) {
+                throw new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo());
             }
+            EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
+            if(tipo.equals("VEN")) {
+                log.info("venta");
+                if(envase.getCapacidad() == null){
+                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad()));
+                }else{
+                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad() * envase.getCapacidad()));
+                }
+                stockAlmacen.setCantidadEnvase(stockAlmacen.getCantidadEnvase() - detalle.getCantidad());
+            } else if (tipo.equals("COM")) {
+                log.info("compra");
+                if(envase.getCapacidad() == null){
+                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad()));
+                }else{
+                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
+                }
+                stockAlmacen.setCantidadEnvase(stockAlmacen.getCantidadEnvase() + detalle.getCantidad());
+            }
+            stockAlmacenRepository.save(stockAlmacen);
+            log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
+
         }
     }
     @Transactional
@@ -621,49 +637,61 @@ public class ProductosServiceImpl implements IProductosService {
         ProductosEntity productoSa = productosRepository.findByCodigo(codigoProductoCompraVenta).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con Codigo: " + codigoProductoCompraVenta));
         for (ComprobanteDetalleRequest detalle : comprobanteDetalleRequest) {
             StockAlmacen stockAlmacen = productoSa.getStockAlmacenList().stream().filter(stock -> stock.getEnvase() == null).findFirst().orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo()));
-            if (stockAlmacen != null) {
-                EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
-                if(tipo.equals("VEN")) {
-                    log.info("venta");
-                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad() * envase.getCapacidad()));
-                } else if (tipo.equals("COM")) {
-                    log.info("compra");
-                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
-                }
-                stockAlmacenRepository.save(stockAlmacen);
-                log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
-            } else {
-                throw new ProductoNotFoundException("El producto no existe en el almacén especificado");
+            if (stockAlmacen == null) {
+                throw new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo());
             }
+            EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
+            if(tipo.equals("VEN")) {
+                log.info("venta");
+                stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad() * envase.getCapacidad()));
+                //actualizar el stock de envases
+                StockAlmacen stockAlmacenProductoDetalle = stockAlmacenRepository.findByIds(idAlmacen, detalle.getIdProducto(), detalle.getIdEnvase(), idEmpresa).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + detalle.getIdProducto()));
+                stockAlmacenProductoDetalle.setCantidadEnvase(stockAlmacenProductoDetalle.getCantidadEnvase() - detalle.getCantidad());
+                stockAlmacenRepository.save(stockAlmacenProductoDetalle);
+
+            } else if (tipo.equals("COM")) {
+                log.info("compra");
+                stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
+
+                //actualizar el stock de envases
+                StockAlmacen stockAlmacenProductoDetalle = stockAlmacenRepository.findByIds(idAlmacen, detalle.getIdProducto(), detalle.getIdEnvase(), idEmpresa).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + detalle.getIdProducto()));
+                stockAlmacenProductoDetalle.setCantidadEnvase(stockAlmacenProductoDetalle.getCantidadEnvase() + detalle.getCantidad());
+                stockAlmacenRepository.save(stockAlmacenProductoDetalle);
+            }
+            stockAlmacenRepository.save(stockAlmacen);
+            log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
+
         }
     }
     @Transactional
     public void revertirStockXproducto(List<ComprobanteDetalleRequest> comprobanteDetalleRequest, Long idAlmacen, Long idEmpresa, String tipo) {
         for (ComprobanteDetalleRequest detalle : comprobanteDetalleRequest) {
-            ProductosEntity productoSa = productosRepository.findById(detalle.getIdProducto()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + detalle.getIdProducto()));
+            ProductosEntity productoSa = productosRepository.findByIdWithStockAlmacen(detalle.getIdProducto()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + detalle.getIdProducto()));
             StockAlmacen stockAlmacen = stockAlmacenRepository.findByProductoCodigoAndEnvaseIsNull(productoSa.getCodigo()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo()));
-            if (stockAlmacen != null) {
-                EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
-                if(tipo.equals("VEN")) {
-                    log.info("venta");
-                    if(envase.getCapacidad() == null){
-                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad()));
-                    }else{
-                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
-                    }
-                } else if (tipo.equals("COM")) {
-                    log.info("compra");
-                    if(envase.getCapacidad() == null){
-                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad()));
-                    }else{
-                        stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad() * envase.getCapacidad()));
-                    }
-                }
-                stockAlmacenRepository.save(stockAlmacen);
-                log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
-            } else {
-                throw new ProductoNotFoundException("El producto no existe en el almacén especificado");
+            if (stockAlmacen == null) {
+                throw new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo());
             }
+            EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
+            if(tipo.equals("VEN")) {
+                log.info("venta");
+                if(envase.getCapacidad() == null){
+                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad()));
+                }else{
+                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
+                }
+                stockAlmacen.setCantidadEnvase(stockAlmacen.getCantidadEnvase() + detalle.getCantidad());
+            } else if (tipo.equals("COM")) {
+                log.info("compra");
+                if(envase.getCapacidad() == null){
+                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad()));
+                }else{
+                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad() * envase.getCapacidad()));
+                }
+                stockAlmacen.setCantidadEnvase(stockAlmacen.getCantidadEnvase() - detalle.getCantidad());
+            }
+            stockAlmacenRepository.save(stockAlmacen);
+            log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
+
         }
     }
     @Transactional
@@ -672,20 +700,28 @@ public class ProductosServiceImpl implements IProductosService {
         ProductosEntity productoSa = productosRepository.findByCodigo(codigoProducto).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con el codigo: " + codigoProducto));
         for (ComprobanteDetalleRequest detalle : comprobanteDetalleRequest) {
             StockAlmacen stockAlmacen = stockAlmacenRepository.findByProductoCodigoAndEnvaseIsNull(productoSa.getCodigo()).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo()));
-            if (stockAlmacen != null) {
-                EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
-                if(tipo.equals("VEN")) {
-                    log.info("venta");
-                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
-                } else if (tipo.equals("COM")) {
-                    log.info("compra");
-                    stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad() * envase.getCapacidad()));
-                }
-                stockAlmacenRepository.save(stockAlmacen);
-                log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
-            } else {
-                throw new ProductoNotFoundException("El producto no existe en el almacén especificado");
+            if (stockAlmacen == null) {
+                throw new EntityNotFoundException("Producto no encontrado con ID: " + productoSa.getCodigo());
             }
+            EnvaseEntity envase = envaseRepository.findById(detalle.getIdEnvase()).orElseThrow(() -> new EntityNotFoundException("Envase no encontrada con ID: " + detalle.getIdEnvase()));
+            if(tipo.equals("VEN")) {
+                log.info("venta");
+                stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() + (detalle.getCantidad() * envase.getCapacidad()));
+                //actualizar el stock de envases
+                StockAlmacen stockAlmacenProductoDetalle = stockAlmacenRepository.findByIds(idAlmacen, detalle.getIdProducto(), detalle.getIdEnvase(), idEmpresa).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + detalle.getIdProducto()));
+                stockAlmacenProductoDetalle.setCantidadEnvase(stockAlmacenProductoDetalle.getCantidadEnvase() + detalle.getCantidad());
+                stockAlmacenRepository.save(stockAlmacenProductoDetalle);
+            } else if (tipo.equals("COM")) {
+                log.info("compra");
+                stockAlmacen.setCantidadProducto(stockAlmacen.getCantidadProducto() - (detalle.getCantidad() * envase.getCapacidad()));
+                //actualizar el stock de envases
+                StockAlmacen stockAlmacenProductoDetalle = stockAlmacenRepository.findByIds(idAlmacen, detalle.getIdProducto(), detalle.getIdEnvase(), idEmpresa).orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + detalle.getIdProducto()));
+                stockAlmacenProductoDetalle.setCantidadEnvase(stockAlmacenProductoDetalle.getCantidadEnvase() - detalle.getCantidad());
+                stockAlmacenRepository.save(stockAlmacenProductoDetalle);
+            }
+            stockAlmacenRepository.save(stockAlmacen);
+            log.info("Producto actualizado en el almacén: " + detalle.getIdProducto() + " por " + detalle.getCantidad());
+
         }
     }
     //OBTENER EL ESTOCK PARA VENTAS

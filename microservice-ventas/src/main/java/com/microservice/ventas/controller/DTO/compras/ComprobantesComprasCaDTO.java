@@ -42,13 +42,11 @@ public class ComprobantesComprasCaDTO {
     private Double tipoCambio;
     private ComprobantesComprasTiposDTO comprobantesTipos;
     @Valid
-    @NotNull(message = "Los estados de la compra no pueden ser nulos")
     private ComprobantesComprasEstadosDTO comprobanteCompraEstados;
     private String estadoCreacion;
     @NotNull(message = "El id punto de venta es obligatorio")
     private Long idPuntoVenta;
     @Valid
-    @NotNull(message = "La lista de detalles no puede ser nula")
     private List<ComprobantesComprasDetalleDTO> comprobantesComprasDetalle;
     @Valid
     private List<ComprobantesComprasCuotasDTO> comprobantesComprasCuotas;
@@ -56,7 +54,7 @@ public class ComprobantesComprasCaDTO {
     private Long idProveedor;
     private String nombreProveedor;
     private String nroDocumentoProveedor;
-    @NotNull(message = "El usuario de creacion es obligatorio")
+    @NotBlank(message = "El usuario de creacion es obligatorio")
     private String usuarioCreacion;
     private String usuarioActualizacion;
     private BigDecimal subtotal;

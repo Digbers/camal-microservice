@@ -72,7 +72,8 @@ public class ComprobantesVentasCabDTO implements ComprobanteCabeceraDTO<Comproba
                         det.getIdEnvase(),
                         det.getPeso(),
                         det.getPrecioUnitario(),
-                        det.getDescuento()))
+                        det.getDescuento(),
+                        det.getTara()))
                 .collect(Collectors.toList());
     }
     @Override

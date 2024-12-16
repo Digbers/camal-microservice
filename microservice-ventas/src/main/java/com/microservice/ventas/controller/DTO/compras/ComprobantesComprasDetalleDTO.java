@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 public class ComprobantesComprasDetalleDTO {
     private Long id;
     private Long idComprobanteCabecera;
-    @NotBlank(message = "El numero del detalle es obligatorio")
+    @NotNull(message = "El id de la empresa es obligatorio")
     private Long numero;
     @Min(value = 1, message = "La cantidad debe ser mayor a 0")
     private Integer cantidad;
@@ -31,12 +31,11 @@ public class ComprobantesComprasDetalleDTO {
     @NotNull(message = "El precio unitario es obligatorio")
     @DecimalMin(value ="0.0", inclusive = false, message = "El precio debe ser mayor que 0")
     private BigDecimal precioUnitario;
-    @NotBlank(message = "la descripcion es obligatoria")
     private String descripcion;
     @NotNull(message = "El descuento es obligatorio")
     @DecimalMin(value ="0.0", message = "El descuento debe ser mayor o igual a 0 0")
     private BigDecimal descuento;
-    @NotNull(message = "El ID del usuario creador es nulo")
+    @NotBlank(message = "El usuario creador es nulo")
     private String usuarioCreacion;
     private String usuarioActualizacion;
 }

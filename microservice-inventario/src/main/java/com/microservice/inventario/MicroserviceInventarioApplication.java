@@ -64,18 +64,18 @@ public class MicroserviceInventarioApplication {
 			ProductosTiposEntity tipoConsumo = ProductosTiposEntity.builder().idEmpresa(1L).codigo("CON").nombre("consumo").usuarioCreacion("ADMIN").build();
 			productosTiposRepository.saveAll(List.of(tipoP, pollosSacrificado, tipoP3, tipoConsumo));
 
-			EnvaseEntity eJava8 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("JAVA").descripcion("Java 8 hembras").capacidad(8).estado("VACIO").pesoReferencia(new BigDecimal(1)).usuarioCreacion("ADMIN").build();
-			EnvaseEntity eJava6 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("JAVA").descripcion("Java 6 machos").capacidad(6).estado("OCUPADO").pesoReferencia(new BigDecimal(1)).usuarioCreacion("ADMIN").build();
-			EnvaseEntity eTina9 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("TINA").descripcion("Tina 9 pollos").capacidad(9).estado("VACIO").pesoReferencia(new BigDecimal(1)).usuarioCreacion("ADMIN").build();
-			EnvaseEntity eTina10 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("TINA").descripcion("Tina 10 pollos").capacidad(10).estado("VACIO").pesoReferencia(new BigDecimal(1)).usuarioCreacion("ADMIN").build();
-			EnvaseEntity eNA = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("NA").descripcion("Sin Envase").capacidad(0).estado("NA").pesoReferencia(new BigDecimal(1)).usuarioCreacion("ADMIN").build();
+			EnvaseEntity eJava8 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("JAVA").descripcion("Java 8 hembras").capacidad(8).estado(true).pesoReferencia(new BigDecimal(5)).usuarioCreacion("ADMIN").build();
+			EnvaseEntity eJava6 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("JAVA").descripcion("Java 6 machos").capacidad(6).estado(true).pesoReferencia(new BigDecimal(5)).usuarioCreacion("ADMIN").build();
+			EnvaseEntity eTina9 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("TINA").descripcion("Tina 9 pollos").capacidad(9).estado(true).pesoReferencia(new BigDecimal(5)).usuarioCreacion("ADMIN").build();
+			EnvaseEntity eTina10 = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("TINA").descripcion("Tina 10 pollos").capacidad(10).estado(true).pesoReferencia(new BigDecimal(5)).usuarioCreacion("ADMIN").build();
+			EnvaseEntity eNA = EnvaseEntity.builder().idEmpresa(1L).tipoEnvase("NA").descripcion("Sin Envase").capacidad(0).estado(true).pesoReferencia(new BigDecimal(1)).usuarioCreacion("ADMIN").build();
 			envaseRepository.saveAll(List.of(eTina10, eTina9, eJava6, eJava8, eNA));
 			// Construir el objeto StockAlmacen
 			StockAlmacen stock = StockAlmacen.builder()
 					.idEmpresa(1L)
 					.envase(eJava8)
 					.almacen(almacen)
-					.cantidadEnvase(0)
+					.cantidadEnvase(100)
 					.cantidadProducto(0)
 					.pesoTotal(new BigDecimal(0))
 					.fechaRegistro(LocalDate.now())
@@ -85,7 +85,7 @@ public class MicroserviceInventarioApplication {
 					.idEmpresa(1L)
 					.envase(eJava6)
 					.almacen(almacen)
-					.cantidadEnvase(0)
+					.cantidadEnvase(100)
 					.cantidadProducto(0)
 					.pesoTotal(new BigDecimal(16))
 					.fechaRegistro(LocalDate.now())
@@ -94,7 +94,7 @@ public class MicroserviceInventarioApplication {
 			StockAlmacen stockPolloSacrificado = StockAlmacen.builder()
 					.idEmpresa(1L)
 					.almacen(almacen)
-					.cantidadProducto(50)
+					.cantidadProducto(500)
 					.pesoTotal(new BigDecimal(90))
 					.fechaRegistro(LocalDate.now())
 					.usuarioCreacion("ADMIN")
@@ -104,6 +104,7 @@ public class MicroserviceInventarioApplication {
 					.almacen(almacen)
 					.envase(eTina10)
 					.cantidadProducto(0)
+					.cantidadEnvase(100)
 					.pesoTotal(new BigDecimal(0))
 					.fechaRegistro(LocalDate.now())
 					.usuarioCreacion("ADMIN")

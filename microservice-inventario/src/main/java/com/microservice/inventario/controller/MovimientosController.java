@@ -1,20 +1,18 @@
 package com.microservice.inventario.controller;
 
-import com.microservice.inventario.controller.DTO.MovimientosCabeceraDTO;
-import com.microservice.inventario.controller.DTO.ProductoDTO;
+import com.microservice.inventario.controller.DTO.*;
 import com.microservice.inventario.service.movimientos.MovimientosService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/inventario/movimientos")
@@ -51,5 +49,17 @@ public class MovimientosController {
             pageable = PageRequest.of(page, size);
         }
         return movimientosService.finAll(id, idEmpresa, numero, fechaEmision, total, motivoCodigo, idUsuario, monedaCodigo, pageable);
+    }
+    @GetMapping("/find-detalle/{id}")
+    public ResponseEntity<List<MovimientosDetalleDTO>> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(movimientosService.findByIdMovimiento(id));
+    }
+    @GetMapping("/motivos/find")
+    public ResponseEntity<List<MovimientosMotivosDTO>> findAll() {
+        return ResponseEntity.ok(movimientosService.findAllMotivos());
+    }
+    @GetMapping("/estados/find")
+    public ResponseEntity<List<MovimientosEstadosDTO>> findAllEstados() {
+        return ResponseEntity.ok(movimientosService.findAllEstados());
     }
 }

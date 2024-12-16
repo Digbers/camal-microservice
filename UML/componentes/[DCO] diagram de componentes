@@ -1,0 +1,93 @@
+@startuml
+left to right direction
+
+package "Navegador Web" {
+    [Aplicación Web] as WebApp
+}
+
+package "Internet" {
+    interface "HTTP/HTTPS" as http
+}
+
+package "Servidor VPS (Ubuntu)" {
+    package "Servidor Web (Nginx)" {
+        interface "HTTP/HTTPS" as http_server
+    }
+
+    [Gateway Microservicio] as Gateway
+
+    interface "Service Discovery" as eureka_interface
+    [Eureka Microservicio] as Eureka
+
+    interface "Configuration Management" as config_interface
+    [Config Server Microservicio] as ConfigServer
+
+    interface "Ventas REST API" as ventas_interface
+    [Ventas y Compras Microservicio] as VentasCompras
+
+    interface "Finanzas REST API" as finanzas_interface
+    [Finanzas Microservicio] as Finanzas
+
+    interface "Inventario REST API" as inventario_interface
+    [Inventario Microservicio] as Inventario
+
+    interface "Entidades REST API" as entidades_interface
+    [Entidades Microservicio] as Entidades
+
+    interface "Authentication REST API" as auth_interface
+    [Autenticación Microservicio] as Auth
+
+    database "Base de Datos (PostgreSQL) AUTH" {
+        interface "AUTH JDBC" as auth_db_interface
+        [Autenticación Microservicio]
+    }
+
+    database "Base de Datos (PostgreSQL) ENTIDADES" {
+        interface "ENTIDADES JDBC" as entidades_db_interface
+        [Entidades Microservicio]
+    }
+
+    database "Base de Datos (PostgreSQL) INVENTARIO" {
+        interface "INVENTARIO JDBC" as inventario_db_interface
+        [Inventario Microservicio]
+    }
+
+    database "Base de Datos (PostgreSQL) FINANZAS" {
+        interface "FINANZAS JDBC" as finanzas_db_interface
+        [Finanzas Microservicio]
+    }
+
+    database "Base de Datos (PostgreSQL) VENTAS Y COMPRAS" {
+        interface "VENTAS JDBC" as ventas_db_interface
+        [Ventas y Compras Microservicio]
+    }
+
+    WebApp --> http : Peticiones REST
+    http --> http_server : Proxy
+    http_server --> Gateway : Delegación de peticiones
+    http_server --> WebApp : Redirección de peticiones
+
+    Gateway --> eureka_interface : Registro de microservicios
+    Gateway --> config_interface : Obtención de configuraciones
+
+    Gateway --> ventas_interface : Peticiones de ventas y compras
+    Gateway --> finanzas_interface : Peticiones de finanzas
+    Gateway --> inventario_interface : Peticiones de inventario
+    Gateway --> entidades_interface : Peticiones de entidades
+    Gateway --> auth_interface : Peticiones de autenticación
+    auth_interface --> Auth
+    finanzas_interface --> Finanzas
+    inventario_interface --> Inventario
+    entidades_interface --> Entidades
+    ventas_interface --> VentasCompras
+    config_interface --> ConfigServer
+
+    eureka_interface --> Eureka
+
+    Auth --> auth_db_interface : JDBC
+    VentasCompras --> ventas_db_interface : JDBC
+    Finanzas --> finanzas_db_interface : JDBC
+    Inventario --> inventario_db_interface : JDBC
+    Entidades --> entidades_db_interface : JDBC
+}
+@enduml

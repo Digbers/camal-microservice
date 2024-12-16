@@ -25,6 +25,24 @@ public class EmpresaClient {
         this.webClientBuilder = webClientBuilder;
     }
 
+    public String getLogosDirectory() {
+        return webClientBuilder.build()
+                .get()
+                .uri("http://msvc-gateway/api/empresas/logos-dir")
+                .header("X-Internal-Request", "true")
+                .retrieve()
+                .onStatus(status -> status.is4xxClientError(), response -> {
+                    log.error("Error 4xx al obtener directorio de logos: {}", response.statusCode());
+                    return Mono.error(new RuntimeException("Error en la solicitud: " + response.statusCode()));
+                })
+                .onStatus(status -> status.is5xxServerError(), response -> {
+                    log.error("Error 5xx en servicio de empresas al obtener directorio de logos");
+                    return Mono.error(new RuntimeException("Error en el servicio de empresas"));
+                })
+                .bodyToMono(String.class)
+                .block();
+    }
+
     public Boolean verificarEmpresaExiste(Long empresaId) {
 
         return webClientBuilder.build()

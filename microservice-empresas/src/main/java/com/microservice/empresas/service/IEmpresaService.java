@@ -5,6 +5,7 @@ import com.microservice.empresas.persistence.entity.EmpresaEntity;
 import com.microservice.empresas.response.EmpresaResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,10 +18,10 @@ public interface IEmpresaService {
 
     Optional<EmpresaEntity> findById(Long id);
 
-    EmpresaEntity save(EmpresaDTO empresaDTO);
+    EmpresaDTO save(EmpresaDTO empresaDTO, MultipartFile logo);
 
     void deleteById(Long id);
 
-    EmpresaEntity update(Long id,EmpresaDTO empresaDTO);
+    EmpresaDTO update(Long id,EmpresaDTO empresaDTO, MultipartFile logo);
     List<EmpresaResponseDTO> findAllByIds(Set<Long> empresaIds);
 }

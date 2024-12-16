@@ -42,8 +42,8 @@ public class ComprobantesComprasPagosServiceImpl {
                             .idEmpresa(pago.getIdEmpresa())
                             .idComprobanteCompra(pago.getIdComprobanteCompra())
                             .formaPagosEntity(formasPagosE)
-                            .montoCobrado(pago.getMontoCobrado())
-                            .fechaCobro(pago.getFechaCobro())
+                            .montoPagado(pago.getMontoCobrado())
+                            .fechaPago(pago.getFechaCobro())
                             .descripcion("")
                             .monedasEntity(moneda)
                             .build();

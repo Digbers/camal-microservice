@@ -35,7 +35,7 @@ public class EntidadEntity {
     @JoinColumn(name = "doc_codigo", referencedColumnName = "doc_codigo")
     private DocumentoTiposEntity documentoTipo;
 
-    @Column(name = "nro_documento", length = 11, unique = true)
+    @Column(name = "nro_documento", length = 15, unique = true)
     private String nroDocumento;
     private String email;
     private String celular;

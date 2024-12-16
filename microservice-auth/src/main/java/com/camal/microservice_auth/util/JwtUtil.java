@@ -52,6 +52,20 @@ public class JwtUtil {
                 .sign(algorithm);
         return jwtToken;
     }
+
+    public DecodedJWT validateToken(String token){
+        try{
+            Algorithm algorithm = Algorithm.HMAC256(this.privatekey);
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer(this.userGenerator)
+                    .build();
+            DecodedJWT decodedJWT = verifier.verify(token);
+            return decodedJWT;
+
+        }catch (JWTVerificationException exception){
+            throw new JWTVerificationException("Token invalid, not Authorized");
+        }
+    }
     public String generateJwtTokenComplete(Authentication authentication, AuthLoginComplete authLoginComplete) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
@@ -79,19 +93,6 @@ public class JwtUtil {
                 .withNotBefore(new Date(System.currentTimeMillis()))
                 .sign(algorithm);
         return jwtToken;
-    }
-    public DecodedJWT validateToken(String token){
-        try{
-            Algorithm algorithm = Algorithm.HMAC256(this.privatekey);
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer(this.userGenerator)
-                    .build();
-            DecodedJWT decodedJWT = verifier.verify(token);
-            return decodedJWT;
-
-        }catch (JWTVerificationException exception){
-            throw new JWTVerificationException("Token invalid, not Authorized");
-        }
     }
     public String extractUsername(DecodedJWT decodedJWT){
         return decodedJWT.getSubject().toString();

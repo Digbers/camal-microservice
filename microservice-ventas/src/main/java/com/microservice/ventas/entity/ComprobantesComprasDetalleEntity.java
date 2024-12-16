@@ -37,6 +37,8 @@ public class ComprobantesComprasDetalleEntity {
     private String descripcion;
     @Column(precision = 10, scale = 2)
     private BigDecimal descuento;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal tara;
     @Column(name = "usercodigo_creacion")
     private String usuarioCreacion;
     @CreationTimestamp

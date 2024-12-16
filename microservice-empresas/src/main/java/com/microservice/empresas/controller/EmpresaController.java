@@ -1,5 +1,8 @@
 package com.microservice.empresas.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microservice.empresas.config.UploadProperties;
 import com.microservice.empresas.controller.dto.EmpresaDTO;
 import com.microservice.empresas.persistence.entity.EmpresaEntity;
 import com.microservice.empresas.service.IEmpresaService;
@@ -10,8 +13,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 import java.util.Set;
@@ -22,6 +27,12 @@ import java.util.Set;
 public class EmpresaController {
 
     private final IEmpresaService empresaService;
+    private final UploadProperties uploadProperties;
+
+    @GetMapping("/logos-dir")
+    public ResponseEntity<String> logosDir() {
+        return ResponseEntity.ok(uploadProperties.getLogosDir());
+    }
     @GetMapping("/all")
     public ResponseEntity<?> findAll() {
         return ResponseEntity.ok(empresaService.findAll());
@@ -64,10 +75,20 @@ public class EmpresaController {
         return ResponseEntity.ok(empresaService.findAllByEmpresa(razonSocial, codigo, ruc, direccion, departamento, provincia, distrito, ubigeo, telefono, celular, correo, web, logo, estado, pageable, idEmpresa));
     }
 
-    @PostMapping("/save")
-    public ResponseEntity<EmpresaEntity> save(@RequestBody EmpresaDTO empresaDTO) {
-        return ResponseEntity.ok(empresaService.save(empresaDTO));
+    @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<EmpresaDTO> save(
+            @RequestPart("empresa") String empresa, // Cambia temporalmente a String para inspección.
+            @RequestPart(value = "logo") MultipartFile logo
+    ) throws JsonProcessingException {
+        System.out.println("Empresa JSON: " + empresa);
+        if (logo != null) {
+            System.out.println("Archivo: " + logo.getOriginalFilename());
+        }
+        EmpresaDTO empresaDTO = new ObjectMapper().readValue(empresa, EmpresaDTO.class); // Parse manual.
+        return ResponseEntity.ok(empresaService.save(empresaDTO, logo));
     }
+
+
     @PostMapping("/findAllByIds")
     public ResponseEntity<?> findAllByIds(@RequestBody Set<Long> empresaIds) {
         return ResponseEntity.ok(empresaService.findAllByIds(empresaIds));
@@ -81,10 +102,11 @@ public class EmpresaController {
         }
         return ResponseEntity.ok(empresa.get());
     }
-    @PutMapping("/update/{id}")
-    public ResponseEntity<EmpresaEntity> update(@PathVariable Long id, @RequestBody EmpresaDTO empresaDTO) {
-        EmpresaEntity updatedEntidad = empresaService.update(id, empresaDTO);
-        return ResponseEntity.ok(updatedEntidad);
+    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<EmpresaDTO> update(@PathVariable Long id, @RequestPart("empresa") String empresa,
+                                                @RequestPart(value = "logo") MultipartFile logo) throws JsonProcessingException {
+        EmpresaDTO empresaDTO = new ObjectMapper().readValue(empresa, EmpresaDTO.class); // Parse manual.
+        return ResponseEntity.ok(empresaService.update(id, empresaDTO, logo));
     }
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

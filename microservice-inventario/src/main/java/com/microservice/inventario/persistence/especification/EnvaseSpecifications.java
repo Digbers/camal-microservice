@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class EnvaseSpecifications {
 
-    public static Specification<EnvaseEntity> getEnvase(Long idEnvase, Long idEmpresa, String tipoEnvase,String descripcion, Integer capacidad, Double pesoReferencia, String estado) {
+    public static Specification<EnvaseEntity> getEnvase(Long idEnvase, Long idEmpresa, String tipoEnvase,String descripcion, Integer capacidad, Double pesoReferencia, Boolean estado) {
         return (Root<EnvaseEntity> root, CriteriaQuery<?> query, CriteriaBuilder builder) -> {
             Predicate predicate = builder.conjunction(); // Crea un predicado inicial (siempre verdadero)
             // 1. Filtrar por idEnvase
@@ -37,8 +37,8 @@ public class EnvaseSpecifications {
                 predicate = builder.and(predicate, builder.equal(root.get("pesoReferencia"), pesoReferencia));
             }
             // 6. Filtrar por estado
-            if (estado != null && !estado.isEmpty()) {
-                predicate = builder.and(predicate, builder.equal(root.get("estado"), estado));
+            if (estado != null && estado.equals(true)) {
+                predicate = builder.and(predicate, builder.equal(root.get("estado"), true));
             }
 
             return predicate;

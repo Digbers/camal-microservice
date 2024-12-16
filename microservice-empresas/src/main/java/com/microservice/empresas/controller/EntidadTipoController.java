@@ -10,6 +10,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/empresas/entidades/tipos")
 @RequiredArgsConstructor
@@ -21,7 +23,7 @@ public class EntidadTipoController {
         return ResponseEntity.ok(entidadesTiposServiceImpl.save(entidadesTiposDTO));
     }
 
-    @PutMapping("/update/{id}")
+    @PatchMapping("/update/{id}")
     public ResponseEntity<EntidadesTiposDTO> update(@PathVariable Long id, @RequestBody EntidadesTiposDTO entidadesTiposDTO) {
         return ResponseEntity.ok(entidadesTiposServiceImpl.update(id, entidadesTiposDTO));
     }
@@ -30,6 +32,10 @@ public class EntidadTipoController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         entidadesTiposServiceImpl.deleteByIdOriginal(id);
         return ResponseEntity.ok().build();
+    }
+    @GetMapping("find-by-empresa/{idEmpresa}")
+    public ResponseEntity<List<EntidadesTiposDTO>> findByEmpresa(@PathVariable Long idEmpresa) {
+        return ResponseEntity.ok(entidadesTiposServiceImpl.findByEmpresa(idEmpresa));
     }
 
     @GetMapping("/findAll/{idEmpresa}")

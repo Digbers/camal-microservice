@@ -5,6 +5,7 @@ import com.camal.microservice_finanzas.controller.DTO.MonedasDTO;
 import com.camal.microservice_finanzas.persistence.entity.MonedasEntity;
 import com.camal.microservice_finanzas.persistence.especification.MonedasEspecifications;
 import com.camal.microservice_finanzas.persistence.repository.IMonedasRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -31,6 +32,17 @@ public class MonedasServiseImpl implements IMonedasService{
         MonedasEntity monedas = modelMapper.map(monedasDTO, MonedasEntity.class);
         monedasRepository.save(monedas);
         return modelMapper.map(monedas, MonedasDTO.class);
+    }
+
+    @Override
+    public MonedasDTO findByEmpresaAndCodigo(Long idEmpresa, String codigo) {
+        try{
+            MonedasEntity moneda = monedasRepository.findByIdEmpresaAndCodigo(idEmpresa,codigo).orElseThrow(() -> new EntityNotFoundException("No se puedo encontrar ua moneda con el codigo : " + codigo));
+            return modelMapper.map(moneda, MonedasDTO.class);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new RuntimeException("Error al obtener monedas");
+        }
     }
 
 

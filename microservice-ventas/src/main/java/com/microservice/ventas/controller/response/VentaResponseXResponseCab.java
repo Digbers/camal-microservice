@@ -16,9 +16,12 @@ public class VentaResponseXResponseCab {
     private String empresa;
     private String rucEmpresa;
     private String empresaDireccion;
+    private String empresaTelefono;
+    private String empresaCelular;
     private String serieNumero;
     private String numeroDocumento;
     private LocalDate fechaEmision;
+    private LocalDate fechaVencimiento;
     private String nombreCompleto;
     private String direccion;
     private String estadoComprobante;
@@ -27,5 +30,13 @@ public class VentaResponseXResponseCab {
     private BigDecimal igv;
     private BigDecimal descuentoTotal;
     private BigDecimal importeTotal;
-    private String totalTexto;
+    private String totalTexto;//
+    private String moneda;
+    private String puntoVenta;
+    private String puntoVentaDireccion;
+    private String empresaCorreo;
+    private BigDecimal importeTotalNeto;
+    private String monedaCodigo;
+    private String qr;
+
 }

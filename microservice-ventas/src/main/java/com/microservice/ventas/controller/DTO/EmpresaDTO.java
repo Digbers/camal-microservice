@@ -23,4 +23,6 @@ public class EmpresaDTO {
     private String telefono;
     private String celular;
     private String correo;
+    private String web;
+    private String logo;
 }

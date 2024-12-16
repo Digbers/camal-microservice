@@ -1,0 +1,55 @@
+@startuml
+
+autonumber "<B>000"
+
+actor "usuario" as user
+participant "ClienteService" as clientes
+participant "repository" as bd
+
+activate user
+
+user -> clientes: ConsultarClientes()
+activate clientes
+
+alt Clientes encontrados
+    clientes -> user: ClientesRecuperados()
+    user -> clientes: GestionarCliente(opciones)
+    alt CrearCliente
+        user -> clientes: CrearCliente(datos)
+        clientes -> bd: GuardarCliente()
+        alt Guardado exitoso
+            bd -> clientes: ClienteGuardado()
+            clientes -> user: ClienteCreado()
+        else
+            bd --> clientes: ErrorGuardar()
+            clientes -> user: ErrorCrearCliente()
+        end
+    else ActualizarCliente
+        user -> clientes: ActualizarCliente(datos)
+        clientes -> bd: ActualizarCliente()
+        alt Actualización exitosa
+            bd -> clientes: ClienteActualizado()
+            clientes -> user: ClienteActualizado()
+        else
+            bd --> clientes: ErrorActualizar()
+            clientes -> user: ErrorActualizarCliente()
+        end
+    else EliminarCliente
+        user -> clientes: EliminarCliente(id)
+        clientes -> bd: EliminarCliente()
+        alt Eliminación exitosa
+            bd -> clientes: ClienteEliminado()
+            clientes -> user: ClienteEliminado()
+        else
+            bd --> clientes: ErrorEliminar()
+            clientes -> user: ErrorEliminarCliente()
+        end
+    end
+else
+    clientes --> user: NoHayClientes()
+end
+
+deactivate clientes
+deactivate user
+
+@enduml

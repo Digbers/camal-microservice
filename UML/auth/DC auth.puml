@@ -1,0 +1,43 @@
+@startuml
+
+package "org-camal-auth" {
+
+class Usuario {
+    -idUsuario
+    -nombre
+    -password
+    -rol
+    -activo
+    --metodos--
+}
+class Rol {
+    -idRol
+    -nombre
+    --metodos--
+}
+class Permisos {
+    -idPermiso
+    -nombre
+    --metodos--
+}
+class Menus {
+    -idMenu
+    -nombre
+    --metodos--
+}
+
+interface IUsuarioService {
+    - guardar(usuario)
+    - iniciarSesion(usuario)
+    - listar()
+    - getById(id)
+    - guardarMenu(menu)
+    - getByRol(rol)
+
+}
+Usuario "1" *-- "n" Rol : composicion
+Rol "1" *-- "n" Permisos : composicion
+Usuario "1" *-- "n" Menus : composicion
+Usuario --> IUsuarioService : implementa
+}
+@enduml

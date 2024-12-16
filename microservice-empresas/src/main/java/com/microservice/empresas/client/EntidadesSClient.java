@@ -39,6 +39,8 @@ public class EntidadesSClient {
 
     public PadronSunatDTO obtenerEntidad(String numeroDoc, String tipoDoc, String url, Long empresa) {
         try {
+            System.out.println("numeroDoc: " + numeroDoc);
+            System.out.println("tipoDoc: " + tipoDoc);
             String searchInputId = "txtRuc"; // Id del input en la página de consulta
             String searchButtonId = "btnAceptar";  // Id del botón de búsqueda
             Optional<EmpresaEntity> empresaEntity = empresaRepository.findById(empresa);

@@ -27,6 +27,7 @@ public class EnvaseService implements IEnvaseService{
     public EnvaseDTO save(EnvaseDTO envaseDTO) {
         try {
             EnvaseEntity envase = modelMapper.map(envaseDTO, EnvaseEntity.class);
+
             envaseRepository.save(envase);
             return modelMapper.map(envase, EnvaseDTO.class);
         } catch (Exception e) {
@@ -54,7 +55,7 @@ public class EnvaseService implements IEnvaseService{
     }
 
     @Override
-    public Page<EnvaseDTO> findAll(Long idEnvase, String tipoEnvase,String descripcion, Integer capacidad, Double pesoReferencia, String estado,Pageable pageable, Long idEmpresa) {
+    public Page<EnvaseDTO> findAll(Long idEnvase, String tipoEnvase,String descripcion, Integer capacidad, Double pesoReferencia, Boolean estado,Pageable pageable, Long idEmpresa) {
         log.info("Buscando envase con parametros: idEnvase: {}, idEmpresa: {}, tipoEnvase: {}, descripcion: {}, capacidad: {}, pesoReferencia: {}, estado: {}", idEnvase, idEmpresa, tipoEnvase, descripcion, capacidad, pesoReferencia, estado);
         try {
             Specification<EnvaseEntity> specification = EnvaseSpecifications.getEnvase(idEnvase, idEmpresa, tipoEnvase, descripcion, capacidad, pesoReferencia, estado);

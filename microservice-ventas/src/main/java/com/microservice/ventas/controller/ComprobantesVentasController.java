@@ -1,22 +1,23 @@
 package com.microservice.ventas.controller;
 
 import com.microservice.ventas.controller.DTO.ventas.ComprobantesVentasCabDTO;
+import com.microservice.ventas.controller.DTO.ventas.ComprobantesVentasDetDTO;
 import com.microservice.ventas.controller.response.ComprobanteVentaResponseDTO;
 import com.microservice.ventas.entity.ComprobantesVentasCabEntity;
 import com.microservice.ventas.service.cventas.ComprobantesVentasService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/ventas/comprobantes")
@@ -51,39 +52,11 @@ public class ComprobantesVentasController {
         );
         return ResponseEntity.ok(result);
     }
-    @GetMapping("/reduced")
-    public ResponseEntity<RestResponse<Page<ComprobanteVentaResponseDTO>>> getComprobantes(
-            @RequestParam(required = false) String comprobanteTipo,
-            @RequestParam(required = false) String serie,
-            @RequestParam(required = false) String numero,
-            @RequestParam(required = false) String numeroDoc,
-            @RequestParam(required = false) String nombre,
-            @RequestParam(required = false) String monedaCodigo,
-            @RequestParam(required = false) BigDecimal total,
-            @RequestParam(required = false) BigDecimal pagado,
-            @RequestParam(required = false) BigDecimal saldo,
-            Pageable pageable) {
 
-        Page<ComprobanteVentaResponseDTO> comprobantes = comprobantesVentasServiceImpl
-                .findAllComprobantes(comprobanteTipo, serie, numero, numeroDoc, nombre, monedaCodigo, total, pagado, saldo, pageable)
-                .map(this::toResponseDTO);
-
-        return ResponseEntity.ok(new RestResponse<>(comprobantes));
+    @GetMapping("/find-detalle/{id}")
+    public ResponseEntity<List<ComprobantesVentasDetDTO>> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(comprobantesVentasServiceImpl.findDetalleById(id));
     }
 
-    private ComprobanteVentaResponseDTO toResponseDTO(ComprobantesVentasCabEntity entity) {
-        BigDecimal total = comprobantesVentasServiceImpl.calculateTotal(entity);
 
-        return ComprobanteVentaResponseDTO.builder()
-                .id(entity.getId())
-                .tipoComprobante(entity.getComprobantesTiposEntity().getCodigo())
-                .serie(entity.getSerie())
-                .numero(entity.getNumero())
-                .numeroDocumentoCliente(entity.getNumeroDocumentoCliente())
-                .nombreCliente(entity.getNombreCliente())
-                .codigoMoneda(entity.getCodigoMoneda())
-                .total(total)
-                .fechaEmision(entity.getFechaEmision())
-                .build();
-    }
 }

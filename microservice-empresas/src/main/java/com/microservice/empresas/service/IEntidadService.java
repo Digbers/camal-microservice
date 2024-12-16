@@ -29,7 +29,7 @@ public interface IEntidadService {
     List<EntidadResponse> findEntidadesByIds(List<Long> ids);
     List<EntidadResponse> autocompleteNroDocumento(String nroDocumento);
     List<EntidadResponse> autocompleteNombre(String nombre);
-    Page<EntidadResponseAsistencias> findWorkers(Long idEmpresa, LocalDate startDate, LocalDate endDate, Pageable pageable);
-    Page<TrabajadoresResponse> findAllWorkers(Long idEmpresa, Pageable pageable);
+    Page<EntidadResponseAsistencias> findWorkers(Long idEmpresa,String tipo, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<TrabajadoresResponse> findAllWorkers(Long idEmpresa, String tipo, Pageable pageable);
     void marcarAsistencia(AsistenciaRequest asistencia);
 }

@@ -216,7 +216,7 @@ public class MicroserviceAuthApplication {
 					.padre(caja)
 					.build();
 			MenusEntity cuentasPorComprar = MenusEntity.builder()
-					.menuUrl("caja/cuentasxcomprar/")
+					.menuUrl("caja/cuentasxcobrar/")
 					.menuName("Cuentas por Cobrar")
 					.icon("fa-cash-register")
 					.orden(2)
@@ -356,6 +356,5 @@ public class MicroserviceAuthApplication {
 
 		};
 	}
-
 
 }

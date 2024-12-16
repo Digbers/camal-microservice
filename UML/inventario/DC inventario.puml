@@ -1,16 +1,18 @@
 @startuml
 
-package "org-camal" {
+package "org-camal-inventory" {
 
-    interface MetodosProductos {
-        + ListarProductos()
-        + CrearProducto()
-        + actualizarProducto()
-        + EliminarProducto()
+    interface IInventoryService {
+        - listarProductos()
+        - crearProducto()
+        - actualizarProducto()
+        - eliminarProducto()
+        - actualizarStock()
+        - generarReporteInventario()
     }
 
-    class ProductosTipos {
-        - idProductotipo
+    class ProductoTipos {
+        - idProductoTipo
         - codigo
         - nombre
     }
@@ -18,30 +20,23 @@ package "org-camal" {
     class Unidades {
         - idUnidad
         - codigo
-        - nombre // Ejemplo: javas, tinas
+        - nombre
     }
 
     class Almacen {
         - idAlmacen
         - idEmpresa
-        - idAlmacenpadre
+        - idAlmacenPadre
         - nombre
-        - tipoCodigo
-        -- metodos --
+        - estado
     }
 
     class AlmacenTipos {
-        - idAlmacentipo
+        - idAlmacenTipo
         - codigo
         - descripcion
     }
 
-    class ProductosXAlmacen {
-        - idProductosXAlmacen
-        - idAlmacen
-        - idProducto
-        - cantidad // Cantidad de envases (javas)
-    }
 
     class Movimientos {
         - idMovimiento
@@ -51,18 +46,17 @@ package "org-camal" {
         - idEstado
         - idUsuario
         - idMonedaCodigo
-        - fechaemision
+        - fechaEmision
         - idAlmacen
-        - tipodocumentoreferencia
-        - seriedocumentoreferencia
-        - numerodocreferencia
-        - codigoMotivo //salida-ingreso
+        - tipoDocumentoReferencia
+        - serieDocumentoReferencia
+        - numeroDocReferencia
+        - codigoMotivo
         - observaciones
-        - idEntidad
-        - cantidadEnvases // cantidad de javas
+        - cantidadEnvases
         - fechaMovimiento
-        -- metodos --
     }
+
     class MovimientoMotivos {
         - idMotivo
         - nombre
@@ -73,43 +67,69 @@ package "org-camal" {
         - idDetalleMovimiento
         - idMovimiento
         - idProducto
-        - cantidadEnvases // cantidad de javas
-        - peso // peso total del producto en la transacción
-        - preciounitario
+        - cantidadEnvases
+        - peso
+        - precioUnitario
         - total
         - unidadesCodigo
     }
-    class Embases {
-        - codigo
-        - tipoembase
-        - nombre
-        - capacidad
-        - pesototal
-        -estado
-    }
+
     class Productos {
-            - idProducto
-            - codigo
-            - tipo
-            - nombre
-            - generarStock
-            - estado
-            - idUnidad
-            - CantidadXEnvase // cantidad por java (pollos por envase)
-            - precioSugerido
-            -- metodos --
-        }
+        - idProducto
+        - codigo
+        - idTipo
+        - nombre
+        - generarStock
+        - estado
+        - idUnidad
+        - precioSugerido
+    }
+    class StockAlmacen {
+        - idAlmacen
+        - idEnvase
+        - idProducto
+        - cantidad
+    }
 
-    Productos --> MetodosProductos : implementa
-    Productos "1" --* "1" Unidades : utiliza
-    Productos "1" --* "n" ProductosTipos : contiene
-    Almacen "1" --* "n" AlmacenTipos : composicion
-    Almacen "1" --* "n" ProductosXAlmacen : contiene
-    ProductosXAlmacen "n" --* "1" Productos : composicion
-    Movimientos "n*" --* "1" Almacen : contiene
-    Movimientos "1" --* "n" DetalleMovimiento : detalle
+    class ProductoEstados {
+        - idProductoEstado
+        - codigo
+        - descripcion
+    }
+    interface IMovimientosService {
+        - listarMovimientosPorIdEmpresa()
+        - actualizarMovimiento(movimiento)
+        - eliminarmovimiento(id)
+        - registrarMovimiento(movimiento)
+        - generarReporteInventario(idAlmacen)
+    }
+    class Envase {
+        - idEnvase
+        - idEmpresa
+        - tipoEnvase
+        - descripcion
+        - capacidad
+        - pesoReferencia
+        - estado
+    }
+
+    Productos --> IInventoryService : implementa
+    StockAlmacen "1" *-- "1" Productos : relacionado
+    StockAlmacen "1" *-- "1" Envase : relacionado
+    StockAlmacen "1" *-- "1" Almacen : relacionado
+    Productos "1" *-- "1" Unidades : utiliza
+    Productos "1" *-- "n" ProductoTipos : contiene
+    Productos "1" *-- "1" ProductoEstados : tiene estado
+
+    Almacen "1" *-- "1" AlmacenTipos : composicion
+    Almacen "n" --* "1" Productos : contiene
+
+    Movimientos --> IMovimientosService : implementa
+    Movimientos "1" *-- "n" DetalleMovimiento : detalle
     MovimientoMotivos "1" --* "n" Movimientos : motivos
-    DetalleMovimiento "n" *-- "1" Unidades : composicion
 
+    DetalleMovimiento "1" *-- "1" Unidades : composicion
+    DetalleMovimiento "1" *-- "1" Productos : relacionado
 }
+
 @enduml

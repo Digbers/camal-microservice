@@ -1,0 +1,77 @@
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka
+server:
+  port: 8080
+spring:
+  application:
+    name: msvc-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: auth
+          uri: http://localhost:9090
+          predicates:
+            - Path=/auth/**
+          filters:
+            - name: AuthFilter
+        - id: inventario
+          uri: http://localhost:9091
+          predicates:
+            - Path=/api/inventario/**
+          filters:
+            - name: AuthFilter
+        - id: free-pass-inventario
+          uri: http://localhost:9091
+          predicates:
+            - Path=/api/product-free-pass/**
+          filters:
+            - name: FreePassFilter
+
+        - id: ventas
+          uri: http://localhost:9092
+          predicates:
+            - Path=/api/ventas/**
+          filters:
+            - name: AuthFilter
+        - id: compras
+          uri: http://localhost:9092
+          predicates:
+            - Path=/api/compras/**
+          filters:
+            - name: AuthFilter
+        - id: free-pass
+          uri: http://localhost:9092
+          predicates:
+            - Path=/api/free-pass/**
+          filters:
+            - name: FreePassFilter
+
+        - id: empresas
+          uri: http://localhost:9093
+          predicates:
+            - Path=/api/empresas/**
+          filters:
+            - name: AuthFilter
+        - id: empresas-free-pass
+          uri: http://localhost:9093
+          predicates:
+            - Path=/logos/**
+          filters:
+            - name: FreePassFilter
+        - id: finanzas
+          uri: http://localhost:9095
+          predicates:
+            - Path=/api/finanzas/**
+          filters:
+            - name: AuthFilter
+
+jwt-key:
+  password: 77bffaa03dd4271127062c7d10c55ca1b4bb8735ebb4aecaf4a8f877f87bdb29
+  username: AUTHUSERJWT-BACKEND

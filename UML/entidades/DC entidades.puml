@@ -41,15 +41,7 @@ package "org-camal" {
         -apellidoPaterno
         -apellidoMaterno
         -sexo
-        --metodos--
-    }
-    class Zonas{
-        -idZona
-        -nombre
-        -ubicodigo
-        -departamento
-        -provincia
-        -distrito
+        -sueldo
         --metodos--
     }
     class EntidadesTipos {
@@ -64,31 +56,30 @@ package "org-camal" {
         -codigoEntidadesTipos
         --metodos--
     }
-    interface MetodosGenerales {
-        + editar()
-        + guardar()
-        + eliminar()
-        + listar()
-        + BuscarXId()
-    }
-    interface EmpresaMetodos {
 
+    interface EmpresaMetodos {
+        - BuscarXId()
+        - guardar(Empresa)
+        - listar()
     }
     interface EntidadesMetodos {
-            + BuscarXNombre()
+            - BuscarXNombre()
+            - BuscarXId()
+            - buscarPorDocummento()
+            - guardar(Entidad)
+            - listar()
     }
 
-    Empresas "1" --* "n*" Zonas : composicion
+
     Empresas "1" --* "n*" Entidades : composicion
     Empresas "1" --* "n*" EntidadesTipos : composicion
     Empresas "1" --* "n*" Documentos : composicion
     Entidades "1" --* "n*" EntidadesXEntidadesTipos : compocision
     EntidadesXEntidadesTipos "n*" *-- "1" EntidadesTipos
     Documentos "1" --* "n*" Entidades: composicion
-    Entidades "n*" *-- "1" Zonas : compocision
+
     Entidades --> EntidadesMetodos: implementa
 
-    Empresas --> MetodosGenerales: implementa
     Empresas --> EmpresaMetodos: implementa
 
 

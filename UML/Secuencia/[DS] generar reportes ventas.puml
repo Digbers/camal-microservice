@@ -1,0 +1,36 @@
+@startuml
+
+autonumber "<B>000"
+
+actor "usuario" as user
+participant "VentaService" as ventas
+participant "ReportService" as reportes
+participant "repository" as bd
+
+activate user
+
+user -> ventas: ConsultarVentas()
+activate ventas
+
+alt Ventas encontradas
+    ventas -> user: VentasRecuperadas()
+    user -> reportes: GenerarReporteVentas()
+    activate reportes
+
+    reportes -> bd: ObtenerDatosVentas()
+    alt Datos disponibles
+        bd -> reportes: DatosVentasRecuperados()
+        reportes -> user: ReporteVentasGenerado()
+    else
+        bd --> reportes: ErrorDatos()
+        reportes -> user: ErrorGenerarReporte()
+    end
+    deactivate reportes
+else
+    ventas --> user: NoHayVentas()
+end
+
+deactivate ventas
+deactivate user
+
+@enduml

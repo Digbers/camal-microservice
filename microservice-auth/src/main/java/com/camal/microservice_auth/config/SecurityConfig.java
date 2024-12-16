@@ -82,13 +82,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-    /*
-    public static void main(String[] args) {
-        System.out.println(new BCryptPasswordEncoder().encode("admin"));
-        System.out.println(new BCryptPasswordEncoder().encode("user"));
-        System.out.println(new BCryptPasswordEncoder().encode("developer"));
-        System.out.println(new BCryptPasswordEncoder().encode("tester"));
-        System.out.println(new BCryptPasswordEncoder().encode("invited"));
-    }*/
 }

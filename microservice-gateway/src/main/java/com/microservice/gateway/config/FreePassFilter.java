@@ -24,7 +24,7 @@ public class FreePassFilter extends AbstractGatewayFilterFactory<FreePassFilter.
                 log.info("Request path: " + requestPath);
                 return chain.filter(exchange);
             }catch (Exception e){
-                e.printStackTrace();
+                //e.printStackTrace();
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }

@@ -27,4 +27,8 @@ public interface ProductosRepository extends JpaRepository<ProductosEntity, Long
             "OR LOWER(a.nombre) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<ProductosEntity> searchByFields(@Param("searchTerm") String searchTerm);
 
+    @Query("SELECT p FROM ProductosEntity p LEFT JOIN FETCH p.stockAlmacenList WHERE p.idProducto = :id")
+    Optional<ProductosEntity> findByIdWithStockAlmacen(@Param("id") Long id);
+
+
 }

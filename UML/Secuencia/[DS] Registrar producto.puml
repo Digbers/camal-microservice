@@ -2,7 +2,7 @@
 
 autonumber "<B>000"
 actor "usuario" as user
-boundary "app" as inventario
+participant "StockService" as inventario
 participant "repository" as bd
 
 activate user

@@ -33,8 +33,10 @@ public class CreateEntidadRequest {
     private String sexo;
     private Boolean estado;
     private String condicion;
+    private Double sueldo;
     private String usuarioCreacion;
     private String usuarioActualizacion;
     @Valid
+    @NotNull(message = "El campo entidadesTipos es obligatorio")
     private List<String> entidadesTipos;
 }

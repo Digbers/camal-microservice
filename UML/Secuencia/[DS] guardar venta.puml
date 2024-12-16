@@ -1,0 +1,69 @@
+@startuml
+
+autonumber "<B>000"
+
+actor "usuario" as user
+participant "StockService" as inventario
+participant "VentaService" as ventas
+participant "EntidadesService" as entidades
+participant "FinanceService" as finanzas
+participant "repository" as bd
+
+activate user
+activate inventario
+
+user -> inventario: BuscarProducto()
+alt Producto encontrado
+    inventario -> user: ProductoDisponible()
+    user -> inventario: SeleccionarProducto()
+else
+    inventario --> user: ProductoNoDisponible()
+    deactivate inventario
+    deactivate user
+    return
+end
+
+user -> entidades: BuscarCliente()
+entidades -> user: ClienteEncontrado()
+user -> ventas: RegistrarVenta()
+activate ventas
+
+ventas -> bd: GuardarVenta()
+alt Guardado con éxito
+    bd -> ventas: VentaGuardada()
+    ventas -> inventario: ActualizarStock()
+    ventas --> inventario: RegistrarMovimiento()
+    activate inventario
+
+    alt Stock actualizado
+        inventario -> ventas: StockActualizado()
+        ventas -> finanzas: RegistrarIngresoYCobro()
+        activate finanzas
+
+        alt Registro exitoso
+            finanzas -> ventas: IngresoRegistrado()
+            ventas -> user: VentaFinalizada()
+        else
+            finanzas --> ventas: ErrorFinanzas()
+            ventas -> inventario: RevertirStock()
+            ventas --> inventario: RegistrarMovimiento()
+            inventario -> ventas: StockRevertido()
+            ventas -> user: ErrorAlFinalizarVenta()
+        end
+        deactivate finanzas
+    else
+        inventario --> ventas: ErrorStock()
+        ventas -> bd: AnularVenta()
+        bd -> ventas: VentaAnulada()
+        ventas -> user: ErrorVenta()
+    end
+    deactivate inventario
+else
+    bd --> ventas: ErrorAlGuardar()
+    ventas -> user: ErrorVenta()
+end
+
+deactivate ventas
+deactivate user
+
+@enduml

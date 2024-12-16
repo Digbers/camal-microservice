@@ -13,8 +13,8 @@ note "Gestionar todas las ventas, detalle de productos." as N1
     rv .. clientes :[1.1] extend
     reportV .. hventas : [1.1] include
 }
-cli --> clientes : [102] consultar
+cli --> clientes : [102] registrar
 cli --> rv : [101] registrar
-cli --> hventas : [102] consultar
-adm --> reportV : [103] generar reporte
+cli --> hventas : [103] consultar
+adm --> reportV : [103] imprimir reporte
 @enduml

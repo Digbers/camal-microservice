@@ -7,11 +7,15 @@ note "Se podra actualizar la informacion de los proveedores, como eliminarlos." 
     usecase "Registrar nueva Entidad" as en
     usecase "Consultar entidades" as recom
     usecase "Gestionas entidades" as ges
-
+    usecase "gestionar trabajadores" as trabajadores
+    usecase "Registrar asistentes" as asistentes
     ges ..N2
 }
-cli --> en :[101]
-cli --> recom :[102]
-adm --> ges :[103]
+cli --> en :[101] registrar
+cli --> recom :[102] consultar
+adm --> ges :[103] gestionar
+cli --> trabajadores :[104] gestionar
+cli --> asistentes :[105] registrar
+
 
 @enduml

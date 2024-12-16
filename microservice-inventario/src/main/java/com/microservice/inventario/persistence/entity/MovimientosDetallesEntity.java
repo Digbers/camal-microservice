@@ -1,6 +1,7 @@
 package com.microservice.inventario.persistence.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -36,6 +37,8 @@ public class MovimientosDetallesEntity {
     private BigDecimal total;
     @Column(name = "cantidad", nullable = false) // Cantidad de productos en este detalle (ambos)
     private Integer cantidad;
+    @DecimalMin(value ="0.0", message = "El tara debe ser mayor o igual a 0 0")
+    private BigDecimal tara; // la tara es la cantidad x la tara del envasem,se calcula en el fronted
     @Column(name = "usercodigo_creacion")
     private String usuarioCreacion;
     @CreationTimestamp

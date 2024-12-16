@@ -1,0 +1,69 @@
+@startuml
+
+autonumber "<B>000"
+
+actor "usuario" as user
+participant "StockService" as inventario
+participant "CompraService" as compras
+participant "EntidadesService" as entidades
+participant "FinanceService" as finanzas
+participant "repository" as bd
+
+activate user
+activate inventario
+
+user -> inventario: BuscarProducto()
+alt Producto encontrado
+    inventario -> user: ProductoDisponible()
+    user -> inventario: SeleccionarProducto()
+else
+    inventario --> user: ProductoNoDisponible()
+    deactivate inventario
+    deactivate user
+    return
+end
+
+user -> entidades: BuscarProveedor()
+entidades -> user: ProveedorEncontrado()
+user -> compras: RegistrarCompra()
+activate compras
+
+compras -> bd: GuardarCompra()
+alt Guardado con éxito
+    bd -> compras: CompraGuardada()
+    compras -> inventario: ActualizarStock()
+    compras --> inventario: RegistrarMovimiento()
+    activate inventario
+
+    alt Stock actualizado
+        inventario -> compras: StockActualizado()
+        compras -> finanzas: RegistrarGastoYPago()
+        activate finanzas
+
+        alt Registro exitoso
+            finanzas -> compras: GastoRegistrado()
+            compras -> user: CompraFinalizada()
+        else
+            finanzas --> compras: ErrorFinanzas()
+            compras -> inventario: RevertirStock()
+            compras --> inventario: RegistrarMovimiento()
+            inventario -> compras: StockRevertido()
+            compras -> user: ErrorAlFinalizarCompra()
+        end
+        deactivate finanzas
+    else
+        inventario --> compras: ErrorStock()
+        compras -> bd: AnularCompra()
+        bd -> compras: CompraAnulada()
+        compras -> user: ErrorCompra()
+    end
+    deactivate inventario
+else
+    bd --> compras: ErrorAlGuardar()
+    compras -> user: ErrorCompra()
+end
+
+deactivate compras
+deactivate user
+
+@enduml

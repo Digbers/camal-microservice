@@ -50,6 +50,8 @@ public class AlmacenService implements IAlmacenService {
     @Override
     public AlmacenDTO save(AlmacenDTO almacenDTO) {
         AlmacenEntity almacenEntity = modelMapper.map(almacenDTO, AlmacenEntity.class);
+        AlmacenTipoEntity almacenTipo = iAlmacenTipoRepository.findByIdEmpresaAndCodigo(almacenDTO.getIdEmpresa(),almacenDTO.getTipoAlmacen()).orElseThrow(() -> new IllegalArgumentException("Almacen tipo no encontrado con id: " + almacenDTO.getTipoAlmacen()));
+        almacenEntity.setTipoAlmacen(almacenTipo);
         AlmacenEntity savedAlmacenEntity = iAlmacenRepository.save(almacenEntity);
         return modelMapper.map(savedAlmacenEntity, AlmacenDTO.class);
     }

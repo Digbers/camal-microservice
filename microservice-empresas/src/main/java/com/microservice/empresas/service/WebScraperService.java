@@ -1,7 +1,6 @@
 package com.microservice.empresas.service;
 import com.microservice.empresas.controller.dto.PadronSunatDTO;
 import com.microservice.empresas.persistence.repository.IDocumentosTiposRepository;
-import com.microservice.empresas.service.impl.DocumentosTiposServiceImpl;
 import jakarta.annotation.PreDestroy;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -61,26 +60,15 @@ public class WebScraperService {
             searchButton.click();
 
             WebElement listGroup = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("list-group")));
+            System.out.println("listGroup: " + listGroup);
             if (!tipoDoc.equals("RUC")) {
-                //WebElement buttonDocumetno = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("btnPorDocumento")));
-                //WebElement selectDocumento = wait.until(ExpectedConditions.elementToBeClickable(By.id("cmbTipoDoc")));
 
-                // Crear un objeto de tipo Select
-                //Select dropdown = new Select(selectDocumento);
-                //String codigoSunat = documentosTiposRepository.findDistinctCodigoSunatByDocCodigo(tipoDoc).get(0);
-                // Opciones para seleccionar el valor
-                //dropdown.selectByVisibleText("DNI");         // Seleccionar por el texto visible de la opción
-                //dropdown.selectByValue(codigoSunat);            // Seleccionar por el atributo `value` de la opción
-
-                //WebElement searchInput3 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("txtNumeroDocumento")));
-                //searchInput3.sendKeys(inputValue);
-
-                //WebElement searchButton3 = wait.until(ExpectedConditions.elementToBeClickable(By.id("btnAceptar")));
-                //searchButton3.click();
             }
 
             Map<String, String> dataMap = new HashMap<>();
             List<WebElement> listItems = listGroup.findElements(By.className("list-group-item"));
+            System.out.println("listItems: " + listItems);
+            listItems.forEach(System.out::println);
 
 
             // Lista de nombres que se deben buscar (ignorando mayúsculas y minúsculas)
@@ -169,5 +157,21 @@ public class WebScraperService {
             driver.quit();
         }
     }
+
+    //WebElement buttonDocumetno = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("btnPorDocumento")));
+    //WebElement selectDocumento = wait.until(ExpectedConditions.elementToBeClickable(By.id("cmbTipoDoc")));
+
+    // Crear un objeto de tipo Select
+    //Select dropdown = new Select(selectDocumento);
+    //String codigoSunat = documentosTiposRepository.findDistinctCodigoSunatByDocCodigo(tipoDoc).get(0);
+    // Opciones para seleccionar el valor
+    //dropdown.selectByVisibleText("DNI");         // Seleccionar por el texto visible de la opción
+    //dropdown.selectByValue(codigoSunat);            // Seleccionar por el atributo `value` de la opción
+
+    //WebElement searchInput3 = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("txtNumeroDocumento")));
+    //searchInput3.sendKeys(inputValue);
+
+    //WebElement searchButton3 = wait.until(ExpectedConditions.elementToBeClickable(By.id("btnAceptar")));
+    //searchButton3.click();
 }
 

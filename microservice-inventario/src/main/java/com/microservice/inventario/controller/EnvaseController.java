@@ -18,7 +18,7 @@ import java.util.List;
 public class EnvaseController {
 
     private final EnvaseService envaseService;
-    @GetMapping("/save")
+    @PostMapping("/save")
     public ResponseEntity<EnvaseDTO> save(@RequestBody EnvaseDTO envaseRequest){
         return ResponseEntity.ok(envaseService.save(envaseRequest));
     }
@@ -40,7 +40,7 @@ public class EnvaseController {
             @RequestParam(required = false) String descripcion,
             @RequestParam(required = false) Integer capacidad,
             @RequestParam(required = false) Double pesoReferencia,
-            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) Boolean estado,
             @RequestParam(required = false) String sort // Parámetro sort opcional
     ){
         Pageable pageable;

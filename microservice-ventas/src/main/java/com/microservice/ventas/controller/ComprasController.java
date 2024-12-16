@@ -4,6 +4,7 @@ import com.microservice.ventas.controller.DTO.compras.CompraRequest;
 import com.microservice.ventas.controller.DTO.compras.ComprobantesComprasCaDTO;
 import com.microservice.ventas.controller.DTO.compras.ComprobantesComprasTiposDTO;
 import com.microservice.ventas.service.compras.ComprasServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class ComprasController {
         return ResponseEntity.ok(comprasService.getComprobantesTiposCompras(idEmpresa));
     }
     @PostMapping("/guardar-compra")
-    public CompletableFuture<ResponseEntity<Long>> guardarCompra(@RequestBody CompraRequest compraRequest){
+    public CompletableFuture<ResponseEntity<Long>> guardarCompra(@RequestBody @Valid CompraRequest compraRequest){
         return comprasService.save(compraRequest)
                 .thenApply(compraId -> ResponseEntity.ok(compraId))
                 .exceptionally(e -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null));

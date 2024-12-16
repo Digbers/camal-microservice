@@ -17,13 +17,13 @@ public class EmpresaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "razon_social", unique = true, nullable = false, length = 100)
+    @Column(name = "razon_social", unique = true, nullable = false, length = 200)
     private String razonSocial;
-    @Column(name = "empresa_codigo", unique = true, nullable = false, length = 15)
+    @Column(name = "empresa_codigo", unique = true, nullable = false, length = 11)
     private String empresaCodigo;
     @Column(name = "ruc", unique = true, nullable = false, length = 11)
     private String ruc;
-    @Column(name = "direccion", nullable = false, length = 255)
+    @Column(name = "direccion", nullable = false)
     private String direccion;
     @Column(length = 40)
     private String departamento;

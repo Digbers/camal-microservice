@@ -17,6 +17,7 @@ public class ModelMapperConfig {
             mapper.map(src -> src.getIdAlmacen().getId(), MovimientosCabeceraDTO::setIdAlmacen);
             mapper.map(src -> src.getEstadoCodigo().getCodigo(), MovimientosCabeceraDTO::setEstadoCodigo);
         });
+
         // Mapeo personalizado para PuntoVentaEntity a PuntoVentaDTO
         modelMapper.typeMap(PuntoVentaEntity.class, PuntoVentaDTO.class).addMappings(mapper -> {
             mapper.map(PuntoVentaEntity::getAlmacen, PuntoVentaDTO::setAlmacen);
@@ -37,6 +38,20 @@ public class ModelMapperConfig {
         });
         // Desactivar la coincidencia implícita para evitar ambigüedades.
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.typeMap(MovimientosDetallesEntity.class, MovimientosDetalleDTO.class).addMappings(mapper -> {
+            mapper.map(src -> src.getIdProducto().getIdProducto(), MovimientosDetalleDTO::setIdProducto);
+            mapper.map(src -> src.getEnvase().getIdEnvase(), MovimientosDetalleDTO::setEnvase);
+            mapper.map(src -> src.getIdMovimiento().getId(), MovimientosDetalleDTO::setIdMovimiento);
+            mapper.map(MovimientosDetallesEntity::getId, MovimientosDetalleDTO::setId);
+            mapper.map(MovimientosDetallesEntity::getIdEmpresa, MovimientosDetalleDTO::setIdEmpresa);
+            mapper.map(MovimientosDetallesEntity::getCantidad, MovimientosDetalleDTO::setCantidad);
+            mapper.map(MovimientosDetallesEntity::getPeso, MovimientosDetalleDTO::setPeso);
+            mapper.map(MovimientosDetallesEntity::getTotal, MovimientosDetalleDTO::setTotal);
+            mapper.map(MovimientosDetallesEntity::getTara, MovimientosDetalleDTO::setTara);
+            mapper.map(MovimientosDetallesEntity::getUsuarioCreacion, MovimientosDetalleDTO::setUsuarioCreacion);
+            mapper.map(MovimientosDetallesEntity::getFechaCreacion, MovimientosDetalleDTO::setFechaCreacion);
+            mapper.map(MovimientosDetallesEntity::getUsuarioActualizacion, MovimientosDetalleDTO::setUsuarioActualizacion);
+        });
         // Configurar mapeos explícitos entre StockAlmacen y StockAlmacenDTO
         modelMapper.typeMap(StockAlmacen.class, StockAlmacenDTO.class).addMappings(mapper -> {
             // Mapear idProducto explícitamente

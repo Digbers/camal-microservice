@@ -1,0 +1,36 @@
+@startuml
+
+autonumber "<B>000"
+
+actor "usuario" as user
+participant "CompraService" as compras
+participant "ReportService" as reportes
+participant "repository" as bd
+
+activate user
+
+user -> compras: ConsultarCompras()
+activate compras
+
+alt Compras encontradas
+    compras -> user: ComprasRecuperadas()
+    user -> reportes: GenerarReporteCompras()
+    activate reportes
+
+    reportes -> bd: ObtenerDatosCompras()
+    alt Datos disponibles
+        bd -> reportes: DatosComprasRecuperados()
+        reportes -> user: ReporteComprasGenerado()
+    else
+        bd --> reportes: ErrorDatos()
+        reportes -> user: ErrorGenerarReporte()
+    end
+    deactivate reportes
+else
+    compras --> user: NoHayCompras()
+end
+
+deactivate compras
+deactivate user
+
+@enduml

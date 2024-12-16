@@ -38,6 +38,8 @@ public class ComprobantesComprasDetalleDTO {
     @DecimalMin(value ="0.0", message = "El descuento debe ser mayor o igual a 0 0")
     private BigDecimal descuento;
     @NotNull(message = "El ID del usuario creador es nulo")
+    @DecimalMin(value ="0.0", message = "El tara debe ser mayor o igual a 0 0")
+    private BigDecimal tara; // la tara es la cantidad x la tara del envasem,se calcula en el fronted
     private String usuarioCreacion;
     private String usuarioActualizacion;
 

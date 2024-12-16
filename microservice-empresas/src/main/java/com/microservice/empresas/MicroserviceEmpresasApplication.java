@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -31,13 +30,14 @@ public class MicroserviceEmpresasApplication {
 	CommandLineRunner init(IDocumentosTiposRepository documentosTiposRepository, IEntidadesTiposRepository entidadesTiposRepository, IEmpresaRepository empresaRepository, IEntidadRepository entidadRepository) {
 		return args -> {
 			EmpresaEntity empresa = EmpresaEntity.builder()
-					.empresaCodigo("AVI DON JOSE")
+					.empresaCodigo("AV DON JOSE")
 					.departamento("Arequipa")
 					.celular("1221221")
 					.distrito("Cerro Colorado")
 					.direccion("calle 33")
 					.provincia("Arequipa")
 					.razonSocial("AVICOLA DON JOSE S.A.C")
+					.estado(true)
 					.ruc("10101010101")
 					.correo("avicolaDonJose@gmail.com")
 					.web("https://www.avicoladonjose.com.pe")
@@ -97,6 +97,7 @@ public class MicroserviceEmpresasApplication {
 					.email("alex@gmail.com")
 					.celular("123456789")
 					.direccion("calle 1")
+					.estado(true)
 					.sexo("M")
 					.condicion("Activo")
 					.entidadesTiposList(List.of(trabajador))

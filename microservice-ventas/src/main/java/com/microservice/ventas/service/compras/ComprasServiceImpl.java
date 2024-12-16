@@ -1,6 +1,5 @@
 package com.microservice.ventas.service.compras;
 
-import com.microservice.ventas.client.EmpresaClient;
 import com.microservice.ventas.controller.DTO.ComprobanteDetalleRequest;
 import com.microservice.ventas.controller.DTO.compras.CompraRequest;
 import com.microservice.ventas.controller.DTO.compras.ComprobantesComprasCaDTO;
@@ -8,7 +7,6 @@ import com.microservice.ventas.controller.DTO.compras.ComprobantesComprasTiposDT
 import com.microservice.ventas.entity.*;
 import com.microservice.ventas.event.CompensacionCompraEvent;
 import com.microservice.ventas.event.CompraCreadaEvent;
-import com.microservice.ventas.event.CompraFailedEvent;
 import com.microservice.ventas.event.ComprobantesComprasPagosEventDTO;
 import com.microservice.ventas.exception.ComprobanteCompraException;
 import com.microservice.ventas.repository.IComprobanteCompraCaRepository;

@@ -1,0 +1,24 @@
+@startuml
+
+package "Ventas" {
+    [Componente Ventas UI] --> [Componente Ventas Service]
+    [Componente Ventas Service] --> [Componente Comprobante Service]
+    [Componente Ventas Service] --> [Componente Cuotas Service]
+    [Componente Comprobante Service] --> [Componente Base de Datos]
+    [Componente Cuotas Service] --> [Componente Base de Datos]
+    [Componente Base de Datos] --> [Componente Base de Datos de Cuotas]
+    [Componente Base de Datos] --> [Componente Base de Datos de Ventas]
+
+    [Componente Ventas UI] : Interfaz de usuario para gestionar ventas
+    [Componente Ventas Service] : Lógica de negocio para gestionar ventas
+    [Componente Comprobante Service] : Gestión de comprobantes de venta
+    [Componente Cuotas Service] : Gestión de cuotas de pago de ventas
+    [Componente Base de Datos] : Base de datos que contiene ventas y comprobantes
+    [Componente Base de Datos de Cuotas] : Base de datos para registrar cuotas
+    [Componente Base de Datos de Ventas] : Base de datos para registrar ventas
+
+    [Componente Notificaciones] --> [Componente Ventas UI]
+    [Componente Pagos] --> [Componente Cuotas Service]
+}
+
+@enduml

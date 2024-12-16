@@ -17,7 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 public class CompraRequest {
     @NotNull(message = "La cabecera del documento es obligatoria")
-    private ComprobantesComprasCaDTO comprobantesComprasCa;
+    @Valid
+    private ComprobantesComprasCaDTO comprobantesComprasCa;//agregue el valid
     @NotNull(message = "El codigo de estado es obligatorio")
     private String codigoEstado;
     @NotNull(message = "El id de la almacen es obligatorio")

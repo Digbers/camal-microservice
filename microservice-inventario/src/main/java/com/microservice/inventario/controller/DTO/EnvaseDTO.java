@@ -19,7 +19,7 @@ public class EnvaseDTO {
     private String descripcion;
     private Integer capacidad; // Cantidad de pollos por envase
     private BigDecimal pesoReferencia;
-    private String estado; // Ej: "Vacío", "Lleno", "En Uso"
+    private Boolean estado; // Ej: "Vacío", "Lleno", "En Uso"
     private List<StockAlmacenDTO> stockAlmacenList;
     private String usuarioCreacion;
     private String usuarioActualizacion;

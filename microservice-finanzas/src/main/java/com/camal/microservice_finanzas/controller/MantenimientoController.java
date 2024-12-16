@@ -39,6 +39,11 @@ public class MantenimientoController {
     public ResponseEntity<MonedasDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(monedasServiseImpl.findById(id));
     }
+    //buscar moneda por emppresa y codigo
+    @GetMapping("monedas/{idEmpresa}/{codigo}")
+    public ResponseEntity<MonedasDTO> findByIdEmpresa(@PathVariable Long idEmpresa,@PathVariable String codigo) {
+        return ResponseEntity.ok(monedasServiseImpl.findByEmpresaAndCodigo(idEmpresa,codigo));
+    }
     @GetMapping("/monedas/find-by-empresa/{idEmpresa}")
     public ResponseEntity<List<MonedasDTO>> findByIdEmpresa(@PathVariable Long idEmpresa) {
         return ResponseEntity.ok(monedasServiseImpl.findByIdEmpresa(idEmpresa));

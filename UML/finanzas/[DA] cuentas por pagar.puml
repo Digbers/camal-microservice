@@ -1,0 +1,29 @@
+@startuml
+|Usuario|
+start
+:Iniciar sesión en la aplicación;
+:Seleccionar opción "Generar reporte de cuentas por pagar";
+
+|Sistema|
+:Solicitar rango de fechas y filtros adicionales;
+
+|Usuario|
+:Ingresar rango de fechas y filtros;
+
+|Sistema|
+:Consultar cuentas por pagar en la base de datos;
+
+if (¿Cuentas encontradas?) then (Sí)
+    :Recuperar datos de cuentas por pagar;
+    :Procesar datos para el reporte;
+    :Generar archivo de reporte (PDF, Excel, etc.);
+    :Notificar éxito al usuario;
+else (No)
+    :Mostrar mensaje "No se encontraron cuentas por pagar";
+endif
+
+|Usuario|
+:Descargar o visualizar reporte (si aplica);
+:Finalizar operación;
+stop
+@enduml

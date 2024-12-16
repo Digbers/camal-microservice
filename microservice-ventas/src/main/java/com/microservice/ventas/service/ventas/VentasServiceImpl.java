@@ -51,16 +51,13 @@ public class VentasServiceImpl implements IVentasService {
     private final VentaEventHandler ventaEventHandler;
 
     @Override
+    @Transactional
     public CompletableFuture<Long> save(VentaRequest ventaRequest) {
         log.info("Guardando venta");
         // 1. Validar y preparar la venta
         ComprobantesVentasCabDTO comprobantesVentasCabDTO = validateAndPrepareVenta(ventaRequest);
         // 2. Guardar la venta en estado PENDIENTE
         ComprobantesVentasCabEntity savedEntity = saveInitialVenta(ventaRequest, comprobantesVentasCabDTO);
-        // 3. Si es venta a crédito, guardar cuotas
-        if ("CRE".equals(ventaRequest.getCodigoEstado())) {
-            saveCuotasVenta(ventaRequest, savedEntity);
-        }
         // 4. Iniciar la saga de forma asíncrona y devolver el ID de la venta cuando esté listo
         return initiateSagaAndWaitCompletionAsync(ventaRequest, comprobantesVentasCabDTO, savedEntity)
                 .thenApply(ventaId -> {
@@ -82,6 +79,7 @@ public class VentasServiceImpl implements IVentasService {
     }
     private ComprobantesVentasCabEntity saveInitialVenta(VentaRequest ventaRequest,
                                                          ComprobantesVentasCabDTO comprobantesVentasCabDTO) {
+        List<ComprobantesVentasCuotasEntity> cuotas = new ArrayList<>();
         ComprobantesVentasCabEntity comprobantesVentasCabEntity = modelMapper.map(
                 comprobantesVentasCabDTO, ComprobantesVentasCabEntity.class);
         ComprobantesTiposVentasEntity tipo = iComprobantesTiposVentasRepository.findByIdEmpresaAndCodigo(comprobantesVentasCabEntity.getIdEmpresa(), comprobantesVentasCabDTO.getComprobantesTipos().getCodigo()).orElseThrow(() -> new RuntimeException("Tipo de comprobante no encontrado"));
@@ -114,22 +112,23 @@ public class VentasServiceImpl implements IVentasService {
                 .collect(Collectors.toList());
 
         comprobantesVentasCabEntity.setComprobantesVentasDetEntity(detalles);
+        if ("CRE".equals(ventaRequest.getCodigoEstado())) {
+            ventaRequest.getComprobantesVentasCabDTO().getComprobantesVentasCuotas()
+                    .forEach(cuota -> {
+                        ComprobantesVentasCuotasEntity cuotaEntity = ComprobantesVentasCuotasEntity.builder()
+                                .idEmpresa(comprobantesVentasCabEntity.getIdEmpresa())
+                                .comprobanteCabeceraEntity(comprobantesVentasCabEntity)
+                                .nroCuota(cuota.getNroCuota())
+                                .fechaVencimiento(cuota.getFechaVencimiento())
+                                .importe(cuota.getImporte())
+                                .codigoMoneda(comprobantesVentasCabEntity.getCodigoMoneda())
+                                .usuarioCreacion(comprobantesVentasCabEntity.getUsuarioCreacion())
+                                .build();
+                        cuotas.add(cuotaEntity);
+                    });
+            comprobantesVentasCabEntity.setComprobantesVentasCuotas(cuotas);
+        }
         return iComprobantesVentasCabRepository.saveAndFlush(comprobantesVentasCabEntity);
-    }
-    private void saveCuotasVenta(VentaRequest ventaRequest, ComprobantesVentasCabEntity savedEntity) {
-        ventaRequest.getComprobantesVentasCabDTO().getComprobantesVentasCuotas()
-                .forEach(cuota -> {
-                    ComprobantesVentasCuotasEntity cuotaEntity = ComprobantesVentasCuotasEntity.builder()
-                            .idEmpresa(savedEntity.getIdEmpresa())
-                            .comprobanteCabeceraEntity(savedEntity)
-                            .nroCuota(cuota.getNroCuota())
-                            .fechaVencimiento(cuota.getFechaVencimiento())
-                            .importe(cuota.getImporte())
-                            .codigoMoneda(savedEntity.getCodigoMoneda())
-                            .usuarioCreacion(savedEntity.getUsuarioCreacion())
-                            .build();
-                    iComprobantesVentasCuotasRepository.save(cuotaEntity);
-                });
     }
 
     public CompletableFuture<Long> initiateSagaAndWaitCompletionAsync(

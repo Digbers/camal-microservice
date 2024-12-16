@@ -30,5 +30,4 @@ public class EntidadDTO {
     private String usuarioActualizacion;
     private Timestamp fechaActualizacion;
     private List<String> entidadesTiposList;
-    private List<AsistenciasDTO> asistencias;
 }

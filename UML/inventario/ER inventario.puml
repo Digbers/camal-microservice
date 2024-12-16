@@ -1,0 +1,116 @@
+@startuml
+!define primary_key(x) <b><color:#b8861b><&key></color> x</b>
+!define foreign_key(x) <color:#aaaaaa><&foreign></color> x
+
+entity "Productos" {
+    primary_key(idProducto) : INT
+    codigo : VARCHAR
+    idTipo : INT
+    nombre : VARCHAR
+    generarStock : BOOLEAN
+    estado : INT
+    idUnidad : INT
+    precioSugerido : DECIMAL
+}
+
+entity "ProductoTipos" {
+    primary_key(idProductoTipo) : INT
+    codigo : VARCHAR
+    nombre : VARCHAR
+}
+
+entity "ProductoEstados" {
+    primary_key(idProductoEstado) : INT
+    codigo : VARCHAR
+    descripcion : VARCHAR
+}
+
+entity "Unidades" {
+    primary_key(idUnidad) : INT
+    codigo : VARCHAR
+    nombre : VARCHAR
+}
+
+entity "Almacen" {
+    primary_key(idAlmacen) : INT
+    idEmpresa : INT
+    foreign_key(idAlmacenPadre) : INT
+    nombre : VARCHAR
+    estado : VARCHAR
+}
+
+entity "AlmacenTipos" {
+    primary_key(idAlmacenTipo) : INT
+    codigo : VARCHAR
+    descripcion : VARCHAR
+}
+
+entity "Movimientos" {
+    primary_key(idMovimiento) : INT
+    idEmpresa : INT
+    numero : VARCHAR
+    total : DECIMAL
+    idEstado : INT
+    idUsuario : INT
+    idMonedaCodigo : VARCHAR
+    fechaEmision : DATE
+    foreign_key(idAlmacen) : INT
+    tipoDocumentoReferencia : VARCHAR
+    serieDocumentoReferencia : VARCHAR
+    numeroDocReferencia : VARCHAR
+    codigoMotivo : VARCHAR
+    observaciones : TEXT
+    cantidadEnvases : DECIMAL
+    fechaMovimiento : DATE
+}
+
+entity "MovimientoMotivos" {
+    primary_key(idMotivo) : INT
+    nombre : VARCHAR
+    descripcion : VARCHAR
+}
+entity "Envases" {
+    primary_key(idEnvase) : INT
+    peso : DECIMAL
+    nombre : VARCHAR
+    descripcion : VARCHAR
+    capacidad : INT
+    estado : BOOLEAN
+}
+entity "StockAlmacen" {
+    primary_key(idStockAlmacen) : INT
+    idAlmacen : INT
+    idEnvase : INT
+    idProducto : INT
+    cantidad : DECIMAL
+}
+
+
+entity "DetalleMovimiento" {
+    primary_key(idDetalleMovimiento) : INT
+    foreign_key(idMovimiento) : INT
+    foreign_key(idProducto) : INT
+    cantidadEnvases : DECIMAL
+    peso : DECIMAL
+    precioUnitario : DECIMAL
+    total : DECIMAL
+    unidadesCodigo : VARCHAR
+}
+
+Productos }|--|| ProductoTipos : "tiene tipo"
+Productos }|--|| ProductoEstados : "tiene estado"
+Productos }|--|| Unidades : "tiene unidad"
+
+Almacen }|--|| AlmacenTipos : "tiene tipo"
+Almacen ||--o{ StockAlmacen : "tiene stock"
+Productos }|--|| StockAlmacen : "tiene stock"
+Envases }|--|| StockAlmacen : "tiene stock"
+
+Movimientos }|--|| Almacen : "en almacén"
+Movimientos }|--|| MovimientoMotivos : "tiene motivo"
+Movimientos ||--o{ DetalleMovimiento : "tiene detalles"
+
+DetalleMovimiento }|--|| Productos : "contiene producto"
+DetalleMovimiento }|--|| Unidades : "en unidad"
+
+@enduml

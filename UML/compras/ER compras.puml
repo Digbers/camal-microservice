@@ -57,7 +57,7 @@ ComprobanteCabecera "1" --o "0..*" ComprobanteDetalle : tiene
 ComprobantesEstados "1" --o "0..*" ComprobanteCabecera : define_estado
 ComprobantesTipos "1" --o "0..*" ComprobanteCabecera : clasifica
 
-note "cantidadEnvases representa\nla cantidad de javas" as N1
+note "cantidadEnvases representa\nla cantidad de envase" as N1
 N1 .. ComprobanteDetalle
 
 @enduml

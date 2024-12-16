@@ -25,7 +25,7 @@ public class ComprobantesVentasCobrosEntity {
     @Column(name = "id_comprobante_venta", nullable = false)
     private Long idComprobanteVenta;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "id_forma_cobro")
+    @JoinColumn(name = "id_forma_cobro", nullable = false)
     private FormasCobrosEntity formasCobrosEntity;
     @Column(precision = 10, scale = 2)
     private BigDecimal montoCobrado;
@@ -33,7 +33,7 @@ public class ComprobantesVentasCobrosEntity {
     private LocalDate fechaCobro;
     private String descripcion;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "moneda")
+    @JoinColumn(name = "moneda", nullable = false)
     private MonedasEntity monedasEntity;
     @Column(name = "usercodigo_creacion")
     private String usuarioCreacion;

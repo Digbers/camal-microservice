@@ -1,0 +1,65 @@
+@startuml
+
+package "org-camal" {
+    class ComprobantesVentasCobros {
+        - idomprovantesVentasCobros
+        - empId
+        - idComprovanteV
+        - idFormaCobro
+        - montoCobrado
+        - fechacancelacion
+        - descripcion
+        - idMoneda
+    }
+    class ComprobantesComprasPagos {
+        - idomprovantesComprasCobros
+        - empId
+        - idComprovanteC
+        - idFormaPago
+        - montoCobrado
+        - fechacancelacion
+        - descripcion
+        - idMoneda
+    }
+    class Monedas {
+        - idMonedas
+        - codigo
+        - nombre
+        - simbolo
+    }
+    class FormasCobro {
+        - idFormaCobro
+        - codigo
+        - descripcion
+    }
+    class FormasPagos {
+        - idFormaPago
+        - codigo
+        - descripcion
+    }
+    class ComprobatesFinanzas {
+        -comprobante
+        -formaPago
+        -formaCobro
+        -moneda
+    }
+    interface IFinanzasService {
+        - listarComprobantesVentasCobros()
+        - listarComprobantesComprasPagos()
+        - registrarComprobanteVenta(comprobanteVenta)
+        - registrarComprobanteCompra(comprobanteCompra)
+        - cancelarComprobante(idComprobante)
+        - anularComprobante(idComprobante)
+        - registrarFormaPago(formaPago)
+        - registrarFormaCobro(formaCobro)
+    }
+    ComprobatesFinanzas "1" *-- "1" ComprobantesVentasCobros : composicion
+    ComprobatesFinanzas "1" *-- "1" ComprobantesComprasPagos : composicion
+    ComprobatesFinanzas "1" *-- "1" FormasPagos : composicion
+    ComprobatesFinanzas "1" *-- "1" FormasCobro : composicion
+    ComprobatesFinanzas --> IFinanzasService : implementa
+    ComprobantesComprasPagos "1" *-- "1" Monedas : composicion
+    ComprobantesComprasPagos "1" *-- "1" FormasPagos : composicion
+    ComprobantesVentasCobros "1" *-- "1" FormasCobro : composicion
+}
+@enduml

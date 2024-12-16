@@ -16,6 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -114,6 +117,17 @@ public class EntidadesTiposServiceImpl implements IEntidadesTiposService {
         } catch (Exception e) {
             log.error("Error al actualizar EntidadesTipos", e);
             throw new RuntimeException("Error al actualizar EntidadesTipos");
+        }
+    }
+
+    @Override
+    public List<EntidadesTiposDTO> findByEmpresa(Long idEmpresa) {
+        try {
+            List<EntidadesTiposEntity> entidadesTipos = entidadesTiposRepository.findByEmpresa(idEmpresa);
+            return entidadesTipos.stream().map(entidadesTiposEntity -> modelMapper.map(entidadesTiposEntity, EntidadesTiposDTO.class)).collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error al obtener EntidadesTipos", e);
+            throw new RuntimeException("Error al obtener EntidadesTipos");
         }
     }
 }

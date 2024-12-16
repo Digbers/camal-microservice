@@ -78,6 +78,7 @@ public class EntidadServiceImpl implements IEntidadService {
             entidad.setSexo(entidadNew.getSexo());
             entidad.setEstado(entidadNew.getEstado());
             entidad.setCondicion(entidadNew.getCondicion());
+            entidad.setSueldo(entidadNew.getSueldo());
             entidad.setUsuarioCreacion(entidadNew.getUsuarioCreacion());
             entidad.setUsuarioActualizacion(entidadNew.getUsuarioActualizacion());
 
@@ -120,8 +121,14 @@ public class EntidadServiceImpl implements IEntidadService {
                 entidad.setApellidoPaterno(entidadNew.getApellidoPaterno());
                 entidad.setApellidoMaterno(entidadNew.getApellidoMaterno());
 
-            }else{
+            }else if(entidadNew.getDocumentoTipo().equals("RUC")){
                 entidad.setNombre(entidadNew.getNombre());
+                entidad.setApellidoPaterno("");
+                entidad.setApellidoMaterno("");
+            } else {
+                entidad.setNombre(entidadNew.getNombre());
+                entidad.setApellidoPaterno(entidadNew.getApellidoPaterno());
+                entidad.setApellidoMaterno(entidadNew.getApellidoMaterno());
             }
             EmpresaEntity empresa = empresaRepository.findById(entidadNew.getIdEmpresa()).orElseThrow(() -> new EntityNotFoundException("No se encontro la empresa con id " + entidadNew.getIdEmpresa()));
             entidad.setEmpresa(empresa);
@@ -132,23 +139,31 @@ public class EntidadServiceImpl implements IEntidadService {
             entidad.setEmail(entidadNew.getEmail());
             entidad.setCelular(entidadNew.getCelular());
             entidad.setDireccion(entidadNew.getDireccion());
-            entidad.setSexo(entidadNew.getSexo());
+            if (entidadNew.getSexo() != null) {
+                entidad.setSexo(entidadNew.getSexo());
+            }
             entidad.setEstado(entidadNew.getEstado());
-            entidad.setCondicion(entidadNew.getCondicion());
+            if (entidadNew.getCondicion() != null) {
+                entidad.setCondicion(entidadNew.getCondicion());//
+            }
+            if (entidadNew.getSueldo() != null) {
+                entidad.setSueldo(entidadNew.getSueldo());
+            }
             entidad.setUsuarioCreacion(entidadNew.getUsuarioCreacion());
             entidad.setUsuarioActualizacion(entidadNew.getUsuarioActualizacion());
+            if (entidadNew.getEntidadesTipos() != null) {
+                List<EntidadesTiposEntity> entidadTipos = entidadNew.getEntidadesTipos().stream()
+                        .map(entidadTipoId -> {
+                            // Busca la entidad tipo por empresa e identificador
+                            EntidadesTiposEntity entidadTipo = entidadesTiposRepository
+                                    .findByEmpresaAndTipoCodigo(entidadNew.getIdEmpresa(), entidadTipoId)
+                                    .orElseThrow(() -> new EntityNotFoundException("No se encontró el entidad tipo con código: " + entidadTipoId));
+                            return entidadTipo;
+                        })
+                        .collect(Collectors.toList());
 
-            List<EntidadesTiposEntity> entidadTipos = entidadNew.getEntidadesTipos().stream()
-                    .map(entidadTipoId -> {
-                        // Busca la entidad tipo por empresa e identificador
-                        EntidadesTiposEntity entidadTipo = entidadesTiposRepository
-                                .findByEmpresaAndTipoCodigo(entidadNew.getIdEmpresa(), entidadTipoId)
-                                .orElseThrow(() -> new EntityNotFoundException("No se encontró el entidad tipo con código: " + entidadTipoId));
-                        return entidadTipo;
-                    })
-                    .collect(Collectors.toList());
-
-            entidad.setEntidadesTiposList(entidadTipos);
+                entidad.setEntidadesTiposList(entidadTipos);
+            }
             EntidadEntity entidadSaved = entidadRepository.save(entidad);
             StringBuilder nombreCompleto = new StringBuilder();
             if(entidadNew.getDocumentoTipo().equals("DNI")){
@@ -243,12 +258,12 @@ public class EntidadServiceImpl implements IEntidadService {
     }
 
     @Override
-    public Page<EntidadResponseAsistencias> findWorkers(Long idEmpresa, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<EntidadResponseAsistencias> findWorkers(Long idEmpresa,String tipo, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         try {
             if(startDate == null || endDate == null){
                 throw new RuntimeException("Error al buscar trabajadores: Fecha de inicio y fin no puede ser nula");
             }
-            Page<EntidadEntity> trabajadoresPage = entidadRepository.findAllByTipoCodigoAndEmpresa("TRA", idEmpresa, startDate, endDate, pageable);
+            Page<EntidadEntity> trabajadoresPage = entidadRepository.findAllByTipoCodigoAndEmpresa(tipo, idEmpresa, startDate, endDate, pageable);
             return trabajadoresPage.map(entidad -> modelMapper.map(entidad, EntidadResponseAsistencias.class));
         } catch (Exception e) {
             log.error("Error al buscar trabajadores: " + e.getMessage());
@@ -257,9 +272,9 @@ public class EntidadServiceImpl implements IEntidadService {
     }
 
     @Override
-    public Page<TrabajadoresResponse> findAllWorkers(Long idEmpresa, Pageable pageable) {
+    public Page<TrabajadoresResponse> findAllWorkers(Long idEmpresa,String tipo, Pageable pageable) {
         try{
-            Page<EntidadEntity> trabajadoresPage = entidadRepository.findAllTrabajadoresByTipoCodigoAndEmpresa("TRA", idEmpresa, pageable);
+            Page<EntidadEntity> trabajadoresPage = entidadRepository.findAllTrabajadoresByTipoCodigoAndEmpresa(tipo, idEmpresa, pageable);
             return trabajadoresPage.map(entidad -> modelMapper.map(entidad, TrabajadoresResponse.class));
         }catch (Exception e) {
             log.error("Error al buscar trabajadores: " + e.getMessage());

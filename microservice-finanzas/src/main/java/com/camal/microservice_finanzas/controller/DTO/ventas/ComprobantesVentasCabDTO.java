@@ -8,21 +8,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
+import java.math.BigDecimal;
+
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ComprobantesVentasCabDTO {
-    //@NotNull(message = "El ID del comprobante es nulo")
     private Long id;
     @NotNull(message = "El ID de la empresa es nulo")
     private Long idEmpresa;
     private ComprobantesTiposVentasDTO comprobantesTipos;
+    private Long facturacionElectronicaEntity;
     @NotBlank(message = "La serie es obligatoria")
     private String serie;
     @NotBlank(message = "El numero es obligatorio")
@@ -31,10 +30,15 @@ public class ComprobantesVentasCabDTO {
     private Long idCliente;
     @NotNull(message = "El ID de la punto de venta es obligatorio")
     private Long idPuntoVenta;
+    private String nombreCliente;
+    private String numeroDocumentoCliente;
     @NotNull(message = "La fecha de emision es obligatoria")
     private LocalDate fechaEmision;
+    @NotNull(message = "La fecha de vencimiento es obligatoria")
+    private LocalDate fechaVencimiento;
     @NotNull(message = "El estado es obligatorio")
-    private ComprobantesVentasEstadoDTO comprobantesVentaEstadoEntity;
+    private ComprobantesVentasEstadoDTO comprobantesVentaEstado;
+    private String estadoCreacion;
     @Valid
     @NotNull(message = "La lista de detalles no puede ser nula")
     private List<ComprobantesVentasDetDTO> comprobantesVentaDet;
@@ -43,9 +47,12 @@ public class ComprobantesVentasCabDTO {
     private String observacion;
     @NotBlank(message = "La moneda es obligatoria")
     private String codigoMoneda;
+    private Double tipoCambio;
     @NotNull(message = "El usuario de creacion es obligatorio")
     private String usuarioCreacion;
-    private Timestamp fechaCreacion;
     private String usuarioActualizacion;
-    private Timestamp fechaActualizacion;
+    private BigDecimal subtotal;
+    private BigDecimal impuesto;
+    private BigDecimal total;
 }
+

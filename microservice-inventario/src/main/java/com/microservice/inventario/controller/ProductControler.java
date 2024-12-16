@@ -37,8 +37,6 @@ public class ProductControler {
             @RequestParam(required = false) String sort // Parámetro sort opcional
     ){
         Pageable pageable;
-
-        // Verificar si el parámetro sort está presente
         if (sort != null && !sort.isEmpty()) {
             // Dividir el sort en columna y dirección
             String[] sortParams = sort.split(",");
@@ -48,7 +46,6 @@ public class ProductControler {
                     : Sort.Direction.ASC;
             pageable = PageRequest.of(page, size, Sort.by(direction, column));
         } else {
-            // Solo paginación si no hay sort
             pageable = PageRequest.of(page, size);
         }
         return productosServiceImpl.finAll(id, idEmpresa, codigo, nombre, codigoTipo, almacenId, pageable);

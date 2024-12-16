@@ -25,7 +25,5 @@ public class EmpresaDTO {
     private String logo;
     private Boolean estado;
     private String usuarioCreacion;
-    private Timestamp fechaCreacion;
     private String usuarioActualizacion;
-    private String fechaActualizacion;
 }

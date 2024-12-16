@@ -1,0 +1,51 @@
+@startuml
+|Usuario|
+start
+:Iniciar sesión en la aplicación;
+:Seleccionar opción "Gestión de clientes";
+
+|Sistema|
+:Mostrar opciones de gestión de clientes;
+
+if (¿Qué desea hacer?) then (Registrar nuevo cliente)
+    :Solicitar datos del nuevo cliente;
+    |Usuario|
+    :Ingresar datos del cliente;
+    |Sistema|
+    :Registrar cliente en la base de datos;
+    :Confirmar registro del cliente;
+    |Usuario|
+    :Mostrar mensaje de éxito;
+else if (Actualizar cliente)
+    :Solicitar selección del cliente;
+    |Usuario|
+    :Seleccionar cliente;
+    |Sistema|
+    :Cargar datos del cliente;
+    :Solicitar datos actualizados;
+    |Usuario|
+    :Ingresar datos actualizados;
+    |Sistema|
+    :Actualizar datos del cliente en la base de datos;
+    :Confirmar actualización;
+    |Usuario|
+    :Mostrar mensaje de éxito;
+else if (Eliminar cliente)
+    :Solicitar selección del cliente;
+    |Usuario|
+    :Seleccionar cliente;
+    |Sistema|
+    :Solicitar confirmación de eliminación;
+    |Usuario|
+    :Confirmar eliminación;
+    |Sistema|
+    :Eliminar cliente en la base de datos;
+    :Confirmar eliminación;
+    |Usuario|
+    :Mostrar mensaje de éxito;
+endif
+
+|Usuario|
+:Finalizar operación;
+stop
+@enduml

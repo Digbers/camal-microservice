@@ -22,6 +22,6 @@ public class CuentasXCobrarDTO {
     private String nombre;
     private String monedaCodigo;
     private BigDecimal total;
-    private BigDecimal pagado;
+    private BigDecimal cobrado;
     private BigDecimal saldo;
 }

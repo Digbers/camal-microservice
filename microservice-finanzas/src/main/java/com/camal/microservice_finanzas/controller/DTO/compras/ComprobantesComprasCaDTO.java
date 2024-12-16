@@ -8,9 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -28,6 +27,12 @@ public class ComprobantesComprasCaDTO {
     private String numero;
     @NotNull(message = "La fecha de emision es obligatorio")
     private LocalDate fechaEmision;
+    @NotNull(message = "La fecha de vencimiento es obligatoria.")
+    private LocalDate fechaVencimiento;
+    @NotNull(message = "La fecha de ingreso es obligatoria")
+    private LocalDate fechaIngreso;
+    @NotNull(message = "El periodo de registro es obligatorio")
+    private LocalDate periodoRegistro;
     private String observacion;
     @NotBlank(message = "El id moneda es obligatorio")
     private String codigoMoneda;
@@ -37,15 +42,22 @@ public class ComprobantesComprasCaDTO {
     @Valid
     @NotNull(message = "Los estados de la compra no pueden ser nulos")
     private ComprobantesComprasEstadosDTO comprobanteCompraEstados;
+    private String estadoCreacion;
     @NotNull(message = "El id punto de venta es obligatorio")
     private Long idPuntoVenta;
     @Valid
     @NotNull(message = "La lista de detalles no puede ser nula")
-    private List<ComprobantesComprasDetalleDTO> comprobantesComprasDetalle = new ArrayList<>();
+    private List<ComprobantesComprasDetalleDTO> comprobantesComprasDetalle;
+    @Valid
+    private List<ComprobantesComprasCuotasDTO> comprobantesComprasCuotas;
     @NotNull(message = "El id proveedor es obligatorio")
     private Long idProveedor;
+    private String nombreProveedor;
+    private String nroDocumentoProveedor;
     @NotNull(message = "El usuario de creacion es obligatorio")
     private String usuarioCreacion;
     private String usuarioActualizacion;
+    private BigDecimal subtotal;
+    private BigDecimal impuesto;
+    private BigDecimal total;
 }
-

@@ -1,0 +1,66 @@
+@startuml
+!define primary_key(x) <b><color:#b8861b><&key></color> x</b>
+!define foreign_key(x) <color:#aaaaaa><&foreign></color> x
+
+entity "Empresas" {
+    primary_key(idEmpresa) : INT
+    empresaCodigo : VARCHAR
+    razonSocial : VARCHAR
+    ruc : VARCHAR
+    direccion : VARCHAR
+    departamento : VARCHAR
+    distrito : VARCHAR
+    provincia : VARCHAR
+    ubigeo : VARCHAR
+    telefono : VARCHAR
+    celular : VARCHAR
+    correo : VARCHAR
+    paginaWeb : VARCHAR
+    estado : VARCHAR
+}
+
+entity "Documentos" {
+    primary_key(idDocumentos) : INT
+    codigo : VARCHAR
+    descripcion : VARCHAR
+}
+
+entity "Entidades" {
+    primary_key(idEntidad) : INT
+    foreign_key(idEmpresa) : INT
+    foreign_key(idZona) : INT
+    nombre : VARCHAR
+    foreign_key(idDocumentos) : INT
+    numeroDocumento : VARCHAR
+    direccion : VARCHAR
+    telefono : VARCHAR
+    celular : VARCHAR
+    email : VARCHAR
+    activo : BOOLEAN
+    apellidoPaterno : VARCHAR
+    apellidoMaterno : VARCHAR
+    sexo : VARCHAR
+}
+
+entity "EntidadesTipos" {
+    primary_key(idEmpresas) : INT
+    codigo : VARCHAR
+    descripcion : VARCHAR
+}
+
+entity "EntidadesXEntidadesTipos" {
+    primary_key(idEntidadesXEntidadesTipos) : INT
+    foreign_key(idEntidad) : INT
+    codigoEntidadesTipos : VARCHAR
+}
+
+Empresas ||--o{ Entidades : "tiene"
+Empresas ||--o{ EntidadesTipos : "define"
+Empresas ||--o{ Documentos : "usa"
+
+Entidades }|--|| Documentos : "identificado por"
+Entidades ||--o{ EntidadesXEntidadesTipos : "clasificado como"
+
+EntidadesXEntidadesTipos }|--|| EntidadesTipos : "pertenece a"
+
+@enduml

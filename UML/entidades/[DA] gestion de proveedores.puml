@@ -1,0 +1,51 @@
+@startuml
+|Usuario|
+start
+:Iniciar sesión en la aplicación;
+:Seleccionar opción "Gestión de proveedores";
+
+|Sistema|
+:Mostrar opciones de gestión de proveedores;
+
+if (¿Qué desea hacer?) then (Registrar nuevo proveedor)
+    :Solicitar datos del nuevo proveedor;
+    |Usuario|
+    :Ingresar datos del proveedor;
+    |Sistema|
+    :Registrar proveedor en la base de datos;
+    :Confirmar registro del proveedor;
+    |Usuario|
+    :Mostrar mensaje de éxito;
+else if(Actualizar proveedor)
+    :Solicitar selección del proveedor;
+    |Usuario|
+    :Seleccionar proveedor;
+    |Sistema|
+    :Cargar datos del proveedor;
+    :Solicitar datos actualizados;
+    |Usuario|
+    :Ingresar datos actualizados;
+    |Sistema|
+    :Actualizar datos del proveedor en la base de datos;
+    :Confirmar actualización;
+    |Usuario|
+    :Mostrar mensaje de éxito;
+else if (Eliminar proveedor)
+    :Solicitar selección del proveedor;
+    |Usuario|
+    :Seleccionar proveedor;
+    |Sistema|
+    :Solicitar confirmación de eliminación;
+    |Usuario|
+    :Confirmar eliminación;
+    |Sistema|
+    :Eliminar proveedor en la base de datos;
+    :Confirmar eliminación;
+    |Usuario|
+    :Mostrar mensaje de éxito;
+endif
+
+|Usuario|
+:Finalizar operación;
+stop
+@enduml

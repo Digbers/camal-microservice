@@ -3,6 +3,7 @@ package com.microservice.ventas.service.cventas;
 import com.microservice.ventas.client.EmpresaClient;
 import com.microservice.ventas.controller.DTO.ClienteDTO;
 import com.microservice.ventas.controller.DTO.ventas.ComprobantesVentasCabDTO;
+import com.microservice.ventas.controller.DTO.ventas.ComprobantesVentasDetDTO;
 import com.microservice.ventas.controller.response.EntidadResponse;
 import com.microservice.ventas.entity.ComprobantesVentasCabEntity;
 import com.microservice.ventas.entity.ComprobantesVentasDetEntity;
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,88 +74,46 @@ public class ComprobantesVentasService implements IComprobantesVentasService {
                 dto.setNombreCliente(cliente.getNombre());
                 dto.setNumeroDocumentoCliente(cliente.getNumeroDocumento());
             }
-            BigDecimal totalSinInpuesto = entity.getComprobantesVentasDetEntity().stream()
-                    .map(comprobantesVentasDetEntity -> (comprobantesVentasDetEntity.getPrecioUnitario().multiply(comprobantesVentasDetEntity.getPeso())).subtract(comprobantesVentasDetEntity.getDescuento()))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal impuestoDelTotal = totalSinInpuesto
-                    .multiply(new BigDecimal("0.18")) // Calcula el 18%
-                    .setScale(2, RoundingMode.HALF_UP); // Redondea a 2 decimales
+            AtomicReference<BigDecimal> montoTotal = new AtomicReference<>(BigDecimal.ZERO);
+            AtomicReference<BigDecimal> descuentoTotal = new AtomicReference<>(BigDecimal.ZERO);
+            BigDecimal impuestoOfTotal = BigDecimal.ZERO;
+            BigDecimal subtotalOfTotal = BigDecimal.ZERO;
+            entity.getComprobantesVentasDetEntity().forEach(comprobantesV -> {
+                BigDecimal pesoNeto = comprobantesV.getPeso().subtract(comprobantesV.getTara());
+                BigDecimal subtotal1 = pesoNeto.multiply(comprobantesV.getPrecioUnitario());
+                BigDecimal descuento = comprobantesV.getDescuento();
 
-            BigDecimal subtotalFinal = totalSinInpuesto
-                    .subtract(impuestoDelTotal) // Resta el impuesto
-                    .setScale(2, RoundingMode.HALF_UP); // Redondea a 2 decimales
-            dto.setSubtotal(subtotalFinal);
-            dto.setImpuesto(impuestoDelTotal);
-            dto.setTotal(totalSinInpuesto);
+                montoTotal.updateAndGet(valorActual -> valorActual.add(subtotal1.subtract(descuento)));
+                descuentoTotal.updateAndGet(valorActual -> valorActual.add(descuento));
+            });
+            impuestoOfTotal = montoTotal.get().multiply(new BigDecimal("0.18")).setScale(2, RoundingMode.HALF_UP);
+            subtotalOfTotal = montoTotal.get().subtract(impuestoOfTotal);
+            dto.setSubtotal(subtotalOfTotal);
+            dto.setImpuesto(impuestoOfTotal);
+            dto.setTotal(montoTotal.get());
             return dto;
         });
 
         return pageDTO;
     }
 
+    @Override
+    public List<ComprobantesVentasDetDTO> findDetalleById(Long id) {
+        try{
+            ComprobantesVentasCabEntity comprobante = icomprobantesVentasCabRepository.findById(id).orElseThrow(() -> new RuntimeException("No se encontro el comprobante con el ID: " + id));
+            List<ComprobantesVentasDetEntity> listDet = comprobante.getComprobantesVentasDetEntity();
+            return listDet.stream().map(comprobantesVentasDetEntity -> modelMapper.map(comprobantesVentasDetEntity, ComprobantesVentasDetDTO.class)).collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error al obtener los detalles de comprobantes de venta: {}", e.getMessage());
+            throw new RuntimeException("Error al obtener los detalles de comprobantes de venta", e);
+        }
+    }
+
     // Método para convertir la entidad en DTO usando ModelMapper
     private ComprobantesVentasCabDTO convertToDTO(ComprobantesVentasCabEntity entity) {
         return modelMapper.map(entity, ComprobantesVentasCabDTO.class);
     }
-    public Page<ComprobantesVentasCabEntity> findAllComprobantes(
-            String comprobanteTipo, String serie, String numero, String numeroDoc, String nombre,
-            String monedaCodigo, BigDecimal total, BigDecimal pagado, BigDecimal saldo, Pageable pageable) {
-        try {
-            // Crear una especificación que combine todos los filtros opcionales
-            Specification<ComprobantesVentasCabEntity> specification = Specification.where((root, query, cb) -> {
-                // Realizar fetch join para evitar N+1 queries
-                if (query.getResultType().equals(ComprobantesVentasCabEntity.class)) {
-                    root.fetch("comprobantesTiposEntity", JoinType.LEFT);
-                    root.fetch("comprobantesVentasDetEntity", JoinType.LEFT);
-                }
-                return cb.conjunction(); // Punto de inicio de la especificación
-            });
-            // Añadir condiciones dinámicas para cada filtro opcional
-            if (comprobanteTipo != null) {
-                specification = specification.and((root, query, cb) ->
-                        cb.equal(root.get("comprobantesTiposEntity").get("codigo"), comprobanteTipo));
-            }
-            if (serie != null) {
-                specification = specification.and((root, query, cb) ->
-                        cb.equal(root.get("serie"), serie));
-            }
-            if (numero != null) {
-                specification = specification.and((root, query, cb) ->
-                        cb.equal(root.get("numero"), numero));
-            }
-            if (numeroDoc != null) {
-                specification = specification.and((root, query, cb) ->
-                        cb.equal(root.get("numeroDocumentoCliente"), numeroDoc));
-            }
-            if (nombre != null) {
-                specification = specification.and((root, query, cb) ->
-                        cb.like(cb.lower(root.get("nombreCliente")), "%" + nombre.toLowerCase() + "%"));
-            }
-            if (monedaCodigo != null) {
-                specification = specification.and((root, query, cb) ->
-                        cb.equal(root.get("codigoMoneda"), monedaCodigo));
-            }
-            if (total != null) {
-                specification = specification.and((root, query, cb) ->
-                        cb.equal(root.join("comprobantesVentasDetEntity").get("total"), total));
-            }
-            if (pagado != null) {
-                specification = specification.and((root, query, cb) ->
-                        cb.equal(root.join("comprobantesVentasCuotas").get("pagado"), pagado));
-            }
-            if (saldo != null) {
-                specification = specification.and((root, query, cb) ->
-                        cb.equal(root.join("comprobantesVentasCuotas").get("saldo"), saldo));
-            }
 
-            // Realizar la consulta con la especificación y paginación
-            return icomprobantesVentasCabRepository.findAll(specification, pageable);
-
-        } catch (Exception e) {
-            log.error("Error al obtener los comprobantes de venta: {}", e.getMessage());
-            throw new RuntimeException("Error al obtener los comprobantes de venta", e);
-        }
-    }
 
 
     // Método auxiliar que puede ser utilizado por el controller para calcular el total

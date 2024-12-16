@@ -29,7 +29,7 @@ public class EnvaseEntity {
     private Integer capacidad; // Cantidad de pollos por envase
     @Column(precision = 10, scale = 2)
     private BigDecimal pesoReferencia;
-    private String estado; // Ej: "Vacío", "Lleno", "En Uso"
+    private Boolean estado;
     @OneToMany(mappedBy = "envase", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     private List<StockAlmacen> stockAlmacenList;
     @Column(name = "usercodigo_creacion")

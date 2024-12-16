@@ -18,4 +18,5 @@ public class VentaResponseXReporteDet {
     private BigDecimal precioUnitario;
     private BigDecimal total;
     private BigDecimal descuento;
+    private BigDecimal tara;
 }

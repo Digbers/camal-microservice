@@ -23,6 +23,7 @@ public class UnidadesEntity {
     private Long idEmpresa;
     @Column(unique = true, nullable = false, length = 3)
     private String codigo;
+    @Column(length = 50, nullable = false)
     private String nombre;
     @Column(name = "usercodigo_creacion")
     private String usuarioCreacion;

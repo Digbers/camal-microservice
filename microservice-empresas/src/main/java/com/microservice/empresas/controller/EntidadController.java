@@ -120,6 +120,7 @@ public class EntidadController {
     @GetMapping("/findAsistenciaAndTrabajadores/{idEmpresa}")
     public ResponseEntity<Page<EntidadResponseAsistencias>> findWorkers(
             @PathVariable Long idEmpresa,
+            @RequestParam(name = "tipo", required = false, defaultValue = "TRA") String tipo,
             @RequestParam(name = "startDate", required = false) LocalDate startDate,
             @RequestParam(name = "endDate", required = false) LocalDate endDate,
             @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
@@ -127,16 +128,17 @@ public class EntidadController {
         Pageable pageable;
         pageable = PageRequest.of(page, size);
 
-        return ResponseEntity.ok(entidadService.findWorkers(idEmpresa, startDate, endDate, pageable));
+        return ResponseEntity.ok(entidadService.findWorkers(idEmpresa,tipo, startDate, endDate, pageable));
     }
     @GetMapping("/trabajadores/findAll/{idEmpresa}")
     public ResponseEntity<Page<TrabajadoresResponse>> findAllWorkers(
             @PathVariable Long idEmpresa,
+            @RequestParam(name = "tipo", required = false, defaultValue = "TRA") String tipo,
             @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
             @RequestParam(name = "size", required = false, defaultValue = "10") Integer size) {
         Pageable pageable;
         pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(entidadService.findAllWorkers(idEmpresa, pageable));
+        return ResponseEntity.ok(entidadService.findAllWorkers(idEmpresa,tipo, pageable));
     }
     @PostMapping("/trabajadores/marcarAsistencia")
     public ResponseEntity<?> marcarAsistencia(@RequestBody AsistenciaRequest asistencia) {

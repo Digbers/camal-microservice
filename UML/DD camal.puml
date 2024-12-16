@@ -9,50 +9,85 @@ node "Internet" {
 }
 
 node "Servidor VPS (Ubuntu)" {
-
     node "Servidor Web (Nginx)" {
         interface "HTTP/HTTPS" as http_server
     }
-        [Gateway Microservicio]
-        [Eureka Microservicio]
-        [Config Server Microservicio]
-        [Ventas y Compras Microservicio]
-        [Finanzas Microservicio]
-        [Inventario Microservicio]
-        [Entidades Microservicio]
-        [Autenticación Microservicio]
+
+    [Gateway Microservicio]
+
+    interface "Service Discovery" as eureka_interface
+    [Eureka Microservicio]
+
+    interface "Configuration Management" as config_interface
+    [Config Server Microservicio]
+
+    interface "Ventas REST API" as ventas_interface
+    [Ventas y Compras Microservicio]
+
+    interface "Finanzas REST API" as finanzas_interface
+    [Finanzas Microservicio]
+
+    interface "Inventario REST API" as inventario_interface
+    [Inventario Microservicio]
+
+    interface "Entidades REST API" as entidades_interface
+    [Entidades Microservicio]
+
+    interface "Authentication REST API" as auth_interface
+    [Autenticación Microservicio]
 
     database "Base de Datos (PostgreSQL) AUTH" {
+        interface "AUTH JDBC" as auth_db_interface
         [Autenticación Microservicio]
     }
+
     database "Base de Datos (PostgreSQL) ENTIDADES" {
-            [Entidades Microservicio]
+        interface "ENTIDADES JDBC" as entidades_db_interface
+        [Entidades Microservicio]
     }
 
     database "Base de Datos (PostgreSQL) INVENTARIO"{
-     [Inventario Microservicio]
+        interface "INVENTARIO JDBC" as inventario_db_interface
+        [Inventario Microservicio]
     }
-    database "Base de Datos (PostgreSQL) FINANAZAS" {
-         [Finanzas Microservicio]
-    }
-    database "Base de Datos (PostgreSQL) VENTAS Y COMPRAS"{
-             [Ventas y Compras Microservicio]
-    }
-}
 
-[Aplicación Web] --> http : Peticiones REST
-http --> http_server : Proxy inverso
-http_server --> [Gateway Microservicio] : Delegación de peticiones
-[Gateway Microservicio] --> [Eureka Microservicio] : Registro de microservicios
-[Gateway Microservicio] --> [Config Server Microservicio] : Obtención de configuraciones
-[Gateway Microservicio] --> [Ventas y Compras Microservicio] : Peticiones de ventas y compras
-[Gateway Microservicio] --> [Finanzas Microservicio] : Peticiones de finanzas
-[Gateway Microservicio] --> [Inventario Microservicio] : Peticiones de inventario
-[Gateway Microservicio] --> [Entidades Microservicio] : Peticiones de entidades
-[Gateway Microservicio] --> [Autenticación Microservicio] : Peticiones de autenticación
-[Autenticación Microservicio] --> [Base de Datos (PostgreSQL) AUTH] : JDBC
-[Ventas y Compras Microservicio] --> [Base de Datos (PostgreSQL) VENTAS Y COMPRAS] : JDBC
-[Finanzas Microservicio] --> [Base de Datos (PostgreSQL) FINANAZAS] : JDBC
-[Inventario Microservicio] --> [Base de Datos (PostgreSQL) INVENTARIO] : JDBC
-[Entidades Microservicio] --> [Base de Datos (PostgreSQL) ENTIDADES] : JDBC
+    database "Base de Datos (PostgreSQL) FINANZAS" {
+        interface "FINANZAS JDBC" as finanzas_db_interface
+        [Finanzas Microservicio]
+    }
+
+    database "Base de Datos (PostgreSQL) VENTAS Y COMPRAS"{
+        interface "VENTAS JDBC" as ventas_db_interface
+        [Ventas y Compras Microservicio]
+    }
+
+    [Aplicación Web] --> http : Peticiones REST
+    http --> http_server : Proxy
+    http_server --> [Gateway Microservicio] : Delegación de peticiones
+    http_server --> [App Web] : Redirección de peticiones
+
+    [Gateway Microservicio] --> eureka_interface : Registro de microservicios
+    [Gateway Microservicio] --> config_interface : Obtención de configuraciones
+
+    [Gateway Microservicio] --> ventas_interface : Peticiones de ventas y compras
+    [Gateway Microservicio] --> finanzas_interface : Peticiones de finanzas
+    [Gateway Microservicio] --> inventario_interface : Peticiones de inventario
+    [Gateway Microservicio] --> entidades_interface : Peticiones de entidades
+    [Gateway Microservicio] --> auth_interface : Peticiones de autenticación
+    auth_interface --> [Autenticación Microservicio]
+    finanzas_interface --> [Finanzas Microservicio]
+    inventario_interface --> [Inventario Microservicio]
+    entidades_interface --> [Entidades Microservicio]
+    ventas_interface --> [Ventas y Compras Microservicio]
+    config_interface --> [Config Server Microservicio]
+
+    eureka_interface --> [Eureka Microservicio]
+
+
+    [Autenticación Microservicio] --> auth_db_interface : JDBC
+    [Ventas y Compras Microservicio] --> ventas_db_interface : JDBC
+    [Finanzas Microservicio] --> finanzas_db_interface : JDBC
+    [Inventario Microservicio] --> inventario_db_interface : JDBC
+    [Entidades Microservicio] --> entidades_db_interface : JDBC
+}
 @enduml

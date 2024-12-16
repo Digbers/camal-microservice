@@ -1,47 +1,58 @@
 @startuml
 
-package "org-camal" {
-    class ComprobanteVenta{
+package "org-camal-ventas" {
+    class Comprobante{
         -idEmpresa
-        -idComprovanteV
+        -idComprobanteV
         -idComprobanteVTipo
         -numero
         -serie
         -idCliente
         -fechaEmision
+        -idComprobanteTipo
         -idEstado
-        -usuCodigo // Usuario de creación
+        -usuCodigo(usuario de creacion)
         -observaciones
         -idMonedas
     }
-    class ComprobantesTipos {
-        -idComprobanteTipo
-        -codigo
-        -descripcion
+    class Ventas{
+        - comprobante
+        - comprobanteEstado
+        - comprobanteTipo
+        - cuotas
+    }
+    class Cuotas{
+        - idCuota
+        - idVenta
+        - monto
+        - fechaVencimiento
+        - estado
+    }
+    interface IVentasService {
+        - guardarVenta(ventaRequest)
+        - anularVenta(id)
+        - getComprobantesTiposVentas(IdEmpresa)
+        - registrarPagoCuota(idCuota)
+        - compensarVenta(venta)
     }
     class ComprobantesEstados {
         -idComprobanteEstado
         -codigo
         -descripcion
     }
-    class ComprobantesVentasCuotas {
-        -idComprobanteCuota
-        -idComprovanteV
-        -numerocuota
-        -fechavencimiento
-        -montocuota
-        -importe
-        -idMonedas
+    class ComprobantesTipos {
+        -idComprobanteTipo
+        -codigo
+        -descripcion
     }
-    interface ComprobanteVentaMetodos {
-        + RegistrarVenta()
-        + AnularVenta()
-        + ObtenerComprobante()
-    }
-    ComprobanteVenta "n*" *-- "1" ComprobantesTipos : compocision
-    ComprobanteVenta "n*" *-- "1" ComprobantesEstados : compocision
-    ComprobanteVenta "1" *-- "n* - 0" ComprobantesVentasCuotas : compocision
-    ComprobanteVenta --> ComprobanteVentaMetodos : implementa
-    }
+
+    Ventas "1" *-- "1" Comprobante : composicion
+    Ventas "1" *-- "1" ComprobantesEstados : composicion
+    Ventas "1" *-- "1" ComprobantesTipos : composicion
+    Ventas "1" *-- "n" Cuotas : composicion
+    Ventas --> IVentasService : implementa
+    Comprobante "1*" *-- "1" ComprobantesEstados : composicion
+    Comprobante "1*" *-- "1" ComprobantesTipos : composicion
+}
 
 @enduml

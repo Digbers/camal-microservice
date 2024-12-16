@@ -1,0 +1,55 @@
+@startuml
+
+autonumber "<B>000"
+
+actor "usuario" as user
+participant "ProveedorService" as proveedores
+participant "repository" as bd
+
+activate user
+
+user -> proveedores: ConsultarProveedores()
+activate proveedores
+
+alt Proveedores encontrados
+    proveedores -> user: ProveedoresRecuperados()
+    user -> proveedores: GestionarProveedor(opciones)
+    alt CrearProveedor
+        user -> proveedores: CrearProveedor(datos)
+        proveedores -> bd: GuardarProveedor()
+        alt Guardado exitoso
+            bd -> proveedores: ProveedorGuardado()
+            proveedores -> user: ProveedorCreado()
+        else
+            bd --> proveedores: ErrorGuardar()
+            proveedores -> user: ErrorCrearProveedor()
+        end
+    else ActualizarProveedor
+        user -> proveedores: ActualizarProveedor(datos)
+        proveedores -> bd: ActualizarProveedor()
+        alt Actualización exitosa
+            bd -> proveedores: ProveedorActualizado()
+            proveedores -> user: ProveedorActualizado()
+        else
+            bd --> proveedores: ErrorActualizar()
+            proveedores -> user: ErrorActualizarProveedor()
+        end
+    else EliminarProveedor
+        user -> proveedores: EliminarProveedor(id)
+        proveedores -> bd: EliminarProveedor()
+        alt Eliminación exitosa
+            bd -> proveedores: ProveedorEliminado()
+            proveedores -> user: ProveedorEliminado()
+        else
+            bd --> proveedores: ErrorEliminar()
+            proveedores -> user: ErrorEliminarProveedor()
+        end
+    end
+else
+    proveedores --> user: NoHayProveedores()
+end
+
+deactivate proveedores
+deactivate user
+
+@enduml

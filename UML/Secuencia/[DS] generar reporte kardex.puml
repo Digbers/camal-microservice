@@ -1,0 +1,36 @@
+@startuml
+
+autonumber "<B>000"
+
+actor "usuario" as user
+participant "StockService" as inventario
+participant "ReportService" as reportes
+participant "repository" as bd
+
+activate user
+
+user -> inventario: ConsultarMovimientos()
+activate inventario
+
+alt Movimientos encontrados
+    inventario -> user: MovimientosRecuperados()
+    user -> reportes: GenerarReporteKardex()
+    activate reportes
+
+    reportes -> bd: ObtenerDatosKardex()
+    alt Datos disponibles
+        bd -> reportes: DatosKardexRecuperados()
+        reportes -> user: ReporteKardexGenerado()
+    else
+        bd --> reportes: ErrorDatos()
+        reportes -> user: ErrorGenerarReporte()
+    end
+    deactivate reportes
+else
+    inventario --> user: NoHayMovimientos()
+end
+
+deactivate inventario
+deactivate user
+
+@enduml

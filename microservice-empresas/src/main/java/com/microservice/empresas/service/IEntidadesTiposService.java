@@ -19,4 +19,5 @@ public interface IEntidadesTiposService {
     void deleteById(String tipoCodigo,Long empresa);
 
     EntidadesTiposDTO update(String tipoCodigo,Long empresa,EntidadesTiposDTO entidadesTiposDTO);
+    List<EntidadesTiposDTO> findByEmpresa(Long idEmpresa);
 }

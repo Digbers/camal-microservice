@@ -38,6 +38,7 @@ public class ComprobantesVentasDetEntity {
     private BigDecimal precioUnitario;// importe total
     @Column(precision = 10, scale = 2)
     private BigDecimal descuento;
+    private BigDecimal tara;
     @Column(name = "usercodigo_creacion")
     private String usuarioCreacion;
     @CreationTimestamp

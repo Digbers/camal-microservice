@@ -1,0 +1,29 @@
+@startuml
+|Usuario|
+start
+:Iniciar sesión en la aplicación;
+:Seleccionar opción "Generar reporte de ventas";
+
+|Sistema|
+:Solicitar rango de fechas y filtros adicionales;
+
+|Usuario|
+:Ingresar rango de fechas y filtros;
+
+|Sistema|
+:Consultar ventas en la base de datos;
+
+if (¿Ventas encontradas?) then (Sí)
+    :Recuperar datos de ventas;
+    :Procesar datos para el reporte;
+    :Generar archivo de reporte (PDF, Excel, etc.);
+    :Notificar éxito al usuario;
+else (No)
+    :Mostrar mensaje "No se encontraron ventas";
+endif
+
+|Usuario|
+:Descargar o visualizar reporte (si aplica);
+:Finalizar operación;
+stop
+@enduml
